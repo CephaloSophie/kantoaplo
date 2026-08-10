@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>KANTO — Demo standalone</title>
+<link rel="stylesheet" href="dist/style.css" />
+<style>
+  html, body { margin:0; padding:0; width:100vw; height:100vh; overflow:hidden; }
+  #app { width:100%; height:100%; }
+</style>
+</head>
+<body>
+<!-- KANTO APLO — bouton retour vitrine -->
+<style id="kanto-back-style">
+  /* Réserve 56px à gauche pour le bouton retour, sans casser le layout des démos. */
+  html body{padding-left:56px !important;box-sizing:border-box !important}
+  html body *,html body *::before,html body *::after{box-sizing:border-box}
+  @media (max-width:640px){html body{padding-left:52px !important}}
+
+  .kanto-back-btn{position:fixed;top:12px;left:12px;z-index:2147483000;display:inline-flex;align-items:center;height:40px;width:40px;padding:0;border:1px solid rgba(201,150,58,.45);border-radius:999px;background:rgba(11,15,23,.86);backdrop-filter:blur(10px) saturate(1.3);-webkit-backdrop-filter:blur(10px) saturate(1.3);color:#e6d6a8;font-family:'Cinzel',ui-serif,Georgia,serif;text-decoration:none;box-shadow:0 6px 20px -4px rgba(0,0,0,.5),0 0 0 1px rgba(0,0,0,.2);overflow:hidden;transition:width .32s cubic-bezier(.2,.7,.2,1),background .2s,border-color .2s;user-select:none}
+  .kanto-back-btn::before{content:'';position:absolute;inset:-1px;border-radius:999px;padding:1px;background:conic-gradient(from 220deg,#C9963A,#2DD4A0,#8B5CF6,#C9963A);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:0;transition:opacity .25s;pointer-events:none}
+  .kanto-back-btn:hover,.kanto-back-btn:focus-visible{width:172px;border-color:rgba(201,150,58,.75)}
+  .kanto-back-btn:hover::before,.kanto-back-btn:focus-visible::before{opacity:.8}
+  .kanto-back-btn:focus-visible{outline:2px solid #C9963A;outline-offset:3px}
+  .kanto-back-btn .kb-arrow{flex:0 0 40px;display:grid;place-items:center;height:38px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:400;font-size:16px;color:#C9963A;transition:transform .25s cubic-bezier(.2,.7,.2,1)}
+  .kanto-back-btn:hover .kb-arrow,.kanto-back-btn:focus-visible .kb-arrow{transform:translateX(-2px)}
+  .kanto-back-btn .kb-brand{white-space:nowrap;font-size:11px;font-weight:600;letter-spacing:.22em;color:#f4dc9e;padding-right:16px;opacity:0;transform:translateX(-6px);transition:opacity .18s .06s,transform .28s cubic-bezier(.2,.7,.2,1)}
+  .kanto-back-btn:hover .kb-brand,.kanto-back-btn:focus-visible .kb-brand{opacity:1;transform:none}
+  @media (prefers-reduced-motion:reduce){
+    .kanto-back-btn,.kanto-back-btn .kb-arrow,.kanto-back-btn .kb-brand,.kanto-back-btn::before{transition:none}
+  }
+</style>
+<a class="kanto-back-btn" href="https://kantoaplo.com" title="Retour à KANTO APLO" aria-label="Retour à KANTO APLO — la vitrine">
+  <span class="kb-arrow" aria-hidden="true">←</span>
+  <span class="kb-brand">KANTO APLO</span>
+</a>
+
+<div id="app"></div>
+<script src="dist/kanto.umd.js"></script>
+<script>
+// ============================================================
+//  KANTO standalone demo — pure HTML, no framework, no build.
+//  Default block set: variables, if/else, while, for, input,
+//  print, math, functions.
+// ============================================================
+const { KantoEditor, registerGenerators, registerBlockEvents } = Kanto;
+
+// ---------- 1. Block definitions ----------
+const defs = [
+  {
+    type: 'start', label: 'Départ', subtitle: 'point d\'entrée', category: 'flow',
+    icon: '▶', color: '#22c55e',
+    flow: { previous: false, next: true }, statements: [], fields: [],
+  },
+  {
+    type: 'set_var', label: 'Définir variable', subtitle: 'x = valeur', category: 'data',
+    icon: '𝑥', color: '#10b981',
+    flow: { previous: true, next: true }, statements: [],
+    fields: [
+      { id: 'name', type: 'text', label: 'var', defaultValue: 'x' },
+      { id: 'value', type: 'text', label: '=', defaultValue: '0' },
+    ],
+  },
+  {
+    type: 'input', label: 'Entrée utilisateur', subtitle: 'prompt', category: 'io',
+    icon: '⌨', color: '#06b6d4',
+    flow: { previous: true, next: true }, statements: [],
+    fields: [
+      { id: 'question', type: 'text', label: 'question', defaultValue: 'Ton nom ?' },
+      { id: 'into', type: 'text', label: 'dans', defaultValue: 'name' },
+    ],
+  },
+  {
+    type: 'print', label: 'Afficher', subtitle: 'console.log', category: 'io',
+    icon: '🖨', color: '#06b6d4',
+    flow: { previous: true, next: true }, statements: [],
+    fields: [{ id: 'expr', type: 'text', label: 'expr', defaultValue: '"Hello " + name' }],
+  },
+  {
+    type: 'if_else', label: 'Si … sinon', subtitle: 'branche', category: 'logic',
+    icon: '⌥', color: '#8b5cf6',
+    flow: { previous: true, next: true },
+    statements: [{ id: 'OUI', label: 'alors' }, { id: 'NON', label: 'sinon' }],
+    fields: [{ id: 'test', type: 'text', label: 'si', defaultValue: 'x > 10' }],
+  },
+  {
+    type: 'while_loop', label: 'Tant que', subtitle: 'boucle', category: 'logic',
+    icon: '↻', color: '#8b5cf6',
+    flow: { previous: true, next: true },
+    // CONSTRAINT DEMO: le corps de « Tant que » refuse les commentaires
+    statements: [{ id: 'body', label: 'répéter', deny: ['comment'] }],
+    fields: [{ id: 'cond', type: 'text', label: 'tant que', defaultValue: 'x < 100' }],
+  },
+  {
+    type: 'for_loop', label: 'Compter', subtitle: 'boucle for', category: 'logic',
+    icon: '↻', color: '#8b5cf6',
+    flow: { previous: true, next: true },
+    statements: [{ id: 'body', label: 'répéter' }],
+    fields: [
+      { id: 'var', type: 'text', label: 'var', defaultValue: 'i' },
+      { id: 'from', type: 'number', label: 'de', defaultValue: 0 },
+      { id: 'to', type: 'number', label: 'à', defaultValue: 10 },
+    ],
+  },
+  {
+    type: 'math_op', label: 'Calcul', subtitle: 'opération', category: 'data',
+    icon: '∑', color: '#10b981',
+    // CONSTRAINT DEMO: un calcul ne peut pas suivre directement « Départ »
+    flow: { previous: { deny: ['start'] }, next: true }, statements: [],
+    fields: [
+      { id: 'into', type: 'text', label: 'var', defaultValue: 'x' },
+      { id: 'op', type: 'dropdown', label: 'op', defaultValue: '+',
+        options: [['+ ajouter', '+'], ['− soustraire', '-'], ['× multiplier', '*'], ['÷ diviser', '/']] },
+      { id: 'value', type: 'text', label: 'val', defaultValue: '1' },
+    ],
+  },
+  {
+    type: 'fn_def', label: 'Définir fonction', subtitle: 'déclaration', category: 'functions',
+    icon: 'ƒ', color: '#a855f7',
+    flow: { previous: false, next: false },
+    hooks: { right: { label: 'fonction' } },
+    statements: [{ id: 'body', label: 'corps' }],
+    fields: [
+      { id: 'name', type: 'text', label: 'nom', defaultValue: 'maFonction' },
+      { id: 'args', type: 'text', label: 'args', defaultValue: '' },
+    ],
+    nodeStyle: { centeredHeader: true, iconSize: 'md' },
+  },
+  {
+    type: 'fn_call', label: 'Appeler fonction', subtitle: 'appel', category: 'functions',
+    icon: 'ƒ', color: '#a855f7',
+    flow: { previous: true, next: true },
+    hooks: { left: { label: 'fonction' } },
+    statements: [],
+    fields: [{ id: 'name', type: 'text', label: 'fn', defaultValue: 'maFonction' }],
+  },
+  {
+    type: 'experiment', label: 'Expérience', subtitle: 'paramètres riches', category: 'science',
+    icon: '🧪', color: '#ec4899',
+    flow: { previous: true, next: true }, statements: [],
+    fields: [
+      { id: 'intensity', type: 'slider', label: 'intensité', min: 0, max: 100, step: 5, defaultValue: 40 },
+      { id: 'tint', type: 'color', label: 'teinte', defaultValue: '#ec4899' },
+      { id: 'due', type: 'date', label: 'échéance', defaultValue: '2026-07-15' },
+      { id: 'notes', type: 'textarea', label: 'notes', rows: 2, defaultValue: 'Protocole A/B…' },
+    ],
+  },
+  {
+    type: 'comment', label: 'Commentaire', subtitle: 'note', category: 'io',
+    icon: '💬', color: '#64748b',
+    flow: { previous: true, next: true }, statements: [],
+    fields: [{ id: 'text', type: 'text', label: '', defaultValue: 'TODO' }],
+  },
+];
+
+// ---------- 2. Code generators (JavaScript target) ----------
+registerGenerators({
+  experiment: (b, f, ctx) => `${ctx.pad()}runExperiment({ intensity: ${f.intensity}, tint: '${f.tint}', due: '${f.due}', notes: ${JSON.stringify(f.notes || '')} });`,
+  start: (b, f, ctx) => `${ctx.pad()}// === Départ ===`,
+  set_var: (b, f, ctx) => `${ctx.pad()}let ${f.name || 'x'} = ${f.value ?? '0'};`,
+  input: (b, f, ctx) => `${ctx.pad()}const ${f.into || 'answer'} = prompt(${JSON.stringify(f.question || '?')});`,
+  print: (b, f, ctx) => `${ctx.pad()}console.log(${f.expr || '""'});`,
+  if_else: (b, f, ctx) => {
+    const oui = ctx.stmt(b.id, 'OUI'), non = ctx.stmt(b.id, 'NON');
+    const out = [`${ctx.pad()}if (${f.test || 'true'}) {`];
+    if (oui) out.push(oui);
+    if (non) { out.push(`${ctx.pad()}} else {`); out.push(non); }
+    out.push(`${ctx.pad()}}`);
+    return out.join('\n');
+  },
+  while_loop: (b, f, ctx) => [
+    `${ctx.pad()}while (${f.cond || 'true'}) {`,
+    ctx.stmt(b.id, 'body') || `${ctx.pad()}  // vide`,
+    `${ctx.pad()}}`,
+  ].join('\n'),
+  for_loop: (b, f, ctx) => [
+    `${ctx.pad()}for (let ${f.var || 'i'} = ${f.from ?? 0}; ${f.var || 'i'} < ${f.to ?? 10}; ${f.var || 'i'}++) {`,
+    ctx.stmt(b.id, 'body') || `${ctx.pad()}  // vide`,
+    `${ctx.pad()}}`,
+  ].join('\n'),
+  math_op: (b, f, ctx) => `${ctx.pad()}${f.into || 'x'} = ${f.into || 'x'} ${f.op || '+'} ${f.value ?? 1};`,
+  fn_def: (b, f, ctx) => [
+    `${ctx.pad()}function ${f.name || 'fn'}(${f.args || ''}) {`,
+    ctx.stmt(b.id, 'body') || `${ctx.pad()}  // corps vide`,
+    `${ctx.pad()}}`,
+  ].join('\n'),
+  fn_call: (b, f, ctx) => `${ctx.pad()}${f.name || 'fn'}();`,
+  comment: (b, f, ctx) => `${ctx.pad()}// ${f.text || ''}`,
+});
+
+// ---------- 2bis. Block lifecycle events (Blockly-style) ----------
+registerBlockEvents('print', {
+  onCreate(block, engine) {
+    engine.log('info', 'events', '🖨 print créé', { id: block.id });
+    engine.setBadge(block.id, { text: '●', color: '#22c55e' });   // statut d'exécution
+  },
+  onUpdate(block, engine, d) { engine.log('info', 'events', `🖨 expr → ${d.value}`); },
+  onDelete(block, engine) { engine.log('warn', 'events', '🖨 print supprimé'); },
+});
+
+// ---------- 3. Toolbox layout ----------
+const config = {
+  blockDefinitions: defs,
+  toolbox: {
+    title: 'BOÎTE À BLOCS',
+    categories: [
+      { id: 'flow', label: 'Flux', color: '#22c55e', expanded: true, blockTypes: ['start'] },
+      { id: 'science', label: 'Science', color: '#ec4899', icon: '🧪', expanded: true, blockTypes: ['experiment'] },
+      { id: 'logic', label: 'Logique', color: '#8b5cf6', expanded: true, blockTypes: ['if_else', 'while_loop', 'for_loop'] },
+      { id: 'data', label: 'Données', color: '#10b981', expanded: true, blockTypes: ['set_var', 'math_op'] },
+      { id: 'io', label: 'Entrées / Sorties', color: '#06b6d4', expanded: true, blockTypes: ['input', 'print', 'comment'] },
+      { id: 'functions', label: 'Fonctions', color: '#a855f7', expanded: true, blockTypes: ['fn_def', 'fn_call'] },
+    ],
+  },
+};
+
+// ---------- 4. Mount ----------
+const editor = new KantoEditor({
+  config,
+  target: document.getElementById('app'),
+  brandName: 'KANTO',
+  brandIcon: '◆',
+  theme: 'dark',
+  storageKey: 'demo',
+  generation: {
+    header: '// Généré par KANTO\n\'use strict\';\n',
+  },
+});
+editor.start();
+
+// Expose for E2E tests & console play
+window.editor = editor;
+</script>
+</body>
+</html>

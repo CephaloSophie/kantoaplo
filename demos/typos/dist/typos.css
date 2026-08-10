@@ -1,0 +1,1448 @@
+@charset "UTF-8";
+/* ==================================================================
+   @kanto-aplo/typos — MASTER de styles (compilé → dist/typos.css).
+
+   = structure commune (théme-agnostique)
+   + un bloc de jetons par thème, scopé par classe .typos-theme-<id>
+   + défaut sombre sous .typos-root nu (si aucune classe de thème).
+
+   Ajouter un thème : créer src/themes/<id>/_tokens.scss puis ajouter
+   une ligne d'émission ci-dessous. Rien d'autre à toucher.
+   ================================================================== */
+/* Point d'entrée du common : à `@use` par chaque thème et par le master. */
+/* ==================================================================
+   @kanto-aplo/typos — COMMON · CONTRAT DE JETONS.
+
+   Un thème n'est RIEN d'autre qu'une map Sass `$tokens` qui fournit
+   une valeur pour chaque clé du contrat ci-dessous. La structure
+   (common/_base.scss) ne connaît que les noms `--typos-*`, jamais les
+   valeurs — d'où une abstraction totale : ajouter un thème = fournir
+   une map, sans toucher à une seule règle de style.
+
+   Le mixin `emit-tokens($tokens)` matérialise la map en propriétés
+   personnalisées CSS. Il est utilisé :
+     · par la couche thème compilée (built-ins), scopée par classe ;
+     · au runtime par ThemeService pour les thèmes personnalisés
+       (mêmes noms de jetons → même rendu).
+
+   CONTRAT (toute clé est requise pour un thème complet) :
+
+   Accent ......... accent · accent-soft · accent-text
+   Surfaces ....... bg-0 · bg-1 · bg-2 · surface · surface-raised
+                    border · border-strong
+   Texte .......... text · text-muted · text-faint
+   États .......... success · warning · danger · info
+   Interaction .... selection · hover · hover-outline
+   Propositions ... proposition-before · proposition-after
+                    proposition-inside · proposition-invalid
+   Console ........ console-bg · console-error · console-warn
+                    console-info · console-debug · console-log
+   Typo ........... font-ui · font-mono
+   Géométrie ...... radius-sm · radius-md · radius-lg
+   Plans .......... z-canvas · z-overlay · z-popup · z-modal · z-toast
+   ================================================================== */
+/* ==================================================================
+   @kanto-aplo/typos — COMMON · structure de l'éditeur.
+   Aucune valeur de couleur ici : tout passe par les jetons
+   --typos-* fournis par la couche thème (voir ../<theme>/).
+   Ce fichier est théme-agnostique et partagé par tous les thèmes.
+   ================================================================== */
+.typos-root {
+  color: var(--typos-text);
+  background: var(--typos-bg-0);
+  font-family: var(--typos-font-ui);
+  font-size: 13px;
+  line-height: 1.45;
+  box-sizing: border-box;
+}
+
+.typos-root *,
+.typos-root *::before,
+.typos-root *::after {
+  box-sizing: inherit;
+}
+
+.typos-root ::selection {
+  background: var(--typos-accent-soft);
+}
+
+.typos-root :focus-visible {
+  outline: 2px solid var(--typos-accent);
+  outline-offset: 1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .typos-root *,
+  .typos-root *::before,
+  .typos-root *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+/* ==================================================================
+   L'éditeur assemblé — atelier sombre, accent réservé à ce qui compte :
+   la sélection, l'onglet actif, l'action principale.
+   ================================================================== */
+.typos-editor {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 480px;
+  overflow: hidden;
+  border: 1px solid var(--typos-border);
+  border-radius: var(--typos-radius-lg);
+}
+
+/* ------------------------------------------------------- toolbar -- */
+.typos-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--typos-bg-1);
+  border-bottom: 1px solid var(--typos-border);
+  flex-wrap: wrap;
+}
+
+.typos-logo {
+  position: relative;
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--typos-font-mono);
+  font-size: 16px;
+  color: var(--typos-accent);
+  flex: none;
+}
+
+/* Signature : τ sur son orbite — Typος, satellite de Tektôn. */
+.typos-logo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--typos-border-strong);
+  border-top-color: var(--typos-accent);
+  border-radius: 50%;
+  transform: rotate(-30deg);
+}
+
+.typos-docname {
+  width: 160px;
+  font-weight: 600;
+}
+
+.typos-dirty {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--typos-border-strong);
+  flex: none;
+}
+
+.typos-dirty.is-dirty {
+  background: var(--typos-warning);
+}
+
+.typos-spacer {
+  flex: 1;
+}
+
+.typos-template-tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 8px;
+}
+
+.typos-template-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: var(--typos-radius-sm);
+  border: 1px solid transparent;
+  color: var(--typos-text-muted);
+  cursor: pointer;
+  user-select: none;
+  font-size: 12px;
+}
+
+.typos-template-tab:hover {
+  background: var(--typos-hover);
+}
+
+.typos-template-tab.is-active {
+  color: var(--typos-text);
+  border-color: var(--typos-border-strong);
+  background: var(--typos-surface);
+}
+
+.typos-template-close {
+  border: none;
+  background: none;
+  color: var(--typos-text-faint);
+  cursor: pointer;
+  font-size: 12px;
+  padding: 0 2px;
+}
+
+.typos-template-close:hover {
+  color: var(--typos-danger);
+}
+
+/* ------------------------------------------------------- layout --- */
+.typos-body {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr) 300px;
+  min-height: 0;
+}
+
+.typos-left {
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--typos-border);
+  min-height: 0;
+  background: var(--typos-bg-1);
+}
+
+.typos-pane {
+  padding: 10px;
+  min-height: 0;
+}
+
+.typos-pane-palette {
+  border-bottom: 1px solid var(--typos-border);
+}
+
+.typos-pane-tree {
+  flex: 1;
+  overflow: auto;
+}
+
+.typos-pane-style {
+  border-left: 1px solid var(--typos-border);
+  overflow-y: auto;
+  background: var(--typos-bg-1);
+}
+
+.typos-panel-title {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--typos-text-faint);
+  margin-bottom: 8px;
+}
+
+/* ------------------------------------------------------- palette -- */
+.typos-palette-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.typos-palette-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 4px;
+  background: var(--typos-surface);
+  border: 1px solid var(--typos-border);
+  border-radius: var(--typos-radius-sm);
+  color: var(--typos-text-muted);
+  cursor: pointer;
+  font-size: 10px;
+}
+
+.typos-palette-item:hover {
+  border-color: var(--typos-accent);
+  color: var(--typos-text);
+}
+
+.typos-palette-glyph {
+  font-size: 15px;
+  color: var(--typos-text);
+}
+
+.typos-palette-label {
+  white-space: nowrap;
+}
+
+/* --------------------------------------------------------- arbre -- */
+.typos-tree {
+  font-family: var(--typos-font-mono);
+  font-size: 12px;
+}
+
+.typos-tree-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  border-radius: var(--typos-radius-sm);
+  cursor: pointer;
+  border-top: 2px solid transparent;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+}
+
+.typos-tree-row:hover {
+  background: var(--typos-hover);
+}
+
+.typos-tree-row.is-selected {
+  background: var(--typos-accent-soft);
+  color: var(--typos-text);
+}
+
+.typos-tree-row.is-hidden {
+  opacity: 0.45;
+}
+
+.typos-tree-row.drop-before {
+  border-top-color: var(--typos-accent);
+}
+
+.typos-tree-row.drop-after {
+  border-bottom-color: var(--typos-accent);
+}
+
+.typos-tree-row.drop-inside {
+  background: var(--typos-accent-soft);
+  outline: 1px dashed var(--typos-accent);
+}
+
+.typos-tree-chevron {
+  width: 12px;
+  color: var(--typos-text-faint);
+  flex: none;
+  text-align: center;
+  font-size: 9px;
+}
+
+.typos-tree-chevron.is-collapsed {
+  transform: rotate(-90deg);
+}
+
+.typos-tree-chevron.is-leaf {
+  opacity: 0.4;
+}
+
+.typos-tree-type {
+  color: var(--typos-accent);
+}
+
+.typos-tree-name {
+  color: var(--typos-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.typos-tree-row.is-component .typos-tree-type {
+  color: var(--typos-success);
+}
+
+.typos-badge {
+  font-size: 10px;
+  color: var(--typos-text-faint);
+}
+
+/* -------------------------------------------------------- centre -- */
+.typos-center {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+.typos-tabs {
+  display: flex;
+  gap: 2px;
+  padding: 6px 10px 0;
+  border-bottom: 1px solid var(--typos-border);
+  background: var(--typos-bg-1);
+}
+
+.typos-tab {
+  padding: 6px 14px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--typos-text-muted);
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.typos-tab:hover {
+  color: var(--typos-text);
+}
+
+.typos-tab.is-active {
+  color: var(--typos-text);
+  border-bottom-color: var(--typos-accent);
+}
+
+.typos-center-pane {
+  display: none;
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+
+.typos-center-pane.is-active {
+  display: flex;
+  flex-direction: column;
+}
+
+/* -------------------------------------------------------- canvas -- */
+.typos-canvas-stage {
+  flex: 1;
+  overflow: auto;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  background: radial-gradient(circle at 1px 1px, var(--typos-border) 1px, transparent 0) 0 0/22px 22px, var(--typos-bg-0);
+}
+
+.typos-canvas-frame {
+  border: 1px solid var(--typos-border-strong);
+  border-radius: var(--typos-radius-md);
+  background: #fff;
+  width: 100%;
+  height: 100%;
+  min-height: 420px;
+  transition: width 0.2s ease;
+}
+
+.typos-canvas-stage[data-target=tablet] .typos-canvas-frame {
+  width: 820px;
+  flex: none;
+}
+
+.typos-canvas-stage[data-target=mobile] .typos-canvas-frame {
+  width: 390px;
+  flex: none;
+}
+
+/* -------------------------------------------------------- graphe -- */
+.typos-graph {
+  width: 100%;
+  height: 100%;
+  flex: 1;
+  cursor: grab;
+}
+
+.typos-graph:active {
+  cursor: grabbing;
+}
+
+.typos-graph-edge {
+  fill: none;
+  stroke: var(--typos-border-strong);
+  stroke-width: 1.5;
+}
+
+.typos-graph-node {
+  cursor: pointer;
+}
+
+.typos-graph-node rect {
+  fill: var(--typos-surface);
+  stroke: var(--typos-border-strong);
+  stroke-width: 1;
+}
+
+.typos-graph-node:hover rect {
+  stroke: var(--typos-accent);
+}
+
+.typos-graph-node.is-selected rect {
+  stroke: var(--typos-accent);
+  stroke-width: 2;
+  fill: var(--typos-surface-raised);
+}
+
+.typos-graph-node.is-component rect {
+  stroke: var(--typos-success);
+}
+
+.typos-graph-type {
+  font-family: var(--typos-font-mono);
+  font-size: 11px;
+  fill: var(--typos-accent);
+}
+
+.typos-graph-node.is-component .typos-graph-type {
+  fill: var(--typos-success);
+}
+
+.typos-graph-name {
+  font-size: 10px;
+  fill: var(--typos-text-muted);
+}
+
+/* ---------------------------------------------------------- code -- */
+.typos-codebar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--typos-border);
+  background: var(--typos-bg-1);
+}
+
+.typos-chip {
+  padding: 3px 10px;
+  border: 1px solid var(--typos-border);
+  border-radius: 999px;
+  background: none;
+  color: var(--typos-text-muted);
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.typos-chip.is-active {
+  color: var(--typos-accent-text);
+  background: var(--typos-accent);
+  border-color: var(--typos-accent);
+}
+
+.typos-code {
+  flex: 1;
+  margin: 0;
+  overflow: auto;
+  font-family: var(--typos-font-mono);
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--typos-text);
+  background: var(--typos-bg-0);
+  display: flex;
+  white-space: pre;
+}
+
+/* Gouttière (numéros de ligne + toggles fold) */
+.typos-gutter {
+  flex: none;
+  text-align: right;
+  padding: 12px 0;
+  color: var(--typos-text-faint);
+  background: var(--typos-bg-1);
+  border-right: 1px solid var(--typos-border);
+  user-select: none;
+}
+
+.typos-gutter-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 8px 0 4px;
+  min-height: 1.6em;
+  gap: 4px;
+}
+
+.typos-line-num {
+  font-size: 10px;
+  min-width: 24px;
+  text-align: right;
+}
+
+.typos-fold-toggle {
+  cursor: pointer;
+  font-size: 8px;
+  width: 12px;
+  text-align: center;
+  color: var(--typos-text-muted);
+  transition: color 0.1s;
+}
+
+.typos-fold-toggle:hover {
+  color: var(--typos-accent);
+}
+
+.typos-fold-toggle.is-collapsed {
+  color: var(--typos-accent);
+}
+
+/* Lignes de code */
+.typos-lines {
+  flex: 1;
+  padding: 12px 12px 12px 16px;
+  min-width: 0;
+}
+
+/* ------------------------------------------------- panneau style -- */
+.typos-section {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--typos-border);
+}
+
+.typos-section-title {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--typos-accent);
+  margin-bottom: 8px;
+}
+
+.typos-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.typos-field-label {
+  font-size: 10px;
+  color: var(--typos-text-faint);
+  min-width: 34px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.typos-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.typos-meta-value {
+  font-family: var(--typos-font-mono);
+  font-size: 10.5px;
+  color: var(--typos-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.typos-input {
+  flex: 1;
+  width: 100%;
+  padding: 5px 8px;
+  background: var(--typos-bg-0);
+  border: 1px solid var(--typos-border);
+  border-radius: var(--typos-radius-sm);
+  color: var(--typos-text);
+  font-size: 12px;
+  font-family: inherit;
+}
+
+.typos-input:focus {
+  border-color: var(--typos-accent);
+  outline: none;
+}
+
+.typos-textarea {
+  font-family: var(--typos-font-mono);
+  font-size: 11px;
+  resize: vertical;
+}
+
+.typos-select {
+  padding: 4px 6px;
+  background: var(--typos-bg-0);
+  border: 1px solid var(--typos-border);
+  border-radius: var(--typos-radius-sm);
+  color: var(--typos-text);
+  font-size: 11px;
+}
+
+.typos-kv-row {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.typos-kv-row .typos-input {
+  min-width: 0;
+}
+
+.typos-btn {
+  padding: 5px 10px;
+  background: var(--typos-surface);
+  border: 1px solid var(--typos-border);
+  border-radius: var(--typos-radius-sm);
+  color: var(--typos-text);
+  font-size: 11.5px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.typos-btn:hover:not(:disabled) {
+  border-color: var(--typos-accent);
+}
+
+.typos-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.typos-btn-icon {
+  padding: 4px 8px;
+}
+
+.typos-btn-accent {
+  background: var(--typos-accent);
+  border-color: var(--typos-accent);
+  color: var(--typos-accent-text);
+  font-weight: 600;
+}
+
+.typos-btn-danger:hover:not(:disabled) {
+  border-color: var(--typos-danger);
+  color: var(--typos-danger);
+}
+
+.typos-toggles {
+  display: flex;
+  gap: 14px;
+}
+
+.typos-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--typos-text-muted);
+  cursor: pointer;
+}
+
+.typos-toggle input {
+  accent-color: var(--typos-accent);
+}
+
+.typos-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 12px 0;
+}
+
+.typos-empty, .typos-hint {
+  font-size: 12px;
+  color: var(--typos-text-faint);
+  line-height: 1.5;
+}
+
+.typos-hint {
+  margin-bottom: 6px;
+}
+
+/* --------------------------------------------------------- modal -- */
+.typos-modal-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 8, 6, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--typos-z-modal);
+}
+
+.typos-modal {
+  width: min(640px, 90%);
+  max-height: 85%;
+  overflow: auto;
+  background: var(--typos-bg-1);
+  border: 1px solid var(--typos-border-strong);
+  border-radius: var(--typos-radius-lg);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ---------------------------------------------------- scrollbars -- */
+.typos-root ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.typos-root ::-webkit-scrollbar-thumb {
+  background: var(--typos-border-strong);
+  border-radius: 5px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.typos-root ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ==================================================================
+   PHASE 3 — icônes de raccourci, overlay flottant, autocomplete,
+              palette étendue (squelettes), code surligné.
+   ================================================================== */
+/* ---------------------------------------------------- palette v3 -- */
+.typos-palette-heading {
+  margin-top: 14px;
+}
+
+.typos-palette-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.typos-template-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  background: var(--typos-surface);
+  border: 1px solid var(--typos-border);
+  border-radius: var(--typos-radius-sm);
+  color: var(--typos-text);
+  cursor: pointer;
+  font-size: 12px;
+  text-align: left;
+}
+
+.typos-template-item:hover {
+  border-color: var(--typos-accent);
+  background: var(--typos-surface-raised);
+}
+
+.typos-template-icon {
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: var(--typos-accent);
+  background: var(--typos-bg-0);
+  border-radius: var(--typos-radius-sm);
+  flex: none;
+}
+
+.typos-template-item.is-structure .typos-template-icon {
+  color: var(--typos-info);
+}
+
+.typos-template-item.is-layout .typos-template-icon {
+  color: var(--typos-warning);
+}
+
+.typos-template-item.is-content .typos-template-icon {
+  color: var(--typos-accent);
+}
+
+.typos-template-item.is-component .typos-template-icon {
+  color: var(--typos-success);
+}
+
+.typos-template-label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ------------------------------------ style panel : icônes rapides */
+.typos-section-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.typos-section-head .typos-section-title {
+  margin-bottom: 0;
+}
+
+.typos-style-shortcuts {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+
+.typos-style-shortcut {
+  width: 22px;
+  height: 22px;
+  border-radius: var(--typos-radius-sm);
+  border: 1px solid transparent;
+  font-family: var(--typos-font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.08s ease;
+  opacity: 0.85;
+}
+
+.typos-style-shortcut:hover {
+  transform: scale(1.08);
+  opacity: 1;
+}
+
+.typos-style-shortcut.is-set {
+  outline: 1px solid var(--typos-accent);
+  outline-offset: 1px;
+}
+
+/* ----------------------------------- éditeur clé/valeur + couleur */
+.typos-kv {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.typos-kv-row {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.typos-kv-row .typos-input {
+  min-width: 0;
+}
+
+.typos-kv-key {
+  flex: 1;
+}
+
+.typos-kv-val {
+  flex: 1.4;
+}
+
+.typos-color-swatch {
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 1px solid var(--typos-border-strong);
+  border-radius: var(--typos-radius-sm);
+  background: none;
+  cursor: pointer;
+  flex: none;
+}
+
+.typos-color-swatch::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.typos-color-swatch::-webkit-color-swatch {
+  border: none;
+  border-radius: 3px;
+}
+
+/* ------------------------------------ code : surlignage sélection */
+.typos-code-line {
+  padding: 0;
+  margin: 0;
+  min-height: 1.6em;
+  border-left: 2px solid transparent;
+  padding-left: 4px;
+}
+
+.typos-code-line.is-selected {
+  background: var(--typos-accent-soft);
+  border-left-color: var(--typos-accent);
+  color: var(--typos-text);
+}
+
+/* Fold badge (résumé des lignes masquées) */
+.typos-fold-badge {
+  color: var(--typos-text-faint);
+  font-style: italic;
+  font-size: 10px;
+  cursor: pointer;
+  background: var(--typos-bg-2);
+  border-radius: 3px;
+  padding: 0 6px;
+  margin-left: 6px;
+}
+
+.typos-fold-badge:hover {
+  color: var(--typos-accent);
+  background: var(--typos-accent-soft);
+}
+
+/* Coloration syntaxique (jetons) */
+.typos-tok-tag {
+  color: var(--typos-danger);
+}
+
+.typos-tok-attr-name {
+  color: var(--typos-warning);
+}
+
+.typos-tok-attr-value {
+  color: var(--typos-success);
+}
+
+.typos-tok-comment {
+  color: var(--typos-text-faint);
+  font-style: italic;
+}
+
+.typos-tok-punct {
+  color: var(--typos-text-faint);
+}
+
+.typos-tok-text {
+  color: var(--typos-text);
+}
+
+.typos-tok-key {
+  color: var(--typos-info);
+}
+
+.typos-tok-string {
+  color: var(--typos-success);
+}
+
+.typos-tok-number {
+  color: var(--typos-accent);
+}
+
+.typos-tok-boolean {
+  color: var(--typos-danger);
+}
+
+.typos-tok-null {
+  color: var(--typos-text-faint);
+  font-style: italic;
+}
+
+/* --------------------------------------- overlay de la sélection - */
+.typos-canvas-stage {
+  position: relative;
+}
+
+/* Le pane du canvas est le repère de la couche d'overlay épinglée. */
+.typos-canvas-pane {
+  position: relative;
+}
+
+/* Couche d'overlay ÉPINGLÉE sur le viewport du canvas : ne scrolle pas,
+   clippe ce qui déborde, laisse passer les clics sauf sur ses enfants. */
+.typos-overlay-layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 30;
+}
+
+.typos-overlay {
+  position: absolute;
+  pointer-events: none;
+  box-sizing: border-box;
+}
+
+/* La barre d'icônes et les poignées, elles, restent cliquables. */
+.typos-overlay-bar,
+.typos-overlay-handle,
+.typos-overlay-grip {
+  pointer-events: auto;
+}
+
+.typos-overlay-bar {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  margin-bottom: 6px;
+  display: flex;
+  gap: 4px;
+  padding: 4px 6px;
+  background: var(--typos-bg-1);
+  border: 1px solid var(--typos-border-strong);
+  border-radius: var(--typos-radius-md);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+  white-space: nowrap;
+}
+
+.typos-overlay-bar.is-below {
+  bottom: auto;
+  top: 100%;
+  margin: 6px 0 0;
+}
+
+.typos-overlay-btn {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border-radius: var(--typos-radius-sm);
+  border: 1px solid;
+  background: var(--typos-bg-0);
+  font-family: var(--typos-font-mono);
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.08s ease;
+}
+
+.typos-overlay-btn:hover {
+  transform: scale(1.12);
+}
+
+.typos-overlay-grip {
+  width: 20px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--typos-text-faint);
+  font-family: var(--typos-font-mono);
+  font-size: 11px;
+  letter-spacing: -1px;
+  cursor: grab;
+  border-left: 1px solid var(--typos-border);
+  padding-left: 4px;
+  margin-left: 2px;
+}
+
+.typos-overlay-grip:active {
+  cursor: grabbing;
+  color: var(--typos-accent);
+}
+
+/* Les 8 poignées de resize, aux points cardinaux. */
+.typos-overlay-handle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: var(--typos-bg-0);
+  border: 2px solid var(--typos-accent);
+  border-radius: 2px;
+  box-sizing: border-box;
+}
+
+.typos-overlay .handle-n {
+  top: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: ns-resize;
+}
+
+.typos-overlay .handle-s {
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: ns-resize;
+}
+
+.typos-overlay .handle-e {
+  right: -5px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: ew-resize;
+}
+
+.typos-overlay .handle-w {
+  left: -5px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: ew-resize;
+}
+
+.typos-overlay .handle-ne {
+  top: -5px;
+  right: -5px;
+  cursor: nesw-resize;
+}
+
+.typos-overlay .handle-nw {
+  top: -5px;
+  left: -5px;
+  cursor: nwse-resize;
+}
+
+.typos-overlay .handle-se {
+  bottom: -5px;
+  right: -5px;
+  cursor: nwse-resize;
+}
+
+.typos-overlay .handle-sw {
+  bottom: -5px;
+  left: -5px;
+  cursor: nesw-resize;
+}
+
+/* ── V3 fixes ── */
+/* Anti-sélection de texte pendant le resize. */
+.typos-resizing,
+.typos-resizing * {
+  user-select: none !important;
+  cursor: inherit !important;
+}
+
+/* Thème SOMBRE — l'identité KANTO APLO : charbon chaud, accent or.
+   Sert aussi de fallback par défaut (émis sous .typos-root nu). */
+/* Thème CLAIR — pendant chaud du sombre : fonds crème, encre foncée. */
+/* Thème UBUNTU — palette Yaru : aubergine profond, orange Ubuntu. */
+/* Thème MAC — macOS clair : gris doux, bleu système, coins arrondis. */
+/* Thème CHROME — Material/Google : surfaces claires, bleu Google.
+   Clin d'œil DevTools : la console reste sombre même en thème clair. */
+/* Défaut : sombre, même sans classe de thème sur la racine. */
+.typos-root {
+  --typos-accent: #d4a373;
+  --typos-accent-soft: rgba(212, 163, 115, 0.2);
+  --typos-accent-text: #1c1712;
+  --typos-bg-0: #141210;
+  --typos-bg-1: #1c1916;
+  --typos-bg-2: #252019;
+  --typos-surface: #252019;
+  --typos-surface-raised: #2e2820;
+  --typos-border: #3a332a;
+  --typos-border-strong: #4d4436;
+  --typos-text: #eae4da;
+  --typos-text-muted: #a89c8c;
+  --typos-text-faint: #6f6559;
+  --typos-success: #2dd4a0;
+  --typos-warning: #e8b44a;
+  --typos-danger: #e84a4a;
+  --typos-info: #3d8ee8;
+  --typos-selection: #d4a373;
+  --typos-hover: rgba(212, 163, 115, 0.1215686275);
+  --typos-hover-outline: #5aa9e6;
+  --typos-proposition-before: #3d8ee8;
+  --typos-proposition-after: #2dd4a0;
+  --typos-proposition-inside: #8b5cf6;
+  --typos-proposition-invalid: #e84a4a;
+  --typos-console-bg: #0e0c0a;
+  --typos-console-error: #e84a4a;
+  --typos-console-warn: #e8b44a;
+  --typos-console-info: #3d8ee8;
+  --typos-console-debug: #8b5cf6;
+  --typos-console-log: #a89c8c;
+  --typos-font-ui: "Inter", "Segoe UI", system-ui, sans-serif;
+  --typos-font-mono: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+  --typos-radius-sm: 4px;
+  --typos-radius-md: 8px;
+  --typos-radius-lg: 12px;
+  --typos-z-canvas: 1;
+  --typos-z-overlay: 40;
+  --typos-z-popup: 50;
+  --typos-z-modal: 60;
+  --typos-z-toast: 70;
+}
+
+/* Thèmes built-in, sélectionnés par classe (ThemeService les bascule). */
+.typos-root.typos-theme-dark {
+  --typos-accent: #d4a373;
+  --typos-accent-soft: rgba(212, 163, 115, 0.2);
+  --typos-accent-text: #1c1712;
+  --typos-bg-0: #141210;
+  --typos-bg-1: #1c1916;
+  --typos-bg-2: #252019;
+  --typos-surface: #252019;
+  --typos-surface-raised: #2e2820;
+  --typos-border: #3a332a;
+  --typos-border-strong: #4d4436;
+  --typos-text: #eae4da;
+  --typos-text-muted: #a89c8c;
+  --typos-text-faint: #6f6559;
+  --typos-success: #2dd4a0;
+  --typos-warning: #e8b44a;
+  --typos-danger: #e84a4a;
+  --typos-info: #3d8ee8;
+  --typos-selection: #d4a373;
+  --typos-hover: rgba(212, 163, 115, 0.1215686275);
+  --typos-hover-outline: #5aa9e6;
+  --typos-proposition-before: #3d8ee8;
+  --typos-proposition-after: #2dd4a0;
+  --typos-proposition-inside: #8b5cf6;
+  --typos-proposition-invalid: #e84a4a;
+  --typos-console-bg: #0e0c0a;
+  --typos-console-error: #e84a4a;
+  --typos-console-warn: #e8b44a;
+  --typos-console-info: #3d8ee8;
+  --typos-console-debug: #8b5cf6;
+  --typos-console-log: #a89c8c;
+  --typos-font-ui: "Inter", "Segoe UI", system-ui, sans-serif;
+  --typos-font-mono: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+  --typos-radius-sm: 4px;
+  --typos-radius-md: 8px;
+  --typos-radius-lg: 12px;
+  --typos-z-canvas: 1;
+  --typos-z-overlay: 40;
+  --typos-z-popup: 50;
+  --typos-z-modal: 60;
+  --typos-z-toast: 70;
+}
+
+.typos-root.typos-theme-light {
+  --typos-accent: #b07a3f;
+  --typos-accent-soft: rgba(176, 122, 63, 0.1490196078);
+  --typos-accent-text: #ffffff;
+  --typos-bg-0: #f5f1ea;
+  --typos-bg-1: #ffffff;
+  --typos-bg-2: #faf7f2;
+  --typos-surface: #ffffff;
+  --typos-surface-raised: #f5f1ea;
+  --typos-border: #e5ddcf;
+  --typos-border-strong: #d4c9b5;
+  --typos-text: #1c1712;
+  --typos-text-muted: #6f6559;
+  --typos-text-faint: #9a8f7f;
+  --typos-success: #12996b;
+  --typos-warning: #b9860f;
+  --typos-danger: #c0392b;
+  --typos-info: #1a6fc4;
+  --typos-selection: #b07a3f;
+  --typos-hover: rgba(176, 122, 63, 0.0784313725);
+  --typos-hover-outline: #1a6fc4;
+  --typos-proposition-before: #1a6fc4;
+  --typos-proposition-after: #12996b;
+  --typos-proposition-inside: #7c3aed;
+  --typos-proposition-invalid: #c0392b;
+  --typos-console-bg: #faf7f2;
+  --typos-console-error: #c0392b;
+  --typos-console-warn: #b9860f;
+  --typos-console-info: #1a6fc4;
+  --typos-console-debug: #7c3aed;
+  --typos-console-log: #6f6559;
+  --typos-font-ui: "Inter", "Segoe UI", system-ui, sans-serif;
+  --typos-font-mono: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+  --typos-radius-sm: 4px;
+  --typos-radius-md: 8px;
+  --typos-radius-lg: 12px;
+  --typos-z-canvas: 1;
+  --typos-z-overlay: 40;
+  --typos-z-popup: 50;
+  --typos-z-modal: 60;
+  --typos-z-toast: 70;
+}
+
+.typos-root.typos-theme-ubuntu {
+  --typos-accent: #e95420;
+  --typos-accent-soft: rgba(233, 84, 32, 0.2);
+  --typos-accent-text: #ffffff;
+  --typos-bg-0: #1e0b16;
+  --typos-bg-1: #2c001e;
+  --typos-bg-2: #3b1f30;
+  --typos-surface: #3b1f30;
+  --typos-surface-raised: #4a2b3e;
+  --typos-border: #5a3a4d;
+  --typos-border-strong: #77556a;
+  --typos-text: #f7f7f7;
+  --typos-text-muted: #d0c4cc;
+  --typos-text-faint: #a08b98;
+  --typos-success: #0e8420;
+  --typos-warning: #f99b11;
+  --typos-danger: #c7162b;
+  --typos-info: #19b6ee;
+  --typos-selection: #e95420;
+  --typos-hover: rgba(233, 84, 32, 0.1411764706);
+  --typos-hover-outline: #19b6ee;
+  --typos-proposition-before: #19b6ee;
+  --typos-proposition-after: #0e8420;
+  --typos-proposition-inside: #772953;
+  --typos-proposition-invalid: #c7162b;
+  --typos-console-bg: #180810;
+  --typos-console-error: #c7162b;
+  --typos-console-warn: #f99b11;
+  --typos-console-info: #19b6ee;
+  --typos-console-debug: #a56ea0;
+  --typos-console-log: #d0c4cc;
+  --typos-font-ui: "Ubuntu", "Segoe UI", system-ui, sans-serif;
+  --typos-font-mono: "Ubuntu Mono", "JetBrains Mono", ui-monospace, monospace;
+  --typos-radius-sm: 4px;
+  --typos-radius-md: 6px;
+  --typos-radius-lg: 10px;
+  --typos-z-canvas: 1;
+  --typos-z-overlay: 40;
+  --typos-z-popup: 50;
+  --typos-z-modal: 60;
+  --typos-z-toast: 70;
+}
+
+.typos-root.typos-theme-mac {
+  --typos-accent: #0a84ff;
+  --typos-accent-soft: rgba(10, 132, 255, 0.1490196078);
+  --typos-accent-text: #ffffff;
+  --typos-bg-0: #ececec;
+  --typos-bg-1: #f6f6f6;
+  --typos-bg-2: #ffffff;
+  --typos-surface: #ffffff;
+  --typos-surface-raised: #fbfbfd;
+  --typos-border: #d6d6d6;
+  --typos-border-strong: #c2c2c2;
+  --typos-text: #1d1d1f;
+  --typos-text-muted: #6e6e73;
+  --typos-text-faint: #a1a1a6;
+  --typos-success: #28c840;
+  --typos-warning: #febc2e;
+  --typos-danger: #ff5f57;
+  --typos-info: #0a84ff;
+  --typos-selection: #0a84ff;
+  --typos-hover: rgba(10, 132, 255, 0.0784313725);
+  --typos-hover-outline: #5ac8fa;
+  --typos-proposition-before: #0a84ff;
+  --typos-proposition-after: #28c840;
+  --typos-proposition-inside: #bf5af2;
+  --typos-proposition-invalid: #ff5f57;
+  --typos-console-bg: #f6f6f6;
+  --typos-console-error: #ff3b30;
+  --typos-console-warn: #ff9500;
+  --typos-console-info: #0a84ff;
+  --typos-console-debug: #af52de;
+  --typos-console-log: #6e6e73;
+  --typos-font-ui: -apple-system, "SF Pro Text", "Helvetica Neue", system-ui, sans-serif;
+  --typos-font-mono: "SF Mono", "JetBrains Mono", ui-monospace, monospace;
+  --typos-radius-sm: 6px;
+  --typos-radius-md: 10px;
+  --typos-radius-lg: 14px;
+  --typos-z-canvas: 1;
+  --typos-z-overlay: 40;
+  --typos-z-popup: 50;
+  --typos-z-modal: 60;
+  --typos-z-toast: 70;
+}
+
+.typos-root.typos-theme-chrome {
+  --typos-accent: #1a73e8;
+  --typos-accent-soft: rgba(26, 115, 232, 0.1490196078);
+  --typos-accent-text: #ffffff;
+  --typos-bg-0: #f1f3f4;
+  --typos-bg-1: #ffffff;
+  --typos-bg-2: #f8f9fa;
+  --typos-surface: #ffffff;
+  --typos-surface-raised: #f8f9fa;
+  --typos-border: #dadce0;
+  --typos-border-strong: #bdc1c6;
+  --typos-text: #202124;
+  --typos-text-muted: #5f6368;
+  --typos-text-faint: #9aa0a6;
+  --typos-success: #1e8e3e;
+  --typos-warning: #f9ab00;
+  --typos-danger: #d93025;
+  --typos-info: #1a73e8;
+  --typos-selection: #1a73e8;
+  --typos-hover: rgba(26, 115, 232, 0.0784313725);
+  --typos-hover-outline: #4285f4;
+  --typos-proposition-before: #1a73e8;
+  --typos-proposition-after: #1e8e3e;
+  --typos-proposition-inside: #9334e6;
+  --typos-proposition-invalid: #d93025;
+  --typos-console-bg: #292a2d;
+  --typos-console-error: #f28b82;
+  --typos-console-warn: #fdd663;
+  --typos-console-info: #8ab4f8;
+  --typos-console-debug: #c58af9;
+  --typos-console-log: #e8eaed;
+  --typos-font-ui: "Roboto", "Google Sans", "Segoe UI", system-ui, sans-serif;
+  --typos-font-mono: "Roboto Mono", "JetBrains Mono", ui-monospace, monospace;
+  --typos-radius-sm: 4px;
+  --typos-radius-md: 8px;
+  --typos-radius-lg: 12px;
+  --typos-z-canvas: 1;
+  --typos-z-overlay: 40;
+  --typos-z-popup: 50;
+  --typos-z-modal: 60;
+  --typos-z-toast: 70;
+}

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ΣΚΟΠΟΣ — Skopos</title>
+  <style>
+    html, body { margin: 0; height: 100%; background: #ececee; }
+    #skopos { height: 100vh; }
+  </style>
+  <script type="module"  src="./assets/index-DFJThlMv.js"></script>
+</head>
+<body>
+<!-- KANTO APLO — bouton retour vitrine -->
+<style id="kanto-back-style">
+  /* Réserve 56px à gauche pour le bouton retour, sans casser le layout des démos. */
+  html body{padding-left:56px !important;box-sizing:border-box !important}
+  html body *,html body *::before,html body *::after{box-sizing:border-box}
+  @media (max-width:640px){html body{padding-left:52px !important}}
+
+  .kanto-back-btn{position:fixed;top:12px;left:12px;z-index:2147483000;display:inline-flex;align-items:center;height:40px;width:40px;padding:0;border:1px solid rgba(201,150,58,.45);border-radius:999px;background:rgba(11,15,23,.86);backdrop-filter:blur(10px) saturate(1.3);-webkit-backdrop-filter:blur(10px) saturate(1.3);color:#e6d6a8;font-family:'Cinzel',ui-serif,Georgia,serif;text-decoration:none;box-shadow:0 6px 20px -4px rgba(0,0,0,.5),0 0 0 1px rgba(0,0,0,.2);overflow:hidden;transition:width .32s cubic-bezier(.2,.7,.2,1),background .2s,border-color .2s;user-select:none}
+  .kanto-back-btn::before{content:'';position:absolute;inset:-1px;border-radius:999px;padding:1px;background:conic-gradient(from 220deg,#C9963A,#2DD4A0,#8B5CF6,#C9963A);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:0;transition:opacity .25s;pointer-events:none}
+  .kanto-back-btn:hover,.kanto-back-btn:focus-visible{width:172px;border-color:rgba(201,150,58,.75)}
+  .kanto-back-btn:hover::before,.kanto-back-btn:focus-visible::before{opacity:.8}
+  .kanto-back-btn:focus-visible{outline:2px solid #C9963A;outline-offset:3px}
+  .kanto-back-btn .kb-arrow{flex:0 0 40px;display:grid;place-items:center;height:38px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:400;font-size:16px;color:#C9963A;transition:transform .25s cubic-bezier(.2,.7,.2,1)}
+  .kanto-back-btn:hover .kb-arrow,.kanto-back-btn:focus-visible .kb-arrow{transform:translateX(-2px)}
+  .kanto-back-btn .kb-brand{white-space:nowrap;font-size:11px;font-weight:600;letter-spacing:.22em;color:#f4dc9e;padding-right:16px;opacity:0;transform:translateX(-6px);transition:opacity .18s .06s,transform .28s cubic-bezier(.2,.7,.2,1)}
+  .kanto-back-btn:hover .kb-brand,.kanto-back-btn:focus-visible .kb-brand{opacity:1;transform:none}
+  @media (prefers-reduced-motion:reduce){
+    .kanto-back-btn,.kanto-back-btn .kb-arrow,.kanto-back-btn .kb-brand,.kanto-back-btn::before{transition:none}
+  }
+</style>
+<a class="kanto-back-btn" href="https://kantoaplo.com" title="Retour à KANTO APLO" aria-label="Retour à KANTO APLO — la vitrine">
+  <span class="kb-arrow" aria-hidden="true">←</span>
+  <span class="kb-brand">KANTO APLO</span>
+</a>
+
+  <div id="skopos"></div>
+</body>
+</html>
