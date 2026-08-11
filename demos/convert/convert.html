@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Images → Base64</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        input {
+            margin-bottom: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 400px;
+            box-sizing: border-box;
+            font-family: monospace;
+            font-size: 13px;
+            padding: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 10px 5px 10px 0;
+            cursor: pointer;
+        }
+
+        #status {
+            margin: 10px 0;
+            color: #555;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Images → Base64</h1>
+
+    <input
+        type="file"
+        id="files"
+        accept="image/*"
+        multiple
+    >
+
+    <div id="status"></div>
+
+    <button onclick="copyResult()">
+        Copier le résultat
+    </button>
+
+    <button onclick="downloadResult()">
+        Télécharger
+    </button>
+
+    <textarea
+        id="result"
+        placeholder='["data:image/jpeg;base64,..."]'
+        readonly
+    ></textarea>
+
+    <script>
+        const input = document.getElementById("files");
+        const result = document.getElementById("result");
+        const status = document.getElementById("status");
+
+        input.addEventListener("change", async () => {
+
+            const files = Array.from(input.files);
+
+            if (!files.length) {
+                result.value = "";
+                status.textContent = "";
+                return;
+            }
+
+            status.textContent = `Conversion de ${files.length} image(s)...`;
+
+            const base64Images = await Promise.all(
+                files.map(file => fileToBase64(file))
+            );
+
+            // Génère exactement :
+            // ["data:image/jpeg;base64,...","data:image/png;base64,..."]
+            result.value = JSON.stringify(base64Images);
+
+            status.textContent =
+                `${files.length} image(s) convertie(s) en Base64.`;
+        });
+
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+
+                const reader = new FileReader();
+
+                reader.onload = () => {
+                    resolve(reader.result);
+                };
+
+                reader.onerror = () => {
+                    reject(reader.error);
+                };
+
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function copyResult() {
+            if (!result.value) return;
+
+            await navigator.clipboard.writeText(result.value);
+
+            status.textContent = "Résultat copié dans le presse-papiers.";
+        }
+
+        function downloadResult() {
+            if (!result.value) return;
+
+            const blob = new Blob(
+                [result.value],
+                { type: "application/json" }
+            );
+
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "images-base64.json";
+            a.click();
+
+            URL.revokeObjectURL(url);
+        }
+    </script>
+
+</body>
+</html>
