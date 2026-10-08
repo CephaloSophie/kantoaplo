@@ -43,6 +43,8 @@
 
   editors.forEach(function (e, i) { e.idx = i; e.num = ROMAN[i] || String(i + 1); });
   var featured = editors.filter(function (e) { return e.shots > 0; });
+  var engine = DATA.engine;
+  var engineEds = engine ? editors.filter(function (e) { return e.engine; }) : [];
   var pending = editors.filter(function (e) { return e.status === 'pending'; });
 
   /* ════════════════ Mini-portées (logo + avatars) ════════════════ */
@@ -93,7 +95,7 @@
   function chip(e) {
     if (e.status === 'ready') return '<span class="chip ready">' + bi('Démo live', 'Live demo') + '</span>';
     if (isExternal(e)) return '<span class="chip external">' + esc(e.statusLabel || 'Web') + ' ↗</span>';
-    return '<span class="chip pending">' + esc(e.version || 'soon') + '</span>';
+    return '<span class="chip pending">' + (e.version ? esc(e.version) : bi('Bientôt', 'Soon')) + '</span>';
   }
 
   /* ════════════════ La partition : une carte par éditeur ════════════════ */
@@ -126,7 +128,11 @@
     var url = isExternal(e) ? e.href.replace(/^https?:\/\//, '') : 'kantoaplo.com/' + e.href.replace(/\/index\.html$/, '');
     var demo = isExternal(e)
       ? '<a class="btn btn-acc" href="' + esc(e.href) + '" target="_blank" rel="noopener">' + bi('Jouer sur ' + e.statusLabel, 'Play on ' + e.statusLabel) + ' <span aria-hidden="true">↗</span></a>'
-      : '<a class="btn btn-acc" href="' + esc(e.href) + '">' + bi('Ouvrir la démo', 'Open the demo') + ' <span aria-hidden="true">→</span></a>';
+      : '<a class="btn btn-acc" href="' + esc(e.href) + '">' + (e.engine ? bi('Démo du moteur ' + engine.name, engine.name + ' engine demo') : bi('Ouvrir la démo', 'Open the demo')) + ' <span aria-hidden="true">→</span></a>';
+    var partners = engineEds.filter(function (x) { return x !== e; }).map(function (x) { return x.latin; }).join(', ');
+    var engineChip = e.engine && partners
+      ? '<li class="eng"><a href="#engine">⚙ ' + bi('Moteur ' + engine.name + ' · partagé avec ' + partners, engine.name + ' engine · shared with ' + partners) + '</a></li>'
+      : '';
     var strip = '';
     for (var i = 0; i < e.shots; i++) {
       strip += '<button type="button" style="--i:' + i + '" data-go="' + i + '" aria-label="' + esc(e.latin) + ' — ' + (i + 1) + '">' +
@@ -142,7 +148,7 @@
           '<p class="mvt-pitch">' + bi(e.pitch_fr, e.pitch_en) + '</p>' +
           '<ul class="mvt-meta"><li class="role">' + bi(e.role_fr, e.role_en) + '</li>' +
             '<li>' + bi(e.shots + ' captures', e.shots + ' screenshots') + '</li>' +
-            '<li>' + (isExternal(e) ? bi('Bâti avec KANTO APLO', 'Built with KANTO APLO') : bi('Démo interactive', 'Interactive demo')) + '</li></ul>' +
+            (engineChip || '<li>' + (isExternal(e) ? bi('Bâti avec KANTO APLO', 'Built with KANTO APLO') : bi('Démo interactive', 'Interactive demo')) + '</li>') + '</ul>' +
           '<div class="mvt-actions">' + demo +
             '<button type="button" class="btn btn-line" data-zoom>' + bi('Plein écran', 'Full screen') + '</button></div>' +
         '</div>' +
@@ -178,22 +184,77 @@
           '<h3 class="up-greek">' + esc(e.greek) + '</h3>' +
           '<p class="up-sub">' + esc(e.latin) + ' · ' + bi(e.role_fr, e.role_en) + '<br/><em>' + bi(e.meaning_fr, e.meaning_en) + '</em></p>' +
           '<p class="up-pitch">' + bi(e.pitch_fr, e.pitch_en) + '</p>' +
-          '<span class="up-ver">' + esc(e.version) + ' · ' + bi('en composition', 'in composition') + '</span></article>';
+          '<span class="up-ver">' + (e.version ? esc(e.version) + ' · ' : '') + bi('en composition', 'in composition') + '</span></article>';
       }).join('') + '</div></div></section>';
   }
 
-  var blocks = featured.map(movement);
+  /* Le moteur commun : un instrument, plusieurs éditeurs, ouvert à tout domaine. */
+  function engineSection() {
+    var branches = engineEds.map(function (e) {
+      var use = engine.uses[e.id] || { fr: e.role_fr, en: e.role_en };
+      return '<a class="eng-branch" href="#ed-' + e.id + '" style="' + colorVars(e.accent) + '">' +
+        '<span class="ov-num">' + e.num + '</span><b>' + esc(e.greek) + '</b>' +
+        '<span class="eng-latin">' + esc(e.latin) + '</span><span class="eng-use">' + bi(use.fr, use.en) + '</span></a>';
+    }).join('') +
+      '<div class="eng-branch open"><span class="ov-num">+</span><b>' + bi(engine.open_fr, engine.open_en) + '</b>' +
+      '<span class="eng-use">' + bi(engine.open_text_fr, engine.open_text_en) + '</span></div>';
+    var n = engineEds.length + 1, wires = '';
+    for (var i = 0; i < n; i++) {
+      var x = (i + 0.5) * 300 / n;
+      var d = 'M150 0 C150 34 ' + x.toFixed(1) + ' 26 ' + x.toFixed(1) + ' 60';
+      wires += '<path class="w" d="' + d + '" pathLength="1"' + (i === n - 1 ? ' stroke-dasharray=".02 .03"' : '') + '/>' +
+        (i < n - 1 ? '<path class="p" d="' + d + '" pathLength="1" style="animation-delay:' + (i * 0.6) + 's"/>' : '');
+    }
+    return '<section class="engine" id="engine" style="' + colorVars(engine.accent) + '" aria-labelledby="engineTitle">' +
+      '<div class="wrap">' +
+        '<header class="section-head" data-reveal>' +
+          '<p class="eyebrow">' + bi(engine.eyebrow_fr, engine.eyebrow_en) + '</p>' +
+          '<h2 id="engineTitle">' + bi(engine.title_fr, engine.title_en) + '</h2>' +
+          '<p class="lead">' + bi(engine.tagline_fr, engine.tagline_en) + '</p></header>' +
+        '<div class="eng-map" data-reveal>' +
+          '<div class="eng-core"><span class="eng-ring" aria-hidden="true"></span>' +
+            '<span class="eng-name">' + esc(engine.name) + '</span>' +
+            '<span class="eng-sub">' + bi('blocs · nœuds · workflows', 'blocks · nodes · workflows') + '</span></div>' +
+          '<svg class="eng-wires" viewBox="0 0 300 60" preserveAspectRatio="none" aria-hidden="true">' + wires + '</svg>' +
+          '<div class="eng-branches" style="--n:' + n + '">' + branches + '</div>' +
+        '</div>' +
+        '<div class="eng-foot" data-reveal>' +
+          '<p class="eng-text">' + bi(engine.text_fr, engine.text_en) + '</p>' +
+          '<ul class="eng-feats">' + engine.features.map(function (f) { return '<li>' + bi(f.fr, f.en) + '</li>'; }).join('') + '</ul>' +
+          '<a class="btn btn-acc" href="' + esc(engine.href) + '">' + bi('Essayer le moteur ' + engine.name, 'Try the ' + engine.name + ' engine') + ' <span aria-hidden="true">→</span></a>' +
+        '</div>' +
+      '</div></section>';
+  }
+
+  /* Ordre de la page : chaque éditeur, le moteur juste avant le deuxième éditeur qui
+     le partage, puis les éditeurs à venir. Un slogan sépare deux éditeurs ; le moteur
+     fait lui-même la transition. S'il reste un slogan, il ouvre la section. */
+  var seq = [];
+  featured.forEach(function (e, i) {
+    if (engineEds.length > 1 && e === engineEds[1]) seq.push({ html: engineSection(), bridge: true });
+    seq.push({ html: movement(e, i) });
+  });
   var up = upcoming();
-  if (up) blocks.push(up);
-  var html = '<div class="wrap"><header class="section-head" data-reveal style="margin-bottom:0">' +
+  if (up) seq.push({ html: up });
+  var pool = slogans.slice(0, -1);
+  var gaps = seq.filter(function (b, i) { return i > 0 && !b.bridge && !seq[i - 1].bridge; }).length;
+  var html = pool.length > gaps ? interlude(pool.shift()) : '';
+  html += '<div class="wrap"><header class="section-head" data-reveal style="margin-bottom:0">' +
     '<p class="eyebrow">' + bi('Les mouvements', 'The movements') + '</p>' +
     '<h2>' + bi('Chaque éditeur, une voix.', 'Every editor, a voice.') + '</h2>' +
     '<p class="lead">' + bi('Faites défiler : la partition se joue d\'elle-même.', 'Scroll on: the score plays itself.') + '</p></header></div>';
-  blocks.forEach(function (b, i) {
-    html += b;
-    if (i < blocks.length - 1 && slogans[i] && i < slogans.length - 1) html += interlude(slogans[i]);
+  seq.forEach(function (b, i) {
+    if (i > 0 && !b.bridge && !seq[i - 1].bridge && pool.length) html += interlude(pool.shift());
+    html += b.html;
   });
   $('movementsBody').innerHTML = html;
+  if (engineEds.length > 1) {
+    $('ovGrid').insertAdjacentHTML('afterend', '<p class="ov-note" data-reveal><a href="#engine">⚙ ' +
+      bi(engineEds.map(function (e) { return e.latin; }).join(' et ') + ' partagent le même moteur : ' + engine.name,
+         engineEds.map(function (e) { return e.latin; }).join(' and ') + ' share the same engine: ' + engine.name) +
+      ' <span aria-hidden="true">→</span></a></p>');
+    $('menuFoot').insertAdjacentHTML('afterbegin', '<a href="#engine">' + bi('Le moteur ' + engine.name, 'The ' + engine.name + ' engine') + '</a>');
+  }
   var last = slogans[slogans.length - 1];
   if (last) $('finale').innerHTML = bi(last.fr, last.en);
 
@@ -222,7 +283,7 @@
       revealIO.unobserve(en.target);
     });
   }, { rootMargin: '0px 0px -12% 0px', threshold: 0.08 });
-  document.querySelectorAll('[data-reveal], .mvt').forEach(function (el) {
+  document.querySelectorAll('[data-reveal], .mvt, .engine').forEach(function (el) {
     if (reduceMotion) el.classList.add('in'); else revealIO.observe(el);
   });
 
@@ -233,8 +294,6 @@
   var root = document.documentElement;
   var auraLayers = [$('auraA'), $('auraB')];
   var auraCur = 0;
-  var activeKey = null;
-  var currentIdx = -1;
   var scoreLinks = Array.prototype.slice.call(document.querySelectorAll('#scoreList a'));
   var menuLinks = Array.prototype.slice.call(document.querySelectorAll('#menuList a'));
   var np = $('np'), npName = $('npName');
@@ -253,41 +312,55 @@
     auraCur = 1 - auraCur;
   }
 
-  function setActive(idxs) {
-    var key = idxs ? idxs.join(',') : '';
-    if (key === activeKey) return;
-    activeKey = key;
-    var inRange = !!idxs;
-    $('score').classList.toggle('show', inRange);
-    np.classList.toggle('show', inRange);
-    if (!inRange) { currentIdx = -1; setAura(null); root.style.removeProperty('--acc'); return; }
+  /* Arrêts : chaque élément qui peut devenir « en cours », avec ce qu'il affiche
+     (repères allumés, nom, couleur) et vers où mènent les flèches ‹ ›. */
+  var stopInfo = new Map();
+  document.querySelectorAll('.mvt').forEach(function (el) {
+    var e = editors[Number(el.dataset.idx)];
+    stopInfo.set(el, { idxs: [e.idx], num: e.num, label: esc(e.greek), accent: e.accent, prev: e.idx - 1, next: e.idx + 1 });
+  });
+  if ($('ed-upcoming')) {
+    var p0 = pending[0], p1 = pending[pending.length - 1];
+    stopInfo.set($('ed-upcoming'), { idxs: pending.map(function (e) { return e.idx; }), num: p0.num + '–' + p1.num,
+      label: bi('À venir', 'Coming'), accent: '#C9963A', aura: '#8B5CF6', prev: p0.idx - 1, next: p1.idx + 1 });
+  }
+  if ($('engine')) {
+    stopInfo.set($('engine'), { idxs: engineEds.map(function (e) { return e.idx; }), num: '⚙',
+      label: esc(engine.name), accent: engine.accent, prev: engineEds[0].idx, next: engineEds[1].idx });
+  }
+  var current = null;
 
-    var e = editors[idxs[0]];
-    currentIdx = idxs[0];
-    var hex = idxs.length > 1 ? '#C9963A' : e.accent;
-    setAura(idxs.length > 1 ? '#8B5CF6' : hex);
-    root.style.setProperty('--acc', hex);
-    root.style.setProperty('--acc-soft', rgba(hex, 0.16));
-    root.style.setProperty('--acc-line', rgba(hex, 0.38));
-    scoreLinks.forEach(function (a, i) { a.classList.toggle('on', idxs.indexOf(i) !== -1); });
-    menuLinks.forEach(function (a, i) { a.classList.toggle('on', idxs.indexOf(i) !== -1); });
-    npName.innerHTML = idxs.length > 1
-      ? '<span><span class="n">' + editors[idxs[0]].num + '–' + editors[idxs[idxs.length - 1]].num + '</span><span class="g">' + bi('À venir', 'Coming') + '</span></span>'
-      : '<span><span class="n">' + e.num + '</span><span class="g">' + esc(e.greek) + '</span></span>';
-    $('npPrev').disabled = idxs[0] === 0;
-    $('npNext').disabled = idxs[idxs.length - 1] >= editors.length - 1;
+  function setActive(info) {
+    if (info === current) return;
+    current = info;
+    $('score').classList.toggle('show', !!info);
+    np.classList.toggle('show', !!info);
+    if (!info) { setAura(null); ['--acc', '--acc-soft', '--acc-line'].forEach(function (v) { root.style.removeProperty(v); }); return; }
+
+    setAura(info.aura || info.accent);
+    root.style.setProperty('--acc', info.accent);
+    root.style.setProperty('--acc-soft', rgba(info.accent, 0.16));
+    root.style.setProperty('--acc-line', rgba(info.accent, 0.38));
+    scoreLinks.forEach(function (a, i) { a.classList.toggle('on', info.idxs.indexOf(i) !== -1); });
+    menuLinks.forEach(function (a, i) { a.classList.toggle('on', info.idxs.indexOf(i) !== -1); });
+    npName.innerHTML = '<span><span class="n">' + info.num + '</span><span class="g">' + info.label + '</span></span>';
+    $('npPrev').disabled = info.prev < 0;
+    $('npNext').disabled = info.next >= editors.length;
   }
 
-  var stops = Array.prototype.slice.call(document.querySelectorAll('.mvt, #ed-upcoming'));
+  /* Entre deux éditeurs (pendant un intermède), l'éditeur précédent reste « en cours » :
+     la navigation ne disparaît que lorsqu'on quitte la zone des éditeurs. */
+  var movementsEl = $('movements');
   var visible = new Set();
   var activeIO = new IntersectionObserver(function (entries) {
     entries.forEach(function (en) { if (en.isIntersecting) visible.add(en.target); else visible.delete(en.target); });
+    if (!visible.has(movementsEl)) return setActive(null);
     var el = null;
-    stops.forEach(function (s) { if (visible.has(s)) el = s; });
-    if (!el) return setActive(null);
-    setActive(el.dataset.idxs ? el.dataset.idxs.split(',').map(Number) : [Number(el.dataset.idx)]);
+    stopInfo.forEach(function (info, s) { if (visible.has(s)) el = s; });
+    if (el) setActive(stopInfo.get(el));
   }, { rootMargin: '-48% 0px -48% 0px' });
-  stops.forEach(function (s) { activeIO.observe(s); });
+  activeIO.observe(movementsEl);
+  stopInfo.forEach(function (info, s) { activeIO.observe(s); });
   setAura(null);
 
   function scrollToEditor(i) {
@@ -295,14 +368,8 @@
     var el = document.getElementById('ed-' + e.id);
     if (el) el.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
   }
-  $('npPrev').addEventListener('click', function () {
-    var idxs = activeKey ? activeKey.split(',').map(Number) : [0];
-    scrollToEditor(idxs[0] - 1);
-  });
-  $('npNext').addEventListener('click', function () {
-    var idxs = activeKey ? activeKey.split(',').map(Number) : [0];
-    scrollToEditor(idxs[idxs.length - 1] + 1);
-  });
+  $('npPrev').addEventListener('click', function () { if (current) scrollToEditor(current.prev); });
+  $('npNext').addEventListener('click', function () { if (current) scrollToEditor(current.next); });
 
   /* En-tête opaque dès qu'on quitte le haut de l'ouverture */
   var hdr = $('hdr');

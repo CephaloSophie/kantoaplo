@@ -14,7 +14,7 @@
 window.KANTO = {
 
   editors: [
-    { id: 'skopos', greek: 'ΣΚΟΠΟΣ', latin: 'Skopos', accent: '#E8714A',
+    { id: 'skopos', greek: 'ΣΚΟΠΟΣ', latin: 'Skopos', accent: '#9BE15D',
       role_fr: 'Le guetteur', role_en: 'The watcher',
       meaning_fr: 'σκοπός — celui qui observe et vise juste', meaning_en: 'σκοπός — the one who watches and aims true',
       pitch_fr: "L'observateur, celui qui surveille. Il observe tes APIs, détecte les anomalies et te prévient avant tes utilisateurs.",
@@ -38,16 +38,16 @@ window.KANTO = {
     { id: 'tekton', greek: 'ΤΈΚΤΩΝ', latin: 'Tektôn', accent: '#C9963A',
       role_fr: 'Le bâtisseur', role_en: 'The builder',
       meaning_fr: "τέκτων — l'artisan bâtisseur", meaning_en: 'τέκτων — the master builder',
-      pitch_fr: 'Glisser-déposer visuel pour assembler pages, funnels, applications et quiz. Le cœur de KANTO APLO.',
-      pitch_en: 'Visual drag-and-drop to build pages, funnels, apps and quizzes. The heart of KANTO APLO.',
-      status: 'ready', href: 'demos/tekton/index.html', shots: 11 },
+      pitch_fr: "L'éditeur visuel du front : glisser-déposer pour assembler pages, funnels, applications et quiz. Le cœur de KANTO APLO.",
+      pitch_en: 'The visual editor for the front end: drag and drop to build pages, funnels, apps and quizzes. The heart of KANTO APLO.',
+      status: 'ready', href: 'demos/tekton/index.html', shots: 11, engine: true },
 
     { id: 'logos', greek: 'ΛΌΓΟΣ', latin: 'Logos', accent: '#3D8EE8',
       role_fr: 'La règle', role_en: 'The rule',
       meaning_fr: 'λόγος — la parole, la raison', meaning_en: 'λόγος — word and reason',
-      pitch_fr: "Conception visuelle d'APIs REST — routes, règles métier, transformations — sortie OpenAPI documentée.",
-      pitch_en: 'Visual REST API design — routes, business rules, transforms — documented OpenAPI output.',
-      status: 'ready', href: 'demos/tekton/index.html', shots: 4 },
+      pitch_fr: "L'éditeur visuel des services : APIs REST, tâches planifiées (cron), règles métier, transformations — sortie OpenAPI documentée.",
+      pitch_en: 'The visual editor for services: REST APIs, scheduled jobs (cron), business rules, transforms — documented OpenAPI output.',
+      status: 'ready', href: 'demos/tekton/index.html', shots: 4, engine: true },
 
     { id: 'skhema', greek: 'ΣΧΗΜΑ', latin: 'Skhêma', accent: '#8FA2FF',
       role_fr: 'Le schéma', role_en: 'The schema',
@@ -82,8 +82,38 @@ window.KANTO = {
       meaning_fr: 'συνεργός — celui qui œuvre avec', meaning_en: 'συνεργός — the one who works alongside',
       pitch_fr: 'Coffre-fort de connecteurs — bases relationnelles, NoSQL, APIs tierces, services cloud.',
       pitch_en: 'Universal connector vault — relational DBs, NoSQL, third-party APIs, cloud services.',
-      status: 'pending', version: 'v1.0.3', shots: 0 }
+      status: 'pending', version: 'v1.0.3', shots: 0 },
+
+    { id: 'hermes', greek: 'ἙΡΜΗ͂Σ', latin: 'Hermès', accent: '#E8714A',
+      role_fr: 'Le messager', role_en: 'The messenger',
+      meaning_fr: 'Ἑρμῆς — le messager des dieux, gardien des passages', meaning_en: 'Ἑρμῆς — messenger of the gods, keeper of passages',
+      pitch_fr: "Orchestration : workflows d'automatisation visuels, agents IA autonomes capables d'utiliser des outils, circulation des données entre systèmes.",
+      pitch_en: 'Orchestration: visual automation workflows, autonomous AI agents able to use tools, data flowing between systems.',
+      status: 'pending', shots: 0 }
   ],
+
+  /* Le moteur commun aux éditeurs marqués `engine: true` (Tektôn, Logos).
+     Présenté entre ces éditeurs ; leur démo est celle du moteur. */
+  engine: {
+    name: 'KANTO', accent: '#C9963A', href: 'demos/tekton/index.html',
+    eyebrow_fr: "L'instrument commun", eyebrow_en: 'The shared instrument',
+    title_fr: 'Le moteur KANTO', title_en: 'The KANTO engine',
+    tagline_fr: 'Un seul instrument, toutes les partitions.', tagline_en: 'One instrument, every score.',
+    text_fr: "Tektôn et Logos jouent sur le même instrument : une bibliothèque de blocs, de nœuds et de workflows. Chaque bloc se définit par sa configuration ; leur assemblage génère du JSON, du code ou toute autre sortie. Tektôn l'accorde pour le front, Logos pour les services — et il s'accorde à n'importe quel domaine.",
+    text_en: 'Tektôn and Logos play the same instrument: a library of blocks, nodes and workflows. Each block is defined by its configuration; assembling them generates JSON, code or any other output. Tektôn tunes it for the front end, Logos for services — and it can be tuned to any domain.',
+    features: [
+      { fr: 'Blocs, nœuds et workflows complexes', en: 'Blocks, nodes and complex workflows' },
+      { fr: 'Sortie JSON, code ou format sur mesure', en: 'JSON, code or custom output' },
+      { fr: "Configurable pour n'importe quel besoin", en: 'Configurable for any need' }
+    ],
+    /* Branches du schéma : les éditeurs qui l'utilisent, puis l'ouverture vers tout autre domaine. */
+    uses: {
+      tekton: { fr: 'Front : pages, funnels, applications, quiz', en: 'Front end: pages, funnels, apps, quizzes' },
+      logos: { fr: 'Services : APIs, cron, règles métier', en: 'Services: APIs, cron, business rules' }
+    },
+    open_fr: 'Votre domaine', open_en: 'Your domain',
+    open_text_fr: 'Les mêmes blocs, configurés pour tout autre besoin.', open_text_en: 'The same blocks, configured for any other need.'
+  },
 
   /* Intermèdes entre les éditeurs, dans l'ordre. Le dernier signe la section Contact. */
   slogans: [
