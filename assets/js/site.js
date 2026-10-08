@@ -95,7 +95,7 @@
   function chip(e) {
     if (e.status === 'ready') return '<span class="chip ready">' + bi('Démo live', 'Live demo') + '</span>';
     if (isExternal(e)) return '<span class="chip external">' + esc(e.statusLabel || 'Web') + ' ↗</span>';
-    return '<span class="chip pending">' + esc(e.version || 'soon') + '</span>';
+    return '<span class="chip pending">' + (e.version ? esc(e.version) : bi('Bientôt', 'Soon')) + '</span>';
   }
 
   /* ════════════════ La partition : une carte par éditeur ════════════════ */
@@ -184,7 +184,7 @@
           '<h3 class="up-greek">' + esc(e.greek) + '</h3>' +
           '<p class="up-sub">' + esc(e.latin) + ' · ' + bi(e.role_fr, e.role_en) + '<br/><em>' + bi(e.meaning_fr, e.meaning_en) + '</em></p>' +
           '<p class="up-pitch">' + bi(e.pitch_fr, e.pitch_en) + '</p>' +
-          '<span class="up-ver">' + esc(e.version) + ' · ' + bi('en composition', 'in composition') + '</span></article>';
+          '<span class="up-ver">' + (e.version ? esc(e.version) + ' · ' : '') + bi('en composition', 'in composition') + '</span></article>';
       }).join('') + '</div></div></section>';
   }
 

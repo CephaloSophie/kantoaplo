@@ -14,7 +14,7 @@
 window.KANTO = {
 
   editors: [
-    { id: 'skopos', greek: 'ΣΚΟΠΟΣ', latin: 'Skopos', accent: '#E8714A',
+    { id: 'skopos', greek: 'ΣΚΟΠΟΣ', latin: 'Skopos', accent: '#9BE15D',
       role_fr: 'Le guetteur', role_en: 'The watcher',
       meaning_fr: 'σκοπός — celui qui observe et vise juste', meaning_en: 'σκοπός — the one who watches and aims true',
       pitch_fr: "L'observateur, celui qui surveille. Il observe tes APIs, détecte les anomalies et te prévient avant tes utilisateurs.",
@@ -82,7 +82,14 @@ window.KANTO = {
       meaning_fr: 'συνεργός — celui qui œuvre avec', meaning_en: 'συνεργός — the one who works alongside',
       pitch_fr: 'Coffre-fort de connecteurs — bases relationnelles, NoSQL, APIs tierces, services cloud.',
       pitch_en: 'Universal connector vault — relational DBs, NoSQL, third-party APIs, cloud services.',
-      status: 'pending', version: 'v1.0.3', shots: 0 }
+      status: 'pending', version: 'v1.0.3', shots: 0 },
+
+    { id: 'hermes', greek: 'ἙΡΜΗ͂Σ', latin: 'Hermès', accent: '#E8714A',
+      role_fr: 'Le messager', role_en: 'The messenger',
+      meaning_fr: 'Ἑρμῆς — le messager des dieux, gardien des passages', meaning_en: 'Ἑρμῆς — messenger of the gods, keeper of passages',
+      pitch_fr: "Orchestration : workflows d'automatisation visuels, agents IA autonomes capables d'utiliser des outils, circulation des données entre systèmes.",
+      pitch_en: 'Orchestration: visual automation workflows, autonomous AI agents able to use tools, data flowing between systems.',
+      status: 'pending', shots: 0 }
   ],
 
   /* Le moteur commun aux éditeurs marqués `engine: true` (Tektôn, Logos).
