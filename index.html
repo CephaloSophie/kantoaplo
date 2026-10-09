@@ -25,24 +25,16 @@
 </script>
 <script src="assets/js/data.js" defer></script>
 <script src="assets/js/site.js" defer></script>
+<script src="assets/js/figures.js" defer></script>
 </head>
 <body>
 
 <a class="skip" href="#movements"><span data-fr>Aller aux éditeurs</span><span data-en>Skip to the editors</span></a>
 
-<!-- Ambiance : halo coloré de l'éditeur courant + notes flottantes (décoratif) -->
+<!-- Ambiance : halo coloré de l'éditeur courant (décoratif) -->
 <div class="aura" aria-hidden="true"><i id="auraA"></i><i id="auraB"></i></div>
-<div class="notes-field" aria-hidden="true">
-  <span style="left:4%;--drift:26px;font-size:16px;animation-duration:14s;animation-delay:0s">♪</span>
-  <span style="left:13%;--drift:-18px;font-size:22px;animation-duration:18s;animation-delay:2.4s">♫</span>
-  <span style="left:24%;--drift:14px;font-size:13px;animation-duration:12.5s;animation-delay:5.1s">♩</span>
-  <span style="left:36%;--drift:-24px;font-size:19px;animation-duration:16s;animation-delay:1.2s">♪</span>
-  <span style="left:48%;--drift:20px;font-size:15px;animation-duration:13.5s;animation-delay:7s">♫</span>
-  <span style="left:60%;--drift:-14px;font-size:24px;animation-duration:19s;animation-delay:3.6s">♩</span>
-  <span style="left:71%;--drift:22px;font-size:14px;animation-duration:15s;animation-delay:8.4s">♪</span>
-  <span style="left:82%;--drift:-20px;font-size:20px;animation-duration:17s;animation-delay:.8s">♬</span>
-  <span style="left:93%;--drift:16px;font-size:13px;animation-duration:12s;animation-delay:6.2s">♫</span>
-</div>
+<!-- Figures musicales en mouvement : notes, silences et systèmes en orbite (assets/js/figures.js) -->
+<canvas class="figures" id="figures" aria-hidden="true"></canvas>
 
 <!-- ═══════════════ En-tête ═══════════════ -->
 <header class="hdr" id="hdr">
@@ -131,10 +123,36 @@
       <p class="eyebrow"><span data-fr>La partition</span><span data-en>The score</span></p>
       <h2 data-fr>Dix éditeurs. Une seule partition.</h2>
       <h2 data-en>Ten editors. One shared score.</h2>
-      <p class="lead" data-fr>Chaque éditeur joue sa partie ; ensemble, ils composent une application complète.</p>
-      <p class="lead" data-en>Each editor plays its part; together they compose a complete application.</p>
+      <p class="lead" data-fr>Chaque éditeur est une note de la partition. Survolez-la pour l'entendre, touchez-la pour la rejoindre.</p>
+      <p class="lead" data-en>Every editor is a note in the score. Hover it to hear it, tap it to join it.</p>
     </header>
-    <div class="ov-grid" id="ovGrid"></div>
+    <div class="sheet" id="sheet" data-reveal>
+      <div class="sheet-title" aria-hidden="true"><span>Opus I</span><b>ΚΆΝΤΟ ΑΠΛΌ</b><span>Cephalo Sophie</span></div>
+      <div class="sheet-body" id="sheetBody"></div>
+      <ul class="sheet-legend" id="sheetLegend"></ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ Intermezzo : les slogans, chacun sur sa portée, en boucle ═══════════════ -->
+<section class="anthem" id="intermezzo" aria-roledescription="carrousel" aria-label="Slogans">
+  <div class="wrap">
+    <div class="an-sheet" id="anthem" data-reveal>
+      <div class="an-top">
+        <p class="eyebrow">Intermezzo</p>
+        <p class="an-count" id="anCount" aria-hidden="true"></p>
+      </div>
+      <div class="an-stage" id="anStage" aria-live="polite"></div>
+      <div class="an-foot">
+        <p class="an-sig">ΚΆΝΤΟ ΑΠΛΌ <span aria-hidden="true">♪</span></p>
+        <div class="an-ctrl">
+          <button type="button" id="anPrev" aria-label="Slogan précédent / Previous">‹</button>
+          <button type="button" id="anPlay" aria-label="Pause / Lecture"><span class="i-pause" aria-hidden="true"></span></button>
+          <button type="button" id="anNext" aria-label="Slogan suivant / Next">›</button>
+        </div>
+      </div>
+      <div class="an-progress" aria-hidden="true"><i id="anBar"></i></div>
+    </div>
   </div>
 </section>
 

@@ -42,10 +42,10 @@
   function lang() { return document.documentElement.dataset.lang; }
 
   editors.forEach(function (e, i) { e.idx = i; e.num = ROMAN[i] || String(i + 1); });
-  var featured = editors.filter(function (e) { return e.shots > 0; });
+  /* Tous les éditeurs ont leur section, qu'ils soient en ligne ou en composition. */
+  var featured = editors;
   var engine = DATA.engine;
   var engineEds = engine ? editors.filter(function (e) { return e.engine; }) : [];
-  var pending = editors.filter(function (e) { return e.status === 'pending'; });
 
   /* ════════════════ Mini-portées (logo + avatars) ════════════════ */
   function buildStaff(word1, word2, fontSize) {
@@ -98,35 +98,118 @@
     return '<span class="chip pending">' + (e.version ? esc(e.version) : bi('Bientôt', 'Soon')) + '</span>';
   }
 
-  /* ════════════════ La partition : une carte par éditeur ════════════════ */
-  $('ovGrid').innerHTML = editors.map(function (e, i) {
-    var media = e.shots > 0
-      ? '<img src="' + thumb(e, 0) + '" alt="" loading="lazy" decoding="async" width="560" height="288"/>'
-      : '<span class="ov-letter">' + esc(e.greek.charAt(0)) + '</span>';
-    return '<a class="ov-card" data-reveal href="#ed-' + e.id + '" style="' + colorVars(e.accent) + ';--d:' + (i % 5) * 70 + 'ms">' +
-      '<div class="ov-media">' + media + '</div>' + chip(e) +
-      '<div class="ov-body"><span class="ov-num">' + e.num + '</span>' +
-      '<span class="ov-greek">' + esc(e.greek) + '</span>' +
-      '<span class="ov-sub">' + esc(e.latin) + ' · ' + bi(e.role_fr, e.role_en) + '</span></div></a>';
-  }).join('');
+  /* ════════════════ La partition : chaque éditeur est une note ════════════════
+     Noire = démo en ligne · blanche = en composition · ronde = l'application bâtie
+     avec KANTO APLO. Les éditeurs qui partagent le moteur sont liés par une barre
+     de croches. La partition se replie en plusieurs portées selon la largeur, et
+     une tête de lecture la « joue » note après note. */
+  var PITCH = [5, 7, 4, 2, 3, 6, 8, 5, 7, 4, 3, 6, 5, 7, 4];   // 0 = 1re ligne … 8 = 5e ligne
+  function noteKind(e) { return isExternal(e) ? 'whole' : e.status === 'pending' ? 'half' : 'quarter'; }
+  var sheetPer = 0;
+  function renderSheet() {
+    var body = $('sheetBody');
+    var width = body.clientWidth || 1000;
+    var per = Math.max(3, Math.min(editors.length, Math.floor((width - 80) / 88)));
+    var systems = Math.ceil(editors.length / per);
+    per = Math.ceil(editors.length / systems);
+    if (per === sheetPer) return placeBeams();
+    sheetPer = per;
+    var html = '';
+    for (var sIdx = 0; sIdx < systems; sIdx++) {
+      var group = editors.slice(sIdx * per, (sIdx + 1) * per);
+      var notes = group.map(function (e, k) {
+        var kind = noteKind(e), p = PITCH[e.idx % PITCH.length];
+        var up = e.engine || p < 4;
+        var tip = (e.shots > 0 ? '<img src="' + thumb(e, 0) + '" alt="" loading="lazy" decoding="async"/>' : '<span class="tip-letter">' + esc(e.greek.charAt(0)) + '</span>') +
+          '<b>' + esc(e.greek) + '</b><small>' + esc(e.latin) + ' · ' + bi(e.role_fr, e.role_en) + '</small>' + chip(e);
+        var bar = (e.idx % 3 === 2 && k < group.length - 1) ? '<span class="sbar" aria-hidden="true"></span>' : '';
+        return '<a class="snote ' + kind + (up ? ' up' : ' down') + (e.engine ? ' eng' : '') + '" href="#ed-' + e.id + '" data-idx="' + e.idx + '"' +
+          ' style="--c:' + e.accent + ';--p:' + p + ';--i:' + e.idx + '" aria-label="' + esc(e.latin + ' — ' + e.role_fr) + '">' +
+          '<span class="sn-num" aria-hidden="true">' + e.num + '</span>' +
+          '<span class="sn-head" aria-hidden="true"></span>' + (kind !== 'whole' ? '<span class="sn-stem" aria-hidden="true"></span>' : '') +
+          '<span class="sn-name" aria-hidden="true">' + esc(e.greek) + '</span>' +
+          '<span class="sn-tip" aria-hidden="true">' + tip + '</span></a>' + bar;
+      }).join('');
+      var last = sIdx === systems - 1;
+      html += '<div class="sys' + (sIdx === 0 ? ' first' : '') + '">' +
+        '<div class="sys-lines" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>' +
+        '<span class="sys-clef" aria-hidden="true">𝄞</span>' +
+        (sIdx === 0 ? '<span class="sys-time" aria-hidden="true"><b>4</b><b>4</b></span>' : '') +
+        '<div class="sys-notes">' + notes + (last ? '<span class="sbar end" aria-hidden="true"></span>' : '') + '</div>' +
+        '<span class="sys-play" aria-hidden="true"></span></div>';
+    }
+    body.innerHTML = html;
+    placeBeams();
+  }
+  /* Barre de croches entre deux notes voisines qui partagent le moteur. */
+  function placeBeams() {
+    var body = $('sheetBody');
+    body.querySelectorAll('.sbeam').forEach(function (b) { b.remove(); });
+    body.querySelectorAll('.sys-notes').forEach(function (row) {
+      var engs = row.querySelectorAll('.snote.eng');
+      for (var i = 0; i + 1 < engs.length; i++) {
+        var a = engs[i].querySelector('.sn-stem'), b = engs[i + 1].querySelector('.sn-stem');
+        if (!a || !b) continue;
+        var r = row.getBoundingClientRect(), ra = a.getBoundingClientRect(), rb = b.getBoundingClientRect();
+        var x1 = ra.left - r.left, y1 = ra.top - r.top, x2 = rb.right - r.left, y2 = rb.top - r.top;
+        var len = Math.hypot(x2 - x1, y2 - y1), ang = Math.atan2(y2 - y1, x2 - x1);
+        var beam = document.createElement('span');
+        beam.className = 'sbeam';
+        beam.setAttribute('aria-hidden', 'true');
+        beam.style.cssText = 'left:' + x1 + 'px;top:' + y1 + 'px;width:' + len + 'px;transform:rotate(' + ang + 'rad)';
+        row.appendChild(beam);
+      }
+    });
+  }
+  $('sheetLegend').innerHTML = [
+    ['quarter', 'Démo en ligne', 'Live demo'],
+    ['half', 'En composition', 'In composition'],
+    ['whole', 'Application bâtie avec KANTO APLO', 'App built with KANTO APLO'],
+    ['beam', 'Moteur KANTO partagé', 'Shared KANTO engine']
+  ].map(function (l) { return '<li><i class="lg ' + l[0] + '" aria-hidden="true"></i>' + bi(l[1], l[2]) + '</li>'; }).join('');
+  renderSheet();
+
+  /* La tête de lecture joue la partition, note après note, tant qu'elle est visible. */
+  (function playSheet() {
+    var sheet = $('sheet'), at = -1, timer = 0, visible = false, hold = false;
+    function step() {
+      var notes = sheet.querySelectorAll('.snote');
+      if (!notes.length) return;
+      sheet.querySelectorAll('.snote.lit').forEach(function (n) { n.classList.remove('lit'); });
+      at = (at + 1) % notes.length;
+      light(notes[at]);
+    }
+    function light(n) {
+      n.classList.add('lit');
+      var sys = n.closest('.sys'), head = n.querySelector('.sn-head');
+      sheet.querySelectorAll('.sys').forEach(function (x) { x.classList.toggle('playing', x === sys); });
+      var x = head.getBoundingClientRect().left + head.offsetWidth / 2 - sys.getBoundingClientRect().left;
+      sys.querySelector('.sys-play').style.transform = 'translateX(' + x.toFixed(1) + 'px)';
+    }
+    function run() { clearInterval(timer); if (visible && !hold && !reduceMotion) timer = setInterval(step, 720); }
+    sheet.addEventListener('pointerover', function (e) {
+      var n = e.target.closest('.snote'); if (!n) return;
+      hold = true; clearInterval(timer);
+      sheet.querySelectorAll('.snote.lit').forEach(function (x) { x.classList.remove('lit'); });
+      light(n); at = Array.prototype.indexOf.call(sheet.querySelectorAll('.snote'), n);
+    });
+    sheet.addEventListener('pointerleave', function () { hold = false; run(); });
+    new IntersectionObserver(function (en) { visible = en[0].isIntersecting; if (visible) run(); else clearInterval(timer); }, { threshold: 0.3 }).observe(sheet);
+    var rz = 0;
+    window.addEventListener('resize', function () { clearTimeout(rz); rz = setTimeout(function () { renderSheet(); }, 150); });
+  })();
 
   /* ════════════════ Les mouvements ════════════════ */
-  function interlude(s) {
-    var lines = '';
-    for (var i = 0; i < 5; i++) lines += '<line x1="0" x2="600" y1="' + (4 + i * 8) + '" y2="' + (4 + i * 8) + '" pathLength="1"/>';
-    return '<div class="interlude wrap" data-reveal aria-hidden="false">' +
-      '<svg class="il-staff" viewBox="0 0 600 40" preserveAspectRatio="none" aria-hidden="true">' + lines +
-      '<text x="300" y="30" text-anchor="middle">' + NOTES[Math.floor(Math.random() * NOTES.length)] + '</text></svg>' +
-      '<blockquote>' + bi(s.fr, s.en) + '</blockquote>' +
-      '<p class="il-sig">ΚΆΝΤΟ ΑΠΛΌ</p></div>';
-  }
-
   function movement(e, order) {
     var greek = Array.from(e.greek).map(function (ch, i) {
       return '<span class="ch" style="--i:' + i + '">' + esc(ch) + '</span>';
     }).join('');
-    var url = isExternal(e) ? e.href.replace(/^https?:\/\//, '') : 'kantoaplo.com/' + e.href.replace(/\/index\.html$/, '');
-    var demo = isExternal(e)
+    var url = isExternal(e) ? e.href.replace(/^https?:\/\//, '') : 'kantoaplo.com/' + (e.href || '').replace(/\/index\.html$/, '');
+    var wip = e.status === 'pending';
+    var demo = wip
+      ? '<span class="btn btn-wip" role="status"><i aria-hidden="true"></i>' + bi('Démo en composition', 'Demo in composition') + '</span>' +
+        '<a class="btn btn-line" href="mailto:contact@cephalosophie.com?subject=' + encodeURIComponent('KANTO APLO — ' + e.latin) + '">' + bi('Être prévenu', 'Get notified') + ' <span aria-hidden="true">✉</span></a>'
+      : isExternal(e)
       ? '<a class="btn btn-acc" href="' + esc(e.href) + '" target="_blank" rel="noopener">' + bi('Jouer sur ' + e.statusLabel, 'Play on ' + e.statusLabel) + ' <span aria-hidden="true">↗</span></a>'
       : '<a class="btn btn-acc" href="' + esc(e.href) + '">' + (e.engine ? bi('Démo du moteur ' + engine.name, engine.name + ' engine demo') : bi('Ouvrir la démo', 'Open the demo')) + ' <span aria-hidden="true">→</span></a>';
     var partners = engineEds.filter(function (x) { return x !== e; }).map(function (x) { return x.latin; }).join(', ');
@@ -138,21 +221,24 @@
       strip += '<button type="button" style="--i:' + i + '" data-go="' + i + '" aria-label="' + esc(e.latin) + ' — ' + (i + 1) + '">' +
         '<img src="' + thumb(e, i) + '" alt="" loading="lazy" decoding="async"/></button>';
     }
-    return '<article class="mvt' + (order % 2 ? ' rev' : '') + '" id="ed-' + e.id + '" data-idx="' + e.idx + '" style="' + colorVars(e.accent) + '" aria-labelledby="t-' + e.id + '">' +
+    return '<article class="mvt' + (order % 2 ? ' rev' : '') + (wip ? ' wip' : '') + '" id="ed-' + e.id + '" data-idx="' + e.idx + '" style="' + colorVars(e.accent) + '" aria-labelledby="t-' + e.id + '">' +
       '<span class="mvt-ghost" aria-hidden="true">' + esc(e.greek.charAt(0)) + '</span>' +
       '<div class="wrap mvt-grid">' +
         '<div class="mvt-info">' +
-          '<p class="mvt-num">' + bi(isExternal(e) ? 'Finale' : 'Mouvement', isExternal(e) ? 'Finale' : 'Movement') + ' <b>' + e.num + '</b></p>' +
+          '<p class="mvt-num">' + bi(isExternal(e) ? 'Finale' : 'Mouvement', isExternal(e) ? 'Finale' : 'Movement') + ' <b>' + e.num + '</b>' +
+            (wip ? '<span class="wip-badge">' + bi('En cours', 'In progress') + '</span>' : '') + '</p>' +
           '<h3 class="mvt-greek" id="t-' + e.id + '" aria-label="' + esc(e.greek + ' — ' + e.latin) + '">' + greek + '</h3>' +
           '<p class="mvt-latin"><strong>' + esc(e.latin) + '</strong><em>' + bi(e.meaning_fr, e.meaning_en) + '</em></p>' +
           '<p class="mvt-pitch">' + bi(e.pitch_fr, e.pitch_en) + '</p>' +
           '<ul class="mvt-meta"><li class="role">' + bi(e.role_fr, e.role_en) + '</li>' +
-            '<li>' + bi(e.shots + ' captures', e.shots + ' screenshots') + '</li>' +
-            (engineChip || '<li>' + (isExternal(e) ? bi('Bâti avec KANTO APLO', 'Built with KANTO APLO') : bi('Démo interactive', 'Interactive demo')) + '</li>') + '</ul>' +
+            (wip
+              ? (e.version ? '<li>' + bi('Version ', 'Version ') + esc(e.version) + '</li>' : '') + '<li class="wip-chip">' + bi('En composition', 'In composition') + '</li>'
+              : '<li>' + bi(e.shots + ' captures', e.shots + ' screenshots') + '</li>' +
+                (engineChip || '<li>' + (isExternal(e) ? bi('Bâti avec KANTO APLO', 'Built with KANTO APLO') : bi('Démo interactive', 'Interactive demo')) + '</li>')) + '</ul>' +
           '<div class="mvt-actions">' + demo +
-            '<button type="button" class="btn btn-line" data-zoom>' + bi('Plein écran', 'Full screen') + '</button></div>' +
+            (wip ? '' : '<button type="button" class="btn btn-line" data-zoom>' + bi('Plein écran', 'Full screen') + '</button>') + '</div>' +
         '</div>' +
-        '<div class="stage">' +
+        (wip ? composeStage(e) : '<div class="stage">' +
           '<figure class="frame" style="margin:0">' +
             '<div class="frame-bar" aria-hidden="true"><i></i><i></i><i></i><span class="frame-url">' + esc(url) + '</span></div>' +
             '<span class="frame-tick" aria-hidden="true"></span>' +
@@ -167,25 +253,25 @@
               : '') +
           '</figure>' +
           (e.shots > 1 ? '<div class="strip">' + strip + '</div>' : '') +
-        '</div>' +
+        '</div>') +
       '</div></article>';
   }
 
-  function upcoming() {
-    if (!pending.length) return '';
-    return '<section class="upcoming" id="ed-upcoming" data-idxs="' + pending.map(function (e) { return e.idx; }).join(',') + '">' +
-      '<div class="wrap"><header class="section-head" data-reveal>' +
-        '<p class="eyebrow">' + bi('En cours d\'écriture', 'Being written') + '</p>' +
-        '<h2>' + bi('Les prochains mouvements', 'The next movements') + '</h2></header>' +
-      '<div class="up-grid">' + pending.map(function (e, i) {
-        return '<article class="up-card" data-reveal id="ed-' + e.id + '" style="' + colorVars(e.accent) + ';--d:' + i * 110 + 'ms">' +
-          '<span class="up-letter" aria-hidden="true">' + esc(e.greek.charAt(0)) + '</span>' +
-          '<span class="ov-num">' + bi('Mouvement ', 'Movement ') + e.num + '</span>' +
-          '<h3 class="up-greek">' + esc(e.greek) + '</h3>' +
-          '<p class="up-sub">' + esc(e.latin) + ' · ' + bi(e.role_fr, e.role_en) + '<br/><em>' + bi(e.meaning_fr, e.meaning_en) + '</em></p>' +
-          '<p class="up-pitch">' + bi(e.pitch_fr, e.pitch_en) + '</p>' +
-          '<span class="up-ver">' + (e.version ? esc(e.version) + ' · ' : '') + bi('en composition', 'in composition') + '</span></article>';
-      }).join('') + '</div></div></section>';
+  /* Cadre d'un éditeur en composition : une partition qui s'écrit, note après note. */
+  function composeStage(e) {
+    var P = [3, 5, 2, 6, 4, 7, 5, 8, 6, 4, 3, 5], notes = '';
+    P.forEach(function (p, i) {
+      var x = 15 + i * 6.9;
+      notes += '<i class="cp-note' + (i % 4 === 3 ? ' hollow' : '') + (p >= 4 ? ' down' : '') + '" style="--i:' + i + ';--p:' + p + ';left:' + x.toFixed(1) + '%"></i>';
+      if (i % 4 === 3 && i < P.length - 1) notes += '<i class="cp-bar" style="left:' + (x + 3.45).toFixed(1) + '%"></i>';
+    });
+    return '<div class="stage"><figure class="frame" style="margin:0">' +
+      '<div class="frame-bar" aria-hidden="true"><i></i><i></i><i></i><span class="frame-url">kantoaplo.com · ' + esc(e.latin) + ' — ' + bi('en composition', 'in composition') + '</span></div>' +
+      '<div class="frame-view compose" role="img" aria-label="' + esc(e.latin) + ' — en composition / in composition">' +
+        '<span class="cp-greek" aria-hidden="true">' + esc(e.greek) + '</span>' +
+        '<span class="cp-staff" aria-hidden="true"><span class="cp-clef">𝄞</span>' + notes + '</span>' +
+        '<span class="cp-label"><i aria-hidden="true"></i>' + bi('En composition', 'In composition') + (e.version ? ' · ' + esc(e.version) : '') + '</span>' +
+      '</div></figure></div>';
   }
 
   /* Le moteur commun : un instrument, plusieurs éditeurs, ouvert à tout domaine. */
@@ -226,30 +312,19 @@
       '</div></section>';
   }
 
-  /* Ordre de la page : chaque éditeur, le moteur juste avant le deuxième éditeur qui
-     le partage, puis les éditeurs à venir. Un slogan sépare deux éditeurs ; le moteur
-     fait lui-même la transition. S'il reste un slogan, il ouvre la section. */
-  var seq = [];
-  featured.forEach(function (e, i) {
-    if (engineEds.length > 1 && e === engineEds[1]) seq.push({ html: engineSection(), bridge: true });
-    seq.push({ html: movement(e, i) });
-  });
-  var up = upcoming();
-  if (up) seq.push({ html: up });
-  var pool = slogans.slice(0, -1);
-  var gaps = seq.filter(function (b, i) { return i > 0 && !b.bridge && !seq[i - 1].bridge; }).length;
-  var html = pool.length > gaps ? interlude(pool.shift()) : '';
-  html += '<div class="wrap"><header class="section-head" data-reveal style="margin-bottom:0">' +
+  /* Ordre de la page : chaque éditeur, et le moteur juste avant le deuxième éditeur
+     qui le partage. Les slogans ont leur propre lecteur (Intermezzo). */
+  var html = '<div class="wrap"><header class="section-head" data-reveal style="margin-bottom:0">' +
     '<p class="eyebrow">' + bi('Les mouvements', 'The movements') + '</p>' +
     '<h2>' + bi('Chaque éditeur, une voix.', 'Every editor, a voice.') + '</h2>' +
     '<p class="lead">' + bi('Faites défiler : la partition se joue d\'elle-même.', 'Scroll on: the score plays itself.') + '</p></header></div>';
-  seq.forEach(function (b, i) {
-    if (i > 0 && !b.bridge && !seq[i - 1].bridge && pool.length) html += interlude(pool.shift());
-    html += b.html;
+  featured.forEach(function (e, i) {
+    if (engineEds.length > 1 && e === engineEds[1]) html += engineSection();
+    html += movement(e, i);
   });
   $('movementsBody').innerHTML = html;
   if (engineEds.length > 1) {
-    $('ovGrid').insertAdjacentHTML('afterend', '<p class="ov-note" data-reveal><a href="#engine">⚙ ' +
+    $('sheet').insertAdjacentHTML('afterend', '<p class="ov-note" data-reveal><a href="#engine">⚙ ' +
       bi(engineEds.map(function (e) { return e.latin; }).join(' et ') + ' partagent le même moteur : ' + engine.name,
          engineEds.map(function (e) { return e.latin; }).join(' and ') + ' share the same engine: ' + engine.name) +
       ' <span aria-hidden="true">→</span></a></p>');
@@ -268,6 +343,95 @@
     return '<li><a href="#ed-' + e.id + '" data-idx="' + i + '" style="--c:' + e.accent + '" aria-label="' + esc(e.latin) + '">' +
       '<span class="lbl">' + esc(e.greek) + '</span><span class="dot"></span></a></li>';
   }).join('');
+
+  /* ════════════════ Intermezzo : un slogan, une portée, en boucle ════════════════
+     Chaque slogan reçoit SA portée : clef, armure (dièses ou bémols), mesure et
+     couleur propres, tirées d'une graine fixe (le même slogan garde toujours la
+     même portée). Ses mots se posent sur les lignes comme des notes, à des
+     hauteurs qui suivent une petite mélodie, avec des barres de mesure. Puis ils
+     s'envolent et le slogan suivant s'écrit. Autant de slogans que l'on veut. */
+  (function intermezzo() {
+    var stage = $('anStage'), sheet = $('anthem'), bar = $('anBar'), playBtn = $('anPlay');
+    if (!stage || !slogans.length) return;
+    var CLEFS = ['𝄞', '𝄢', '𝄡'];
+    var TIMES = [['4', '4'], ['3', '4'], ['6', '8'], ['2', '4'], ['12', '8'], ['5', '4']];
+    var SHARP_Y = [-12, 0, -16, -4, 8], FLAT_Y = [4, -8, 8, -4, 12];
+    var colors = editors.map(function (e) { return e.accent; });
+    function prng(a) {
+      return function () {
+        a = (a + 0x6D2B79F5) | 0;
+        var t = Math.imul(a ^ (a >>> 15), 1 | a);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+    function melody(text, rnd) {
+      var out = '', inBar = 0, barLen = 3 + Math.floor(rnd() * 3), p = 0;
+      var list = text.split(/\s+/);
+      list.forEach(function (w, k) {
+        p = Math.max(-3, Math.min(3, p + Math.round((rnd() - 0.5) * 4)));   // pas conjoints, comme une mélodie
+        out += '<span class="w" style="--p:' + p + ';--i:' + k + '">' + esc(w) + '</span> ';
+        if (++inBar >= barLen && k < list.length - 1) {
+          out += '<span class="bar" aria-hidden="true"></span> ';
+          inBar = 0; barLen = 3 + Math.floor(rnd() * 3);
+        }
+      });
+      return out;
+    }
+    function render(i) {
+      var s = slogans[i], rnd = prng(i * 7919 + 17);
+      var n = Math.floor(rnd() * 5), flat = rnd() < 0.5, acc = '';
+      for (var k = 0; k < n; k++) acc += '<i style="transform:translateY(' + (flat ? FLAT_Y : SHARP_Y)[k] + 'px)">' + (flat ? '♭' : '♯') + '</i>';
+      var t = TIMES[Math.floor(rnd() * TIMES.length)], c = colors[i % colors.length];
+      return '<div class="an-line" style="--c:' + c + ';--slc:' + rgba(c, 0.42) + '">' +
+        '<span class="an-key" aria-hidden="true"><span class="an-clef">' + CLEFS[i % CLEFS.length] + '</span>' +
+          (acc ? '<span class="an-acc">' + acc + '</span>' : '') +
+          '<span class="an-time"><b>' + t[0] + '</b><b>' + t[1] + '</b></span></span> ' +
+        '<span class="an-text" data-fr>' + melody(s.fr, prng(i * 7919 + 101)) + '</span>' +
+        '<span class="an-text" data-en>' + melody(s.en, prng(i * 7919 + 211)) + '</span>' +
+        '<span class="bar end" aria-hidden="true"></span></div>';
+    }
+    function duration(i) {
+      var len = Math.max(slogans[i].fr.length, slogans[i].en.length);
+      return Math.max(6500, Math.min(14000, 3800 + len * 62));
+    }
+
+    var idx = -1, timer = 0, playing = !reduceMotion, visible = false, hovering = false;
+    function show(i) {
+      idx = (i + slogans.length) % slogans.length;
+      var old = stage.querySelector('.an-line:not(.leave)');
+      var holder = document.createElement('div');
+      holder.innerHTML = render(idx);
+      var fresh = holder.firstChild;
+      if (old) {
+        old.classList.add('leave');
+        setTimeout(function () { old.remove(); }, reduceMotion ? 0 : 800);
+      }
+      stage.appendChild(fresh);
+      requestAnimationFrame(function () { requestAnimationFrame(function () { fresh.classList.add('show'); }); });
+      $('anCount').textContent = pad(idx + 1) + ' / ' + pad(slogans.length);
+      schedule();
+    }
+    function schedule() {
+      clearTimeout(timer);
+      bar.classList.remove('run');
+      var active = playing && visible && !hovering && !document.hidden;
+      sheet.classList.toggle('paused', !playing);
+      if (!active) return;
+      bar.style.animationDuration = duration(idx) + 'ms';
+      void bar.offsetWidth;
+      bar.classList.add('run');
+      timer = setTimeout(function () { show(idx + 1); }, duration(idx));
+    }
+    $('anPrev').addEventListener('click', function () { show(idx - 1); });
+    $('anNext').addEventListener('click', function () { show(idx + 1); });
+    playBtn.addEventListener('click', function () { playing = !playing; schedule(); });
+    sheet.addEventListener('mouseenter', function () { hovering = true; schedule(); });
+    sheet.addEventListener('mouseleave', function () { hovering = false; schedule(); });
+    document.addEventListener('visibilitychange', schedule);
+    new IntersectionObserver(function (en) { visible = en[0].isIntersecting; schedule(); }, { threshold: 0.35 }).observe(sheet);
+    show(0);
+  })();
 
   /* ════════════════ Bandeau clients ════════════════ */
   var clientsHTML = DATA.clients.map(function (c, i) {
@@ -319,11 +483,6 @@
     var e = editors[Number(el.dataset.idx)];
     stopInfo.set(el, { idxs: [e.idx], num: e.num, label: esc(e.greek), accent: e.accent, prev: e.idx - 1, next: e.idx + 1 });
   });
-  if ($('ed-upcoming')) {
-    var p0 = pending[0], p1 = pending[pending.length - 1];
-    stopInfo.set($('ed-upcoming'), { idxs: pending.map(function (e) { return e.idx; }), num: p0.num + '–' + p1.num,
-      label: bi('À venir', 'Coming'), accent: '#C9963A', aura: '#8B5CF6', prev: p0.idx - 1, next: p1.idx + 1 });
-  }
   if ($('engine')) {
     stopInfo.set($('engine'), { idxs: engineEds.map(function (e) { return e.idx; }), num: '⚙',
       label: esc(engine.name), accent: engine.accent, prev: engineEds[0].idx, next: engineEds[1].idx });
@@ -463,7 +622,9 @@
 
   var galleries = [];
   document.querySelectorAll('.mvt').forEach(function (el) {
-    var g = new Gallery(el, editors[Number(el.dataset.idx)]);
+    var ed = editors[Number(el.dataset.idx)];
+    if (!ed.shots) return;
+    var g = new Gallery(el, ed);
     galleries.push(g);
     el.addEventListener('mouseenter', function () { g.stop(false); });
     el.addEventListener('mouseleave', function () { if (g.visible) g.play(); });

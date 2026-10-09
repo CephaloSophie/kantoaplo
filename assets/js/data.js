@@ -56,13 +56,6 @@ window.KANTO = {
       pitch_en: 'Professional UML editor — classes, sequences, ER, use-cases — model before you build.',
       status: 'ready', href: 'demos/skhema/index.html', shots: 9 },
 
-    { id: 'kydos', greek: 'ΚΥΔΟΣ', latin: 'Kydos', accent: '#E6C77A',
-      role_fr: "L'application", role_en: 'The application',
-      meaning_fr: 'κῦδος — la gloire', meaning_en: 'κῦδος — glory',
-      pitch_fr: 'Belote compétitive avec IA programmables — application phare bâtie sur KANTO APLO.',
-      pitch_en: 'Competitive belote with programmable AI robots — flagship app built on KANTO APLO.',
-      status: 'external', statusLabel: 'kydosbelote.com', href: 'https://kydosbelote.com', shots: 3 },
-
     { id: 'mantis', greek: 'ΜΆΝΤΙΣ', latin: 'Mantis', accent: '#8B5CF6',
       role_fr: 'Le prophète', role_en: 'The prophet',
       meaning_fr: 'μάντις — le devin', meaning_en: 'μάντις — the seer',
@@ -89,7 +82,14 @@ window.KANTO = {
       meaning_fr: 'Ἑρμῆς — le messager des dieux, gardien des passages', meaning_en: 'Ἑρμῆς — messenger of the gods, keeper of passages',
       pitch_fr: "Orchestration : workflows d'automatisation visuels, agents IA autonomes capables d'utiliser des outils, circulation des données entre systèmes.",
       pitch_en: 'Orchestration: visual automation workflows, autonomous AI agents able to use tools, data flowing between systems.',
-      status: 'pending', shots: 0 }
+      status: 'pending', shots: 0 },
+
+    { id: 'kydos', greek: 'ΚΥΔΟΣ', latin: 'Kydos', accent: '#E6C77A',
+      role_fr: "L'application", role_en: 'The application',
+      meaning_fr: 'κῦδος — la gloire', meaning_en: 'κῦδος — glory',
+      pitch_fr: 'Belote compétitive avec IA programmables — application phare bâtie sur KANTO APLO.',
+      pitch_en: 'Competitive belote with programmable AI robots — flagship app built on KANTO APLO.',
+      status: 'external', statusLabel: 'kydosbelote.com', href: 'https://kydosbelote.com', shots: 3 }
   ],
 
   /* Le moteur commun aux éditeurs marqués `engine: true` (Tektôn, Logos).
@@ -115,7 +115,8 @@ window.KANTO = {
     open_text_fr: 'Les mêmes blocs, configurés pour tout autre besoin.', open_text_en: 'The same blocks, configured for any other need.'
   },
 
-  /* Intermèdes entre les éditeurs, dans l'ordre. Le dernier signe la section Contact. */
+  /* Slogans joués en boucle par le lecteur « Intermezzo », chacun sur sa propre portée.
+     On peut en ajouter autant que l'on veut. Le dernier signe aussi la section Contact. */
   slogans: [
     { fr: "Avant, tu regardais l'heure en te demandant où était passée ta journée. Maintenant, ta journée se passe pendant que tu regardes l'heure.",
       en: "Before, you'd check the time and wonder where your day had gone. Now, your day happens while you watch the time." },
@@ -131,6 +132,22 @@ window.KANTO = {
       en: "The most beautiful music isn't born from the one wiring the cables — it's born from the one who closes his eyes and plays." },
     { fr: 'Mozart ne configurait pas son piano avant chaque morceau. Toi non plus tu ne devrais pas.',
       en: "Mozart didn't configure his piano before every piece. Neither should you." },
+    { fr: 'Une symphonie ne s’écrit pas en accordant les violons. Elle s’écrit en écoutant ce que l’on veut entendre.',
+      en: 'A symphony isn’t written by tuning the violins. It’s written by listening to what you want to hear.' },
+    { fr: 'Entre deux notes, il y a le silence. Entre ton idée et ton application, il n’y a plus rien.',
+      en: 'Between two notes, there is silence. Between your idea and your app, there is nothing left.' },
+    { fr: 'Le chef d’orchestre ne joue d’aucun instrument. Et pourtant, c’est lui que l’on entend.',
+      en: 'The conductor plays no instrument. And yet, he is the one you hear.' },
+    { fr: 'Chaque bloc est une note. Chaque page, une mesure. Chaque application, une symphonie.',
+      en: 'Every block is a note. Every page, a bar. Every application, a symphony.' },
+    { fr: 'Les grands compositeurs n’ont jamais fabriqué leur papier à musique.',
+      en: 'The great composers never made their own manuscript paper.' },
+    { fr: 'Tu fredonnes l’air. On écrit l’orchestration.',
+      en: 'You hum the tune. We write the orchestration.' },
+    { fr: 'Une bonne partition se lit d’un regard. Une bonne application aussi.',
+      en: 'A good score reads at a glance. So does a good application.' },
+    { fr: 'Le silence fait partie de la musique : c’est tout le code que tu n’écris plus.',
+      en: 'Silence is part of the music: it’s all the code you no longer write.' },
     { fr: 'Tu composes. On joue.', en: 'You compose. We play.' }
   ],
 
