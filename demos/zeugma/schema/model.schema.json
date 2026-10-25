@@ -1,0 +1,661 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kantoaplo.dev/schema/domino/model-1.json",
+  "title": "Document de modèle Zeugma",
+  "description": "Tout ce qu’un générateur doit savoir d’un projet, résolu : langage, parties, pierres, relations, déclarations, contexte, diagnostics, journal, exécution.",
+  "type": "object",
+  "required": [
+    "format",
+    "version",
+    "language",
+    "parties",
+    "elements",
+    "connections"
+  ],
+  "properties": {
+    "format": {
+      "const": "kantoaplo.model"
+    },
+    "version": {
+      "const": 1
+    },
+    "engine": {
+      "type": "string"
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "language": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "rules": {
+          "type": "object",
+          "properties": {
+            "chain": {
+              "enum": [
+                "types",
+                "count",
+                "both",
+                "fonction"
+              ]
+            },
+            "wires": {
+              "type": "boolean"
+            },
+            "list": {
+              "type": "array"
+            }
+          }
+        },
+        "roles": {
+          "type": "object",
+          "description": "Ce que veut dire chaque rôle (nombre de points), dans les mots du langage."
+        },
+        "types": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "color"
+            ],
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              },
+              "color": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "definitions": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "description": "Définition JSON d’une pierre (registry.toJSON), avec son rôle."
+          }
+        }
+      }
+    },
+    "parties": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "kind"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "main",
+              "declarations",
+              "body",
+              "component"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "owner": {
+            "type": "string"
+          },
+          "path": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "roots": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "elements": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Ordre de lecture."
+          }
+        }
+      }
+    },
+    "elements": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/element"
+      }
+    },
+    "connections": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/connection"
+      }
+    },
+    "declarations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "name"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "class",
+              "library",
+              "function",
+              "variable"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "signature": {
+            "type": "object"
+          },
+          "body": {
+            "type": "object"
+          },
+          "instances": {
+            "type": "array"
+          },
+          "uses": {
+            "type": "array"
+          },
+          "calls": {
+            "type": "array"
+          },
+          "origin": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "context": {
+      "type": "object",
+      "properties": {
+        "values": {
+          "type": "object"
+        },
+        "bindings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "element": {
+                "type": "string"
+              },
+              "field": {
+                "type": "string"
+              },
+              "path": {
+                "type": "string"
+              },
+              "template": {
+                "type": "boolean"
+              },
+              "exists": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      }
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "element": {
+            "type": "string"
+          },
+          "level": {
+            "enum": [
+              "error",
+              "warn",
+              "info"
+            ]
+          },
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "journal": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "seq": {
+            "type": "integer"
+          },
+          "at": {
+            "type": "string"
+          },
+          "by": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "events": {
+            "type": "array"
+          }
+        }
+      }
+    },
+    "run": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "ok": {
+          "type": "boolean"
+        },
+        "steps": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/step"
+          }
+        },
+        "instances": {
+          "type": "array"
+        },
+        "variables": {
+          "type": "object"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "pip": {
+      "type": "object",
+      "required": [
+        "index",
+        "name",
+        "type"
+      ],
+      "properties": {
+        "index": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "typeLabel": {
+          "type": "string"
+        },
+        "typeKind": {
+          "type": "string"
+        },
+        "color": {
+          "type": "string"
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "multiple": {
+          "type": "boolean"
+        }
+      }
+    },
+    "element": {
+      "type": "object",
+      "required": [
+        "id",
+        "type",
+        "title",
+        "role",
+        "partie",
+        "faces",
+        "fields"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "represents": {
+          "type": "string",
+          "description": "Ce que la pierre représente : variable, instruction, classe, projet, scénario, algorithme, idée…"
+        },
+        "role": {
+          "type": "string"
+        },
+        "roleLabel": {
+          "type": "string"
+        },
+        "partie": {
+          "type": "string"
+        },
+        "path": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "place": {
+          "type": "object",
+          "properties": {
+            "via": {
+              "enum": [
+                "next",
+                "top",
+                "bottom",
+                null
+              ]
+            },
+            "parent": {
+              "type": "string"
+            },
+            "pip": {
+              "type": "integer"
+            },
+            "head": {
+              "type": "string"
+            },
+            "depth": {
+              "type": "integer"
+            },
+            "order": {
+              "type": "integer"
+            }
+          }
+        },
+        "faces": {
+          "type": "object",
+          "properties": {
+            "count": {
+              "type": "string"
+            },
+            "left": {
+              "type": "array",
+              "items": {
+                "allOf": [
+                  {
+                    "$ref": "#/$defs/pip"
+                  }
+                ],
+                "properties": {
+                  "source": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            },
+            "right": {
+              "type": "array",
+              "items": {
+                "allOf": [
+                  {
+                    "$ref": "#/$defs/pip"
+                  }
+                ],
+                "properties": {
+                  "targets": {
+                    "type": "array"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "fields": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string"
+              },
+              "value": {},
+              "resolved": {},
+              "binding": {
+                "type": "string"
+              },
+              "ref": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "inside": {
+          "type": "object",
+          "properties": {
+            "partie": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string"
+            },
+            "elements": {
+              "type": "array"
+            }
+          }
+        },
+        "declaration": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "as": {
+              "enum": [
+                "instance",
+                "call",
+                "read",
+                "write"
+              ]
+            }
+          }
+        },
+        "note": {
+          "type": "string"
+        },
+        "disabled": {
+          "type": "boolean"
+        },
+        "locked": {
+          "type": "boolean"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "trace": {
+          "type": "object"
+        },
+        "diagnostics": {
+          "type": "array"
+        },
+        "lastRun": {
+          "type": "object"
+        }
+      }
+    },
+    "connection": {
+      "type": "object",
+      "required": [
+        "id",
+        "kind",
+        "from",
+        "to"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "chain",
+            "top",
+            "bottom",
+            "wire",
+            "inside",
+            "instance",
+            "calls-function",
+            "uses-variable",
+            "reference",
+            "jump"
+          ]
+        },
+        "wireKind": {
+          "enum": [
+            "data",
+            "call",
+            "trigger"
+          ]
+        },
+        "from": {
+          "type": "object"
+        },
+        "to": {
+          "type": "object"
+        },
+        "blocking": {
+          "type": "boolean"
+        },
+        "async": {
+          "type": "boolean"
+        },
+        "calls": {
+          "type": "object"
+        },
+        "label": {
+          "type": "string"
+        },
+        "cond": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "object"
+            }
+          ],
+          "description": "Condition de la connexion : une expression JavaScript courte (texte) ou une expression déclarative (objet)."
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "field": {
+          "type": "string"
+        },
+        "max": {
+          "type": "number",
+          "description": "jump : passages permis."
+        },
+        "edgeType": {
+          "type": "string",
+          "description": "wire : genre de lien."
+        },
+        "fields": {
+          "type": "object",
+          "description": "wire : champs du lien."
+        }
+      }
+    },
+    "step": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "element": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "ok",
+            "error",
+            "skipped",
+            "disabled"
+          ]
+        },
+        "cause": {
+          "type": "object",
+          "properties": {
+            "via": {
+              "enum": [
+                "start",
+                "chain",
+                "wire",
+                "pull",
+                "call",
+                "construct",
+                "top",
+                "bottom",
+                "inside",
+                "jump"
+              ]
+            },
+            "step": {
+              "type": "string"
+            }
+          }
+        },
+        "path": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "inputs": {},
+        "outputs": {}
+      }
+    }
+  }
+}

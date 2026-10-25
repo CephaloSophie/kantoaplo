@@ -1,0 +1,266 @@
+{
+  "name": "kantoaplo-zeugma",
+  "version": "1.1.0",
+  "builtAt": "2026-10-24T23:33:00.739Z",
+  "entry": {
+    "html": "index.html",
+    "js": "assets/studio.77f082d47c.js",
+    "css": "assets/studio.1f6edeeaa9.css"
+  },
+  "layers": [
+    {
+      "id": "kit",
+      "files": 1
+    },
+    {
+      "id": "core",
+      "files": 24
+    },
+    {
+      "id": "ui",
+      "files": 8
+    },
+    {
+      "id": "studio",
+      "files": 5
+    },
+    {
+      "id": "demos",
+      "files": 17
+    },
+    {
+      "id": "app",
+      "files": 1
+    }
+  ],
+  "files": [
+    {
+      "file": "assets/studio.1f6edeeaa9.css",
+      "bytes": 89813
+    },
+    {
+      "file": "assets/studio.1f6edeeaa9.css.map",
+      "bytes": 191569
+    },
+    {
+      "file": "assets/studio.77f082d47c.js",
+      "bytes": 1002634
+    },
+    {
+      "file": "assets/studio.77f082d47c.js.map",
+      "bytes": 2741965
+    },
+    {
+      "file": "design/design-system.html",
+      "bytes": 154351
+    },
+    {
+      "file": "design/studio.html",
+      "bytes": 233471
+    },
+    {
+      "file": "docs/ARCHITECTURE.md",
+      "bytes": 68315
+    },
+    {
+      "file": "docs/DEMOS.md",
+      "bytes": 42551
+    },
+    {
+      "file": "docs/EXTENDING.md",
+      "bytes": 25860
+    },
+    {
+      "file": "docs/FORMATS.md",
+      "bytes": 16646
+    },
+    {
+      "file": "docs/IDEE.md",
+      "bytes": 100686
+    },
+    {
+      "file": "docs/STORAGE.md",
+      "bytes": 8601
+    },
+    {
+      "file": "docs/STUDIO.md",
+      "bytes": 20842
+    },
+    {
+      "file": "docs/TNR.md",
+      "bytes": 11277
+    },
+    {
+      "file": "domino.config.js",
+      "bytes": 3797
+    },
+    {
+      "file": "fonts/bricolage-grotesque-latin-ext-opsz-normal.woff2",
+      "bytes": 30736
+    },
+    {
+      "file": "fonts/bricolage-grotesque-latin-opsz-normal.woff2",
+      "bytes": 76888
+    },
+    {
+      "file": "fonts/fonts.css",
+      "bytes": 7107
+    },
+    {
+      "file": "fonts/ibm-plex-mono-latin-400-normal.woff2",
+      "bytes": 14708
+    },
+    {
+      "file": "fonts/ibm-plex-mono-latin-500-normal.woff2",
+      "bytes": 14888
+    },
+    {
+      "file": "fonts/ibm-plex-mono-latin-600-normal.woff2",
+      "bytes": 15620
+    },
+    {
+      "file": "fonts/ibm-plex-mono-latin-ext-400-normal.woff2",
+      "bytes": 13348
+    },
+    {
+      "file": "fonts/ibm-plex-mono-latin-ext-500-normal.woff2",
+      "bytes": 13432
+    },
+    {
+      "file": "fonts/ibm-plex-mono-latin-ext-600-normal.woff2",
+      "bytes": 14328
+    },
+    {
+      "file": "fonts/ibm-plex-sans-latin-400-italic.woff2",
+      "bytes": 24356
+    },
+    {
+      "file": "fonts/ibm-plex-sans-latin-400-normal.woff2",
+      "bytes": 22588
+    },
+    {
+      "file": "fonts/ibm-plex-sans-latin-500-normal.woff2",
+      "bytes": 24184
+    },
+    {
+      "file": "fonts/ibm-plex-sans-latin-600-normal.woff2",
+      "bytes": 24252
+    },
+    {
+      "file": "fonts/ibm-plex-sans-latin-ext-400-italic.woff2",
+      "bytes": 17008
+    },
+    {
+      "file": "fonts/ibm-plex-sans-latin-ext-400-normal.woff2",
+      "bytes": 15980
+    },
+    {
+      "file": "fonts/ibm-plex-sans-latin-ext-500-normal.woff2",
+      "bytes": 16456
+    },
+    {
+      "file": "fonts/ibm-plex-sans-latin-ext-600-normal.woff2",
+      "bytes": 16448
+    },
+    {
+      "file": "index.html",
+      "bytes": 851
+    },
+    {
+      "file": "lib/domino.core.js",
+      "bytes": 284069
+    },
+    {
+      "file": "lib/domino.core.js.map",
+      "bytes": 880025
+    },
+    {
+      "file": "lib/domino.css",
+      "bytes": 89802
+    },
+    {
+      "file": "lib/domino.css.map",
+      "bytes": 191569
+    },
+    {
+      "file": "lib/domino.demos.js",
+      "bytes": 312512
+    },
+    {
+      "file": "lib/domino.demos.js.map",
+      "bytes": 768224
+    },
+    {
+      "file": "lib/domino.studio.js",
+      "bytes": 688962
+    },
+    {
+      "file": "lib/domino.studio.js.map",
+      "bytes": 1971763
+    },
+    {
+      "file": "lib/domino.ui.css",
+      "bytes": 69252
+    },
+    {
+      "file": "lib/domino.ui.css.map",
+      "bytes": 148271
+    },
+    {
+      "file": "lib/domino.ui.js",
+      "bytes": 574092
+    },
+    {
+      "file": "lib/domino.ui.js.map",
+      "bytes": 1686457
+    },
+    {
+      "file": "postmanFile/belote-api.postman_collection.json",
+      "bytes": 98290
+    },
+    {
+      "file": "postmanFile/env.local.postman_environment.json",
+      "bytes": 1744
+    },
+    {
+      "file": "README.md",
+      "bytes": 14294
+    },
+    {
+      "file": "schema/config.schema.json",
+      "bytes": 6993
+    },
+    {
+      "file": "schema/domino.schema.json",
+      "bytes": 8983
+    },
+    {
+      "file": "schema/expr.schema.json",
+      "bytes": 1118
+    },
+    {
+      "file": "schema/language.schema.json",
+      "bytes": 26096
+    },
+    {
+      "file": "schema/menus.schema.json",
+      "bytes": 3440
+    },
+    {
+      "file": "schema/model.schema.json",
+      "bytes": 13995
+    },
+    {
+      "file": "schema/resource.schema.json",
+      "bytes": 7057
+    },
+    {
+      "file": "schema/toolbox.schema.json",
+      "bytes": 5393
+    },
+    {
+      "file": "schema/workspace.schema.json",
+      "bytes": 5189
+    }
+  ]
+}

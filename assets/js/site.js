@@ -128,7 +128,7 @@
     var url = isExternal(e) ? e.href.replace(/^https?:\/\//, '') : 'kantoaplo.com/' + e.href.replace(/\/index\.html$/, '');
     var demo = isExternal(e)
       ? '<a class="btn btn-acc" href="' + esc(e.href) + '" target="_blank" rel="noopener">' + bi('Jouer sur ' + e.statusLabel, 'Play on ' + e.statusLabel) + ' <span aria-hidden="true">↗</span></a>'
-      : '<a class="btn btn-acc" href="' + esc(e.href) + '">' + (e.engine ? bi('Démo du moteur ' + engine.name, engine.name + ' engine demo') : bi('Ouvrir la démo', 'Open the demo')) + ' <span aria-hidden="true">→</span></a>';
+      : '<a class="btn btn-acc" href="' + esc(e.href) + '" target="_blank" rel="noopener">' + (e.engine ? bi('Démo du moteur ' + engine.name, engine.name + ' engine demo') : bi('Ouvrir la démo', 'Open the demo')) + ' <span aria-hidden="true">↗</span></a>';
     var partners = engineEds.filter(function (x) { return x !== e; }).map(function (x) { return x.latin; }).join(', ');
     var engineChip = e.engine && partners
       ? '<li class="eng"><a href="#engine">⚙ ' + bi('Moteur ' + engine.name + ' · partagé avec ' + partners, engine.name + ' engine · shared with ' + partners) + '</a></li>'
@@ -221,7 +221,7 @@
         '<div class="eng-foot" data-reveal>' +
           '<p class="eng-text">' + bi(engine.text_fr, engine.text_en) + '</p>' +
           '<ul class="eng-feats">' + engine.features.map(function (f) { return '<li>' + bi(f.fr, f.en) + '</li>'; }).join('') + '</ul>' +
-          '<a class="btn btn-acc" href="' + esc(engine.href) + '">' + bi('Essayer le moteur ' + engine.name, 'Try the ' + engine.name + ' engine') + ' <span aria-hidden="true">→</span></a>' +
+          '<a class="btn btn-acc" href="' + esc(engine.href) + '" target="_blank" rel="noopener">' + bi('Essayer le moteur ' + engine.name, 'Try the ' + engine.name + ' engine') + ' <span aria-hidden="true">↗</span></a>' +
         '</div>' +
       '</div></section>';
   }

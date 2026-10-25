@@ -1,0 +1,225 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kantoaplo.dev/schema/workspace/v1.json",
+  "title": "Espace de travail Kantoaplo (ressource Workspace)",
+  "description": "Ce qui est ouvert et comment : documents, disposition des volets, onglets et leur vue, panneaux, récents. Jamais le contenu des projets.",
+  "type": "object",
+  "required": [
+    "apiVersion",
+    "kind",
+    "metadata",
+    "spec"
+  ],
+  "properties": {
+    "apiVersion": {
+      "const": "kantoaplo.dev/v1"
+    },
+    "kind": {
+      "const": "Workspace"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "modified": {
+          "type": "object"
+        }
+      }
+    },
+    "spec": {
+      "type": "object",
+      "properties": {
+        "documents": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "uri"
+            ],
+            "properties": {
+              "uri": {
+                "type": "string"
+              },
+              "language": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "layout": {
+          "type": "object",
+          "required": [
+            "root"
+          ],
+          "properties": {
+            "root": {
+              "$ref": "#/$defs/node"
+            },
+            "focused": {
+              "type": "string"
+            },
+            "tabs": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "required": [
+                  "uri"
+                ],
+                "properties": {
+                  "uri": {
+                    "type": "string"
+                  },
+                  "pinned": {
+                    "type": "boolean"
+                  },
+                  "view": {
+                    "type": "object",
+                    "properties": {
+                      "partie": {
+                        "type": "string"
+                      },
+                      "tabs": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "display": {
+                        "type": "string"
+                      },
+                      "selection": {
+                        "type": "string"
+                      },
+                      "camera": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "panels": {
+          "type": "object"
+        },
+        "recent": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "uri"
+            ],
+            "properties": {
+              "uri": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "language": {
+                "type": "string"
+              },
+              "openedAt": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "untitledSeq": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "autosave": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "delayMs": {
+              "type": "integer"
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "node": {
+      "anyOf": [
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "id",
+            "tabs"
+          ],
+          "properties": {
+            "type": {
+              "const": "group"
+            },
+            "id": {
+              "type": "string"
+            },
+            "tabs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "active": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "type",
+            "id",
+            "dir",
+            "sizes",
+            "children"
+          ],
+          "properties": {
+            "type": {
+              "const": "split"
+            },
+            "id": {
+              "type": "string"
+            },
+            "dir": {
+              "enum": [
+                "row",
+                "column"
+              ]
+            },
+            "sizes": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            },
+            "children": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/node"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

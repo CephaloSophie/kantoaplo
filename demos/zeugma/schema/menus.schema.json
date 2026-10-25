@@ -1,0 +1,155 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kantoaplo.dev/schema/studio/menus-1.json",
+  "title": "Menus du studio (barre de menus et menus contextuels)",
+  "type": "object",
+  "properties": {
+    "version": {
+      "const": 1
+    },
+    "bar": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/top"
+      }
+    },
+    "menus": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/menu"
+      }
+    }
+  },
+  "$defs": {
+    "top": {
+      "type": "object",
+      "required": [
+        "id",
+        "title"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "help": {
+          "type": "string",
+          "description": "Une aide plus longue (infobulle)."
+        },
+        "when": {
+          "type": "string",
+          "description": "Expression de contexte : le menu ou l’élément n’apparaît que si elle est vraie."
+        },
+        "dynamicTitle": {
+          "enum": [
+            "language"
+          ]
+        },
+        "replace": {
+          "type": "boolean"
+        },
+        "remove": {
+          "type": "boolean"
+        },
+        "sections": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/section"
+          }
+        }
+      }
+    },
+    "menu": {
+      "type": "object",
+      "properties": {
+        "sections": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/section"
+          }
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/item"
+          }
+        },
+        "replace": {
+          "type": "boolean"
+        }
+      }
+    },
+    "section": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/item"
+          }
+        }
+      }
+    },
+    "item": {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string"
+        },
+        "args": {},
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "help": {
+          "type": "string",
+          "description": "Une aide plus longue (infobulle)."
+        },
+        "when": {
+          "type": "string",
+          "description": "Expression de contexte : le menu ou l’élément n’apparaît que si elle est vraie."
+        },
+        "radio": {
+          "type": "boolean"
+        },
+        "color": {
+          "type": "string"
+        },
+        "submenu": {
+          "type": "string",
+          "description": "Identifiant du sous-menu (relatif au menu parent, ou complet s’il contient « / »)."
+        },
+        "link": {
+          "type": "string",
+          "description": "Une page à ouvrir (documentation du projet ou adresse)."
+        },
+        "header": {
+          "type": "string",
+          "description": "Un intertitre."
+        },
+        "sections": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/section"
+          }
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/item"
+          }
+        }
+      }
+    }
+  }
+}

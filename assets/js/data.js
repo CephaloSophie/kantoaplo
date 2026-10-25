@@ -28,6 +28,13 @@ window.KANTO = {
       pitch_en: 'Blockly block editor. It forges the visual components Tektôn will assemble. Without Héphaïstos, nothing to build.',
       status: 'ready', href: 'demos/hephaistos/index.html', shots: 2 },
 
+    { id: 'zeugma', greek: 'ΖΕΥΓΜΑ', latin: 'Zeugma', accent: '#4FD1C5',
+      role_fr: 'Le lien', role_en: 'The link',
+      meaning_fr: 'ζεῦγμα — joug, attelage, ce qui lie deux choses', meaning_en: 'ζεῦγμα — yoke, coupling, what binds two things',
+      pitch_fr: "Une bibliothèque de dominos pour construire sans code des éditeurs visuels, des workflows et des outils d'automatisation — généralistes, métier ou internes.",
+      pitch_en: 'A domino-based library for building visual editors, workflows and automation tools without code — general-purpose, domain-specific or internal.',
+      status: 'ready', href: 'demos/zeugma/index.html', shots: 7 },
+
     { id: 'typos', greek: 'ΤΥΠΟΣ', latin: 'Typos', accent: '#D4A373',
       role_fr: 'Le moule', role_en: 'The mould',
       meaning_fr: "τύπος — l'empreinte, le moule", meaning_en: 'τύπος — the imprint, the mould',

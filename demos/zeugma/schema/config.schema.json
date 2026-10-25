@@ -1,0 +1,309 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kantoaplo.dev/schema/config/v1.json",
+  "title": "Configuration de Domino Studio",
+  "description": "Stockage (fournisseurs, API distante), enregistrement automatique, établi, langages, interface, raccourcis. Jamais de secret.",
+  "type": "object",
+  "required": [
+    "version"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "version": {
+      "const": 1
+    },
+    "storage": {
+      "type": "object",
+      "properties": {
+        "default": {
+          "type": "string",
+          "description": "Fournisseur des nouveaux projets et de l’espace de travail."
+        },
+        "fallback": {
+          "type": "string",
+          "description": "Fournisseur de repli si le premier est indisponible."
+        },
+        "providers": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/provider"
+          }
+        }
+      }
+    },
+    "autosave": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "delayMs": {
+          "type": "integer",
+          "minimum": 100
+        },
+        "backups": {
+          "type": "object",
+          "properties": {
+            "keep": {
+              "type": "integer"
+            },
+            "everyMs": {
+              "type": "integer"
+            }
+          }
+        }
+      }
+    },
+    "workbench": {
+      "type": "object",
+      "properties": {
+        "restore": {
+          "type": "boolean"
+        },
+        "maxRecent": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "maxGroups": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "maxLiveEditors": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "welcome": {
+          "enum": [
+            "whenEmpty",
+            "never",
+            "always"
+          ]
+        }
+      }
+    },
+    "languages": {
+      "type": "object",
+      "properties": {
+        "groups": {
+          "type": "array",
+          "items": {
+            "type": "array"
+          }
+        },
+        "allowImport": {
+          "type": "boolean"
+        },
+        "trustImported": {
+          "type": "boolean"
+        }
+      }
+    },
+    "ui": {
+      "type": "object",
+      "properties": {
+        "theme": {
+          "enum": [
+            "system",
+            "light",
+            "dark"
+          ]
+        },
+        "display": {
+          "type": "string"
+        },
+        "skin": {
+          "enum": [
+            "auto",
+            "ivoire",
+            "ebene",
+            "teinte"
+          ]
+        },
+        "locale": {
+          "type": "string"
+        },
+        "author": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "brand": {
+          "type": "string",
+          "description": "Le nom affiché en haut à gauche (HTML court)."
+        },
+        "templates": {
+          "type": "object",
+          "description": "Gabarits remplacés : { \"toolbox.item\": (données, aides) => html }. Des fonctions : seulement dans domino.config.js (pas en JSON)."
+        }
+      }
+    },
+    "menus": {
+      "type": "object",
+      "description": "Menus ajoutés, remplacés ou retirés : même forme que menus.schema.json ({ bar, menus })."
+    },
+    "keybindings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "key",
+          "command"
+        ],
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "command": {
+            "type": "string"
+          },
+          "when": {
+            "type": "string"
+          },
+          "args": {}
+        }
+      }
+    }
+  },
+  "$defs": {
+    "provider": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "localStorage",
+            "memory",
+            "http",
+            "layered"
+          ]
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "label": {
+          "type": "string"
+        },
+        "prefix": {
+          "type": "string"
+        },
+        "baseUrl": {
+          "type": "string",
+          "description": "http : racine de l’API."
+        },
+        "auth": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "enum": [
+                "none",
+                "bearer",
+                "cookie"
+              ]
+            },
+            "token": {
+              "type": "object",
+              "description": "D’où vient le jeton : { from: prompt | session | prefs, key? }. Jamais en clair.",
+              "properties": {
+                "from": {
+                  "enum": [
+                    "prompt",
+                    "session",
+                    "prefs"
+                  ]
+                },
+                "key": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "headers": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "endpoints": {
+          "type": "object",
+          "description": "Gabarits « MÉTHODE /chemin/{key} » : list, get, put, remove, workspaceGet, workspacePut, ou « collection.op ».",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "workspace": {
+          "type": "string"
+        },
+        "concurrency": {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "enum": [
+                "etag",
+                "revision"
+              ]
+            },
+            "requireIfMatch": {
+              "type": "boolean"
+            },
+            "field": {
+              "type": "string"
+            }
+          }
+        },
+        "conflicts": {
+          "type": "object",
+          "properties": {
+            "strategy": {
+              "enum": [
+                "ask",
+                "keep-both",
+                "overwrite",
+                "reload"
+              ]
+            }
+          }
+        },
+        "timeoutMs": {
+          "type": "integer",
+          "minimum": 100
+        },
+        "retry": {
+          "type": "object",
+          "properties": {
+            "count": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "backoffMs": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "local": {
+          "type": "string"
+        },
+        "remote": {
+          "type": "string"
+        },
+        "sync": {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "enum": [
+                "manual",
+                "onSave"
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,3468 @@
+{
+  "info": {
+    "name": "Kýdos Belote — API serveur (TNR)",
+    "_postman_id": "kydos-belote-server-api",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Collection Postman de TOUTES les API REST de belote-server, montées sous /api.\n\n**Utilisation :**\n1. Importer un environnement (local / integration / vps) et le sélectionner.\n2. Lancer `Auth ▸ Login` → {{token}} et {{userId}} sont enregistrés.\n3. Les créations (robot, cerveau, table, tournoi…) enregistrent leur id dans les variables d'environnement, réutilisées par les requêtes suivantes.\n\n**Aucune URL en dur** : tout passe par {{baseUrl}}.\n**Généré par** `server/tnr/tools/generate.py` — éditer la déclaration Python puis relancer le script pour régénérer."
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "description": "Authentification — commence ici. Login enregistre {{token}} et {{userId}}.",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Crée un compte et renvoie un token JWT.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\",\n  \"email\": \"{{email}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const d = pm.response.json();",
+                  "if (d.token) { pm.environment.set('token', d.token); console.log('token sauvegardé'); }",
+                  "if (d.user && d.user.id) pm.environment.set('userId', d.user.id);",
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Connexion. Enregistre {{token}} et {{userId}}.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const d = pm.response.json();",
+                  "if (d.token) { pm.environment.set('token', d.token); console.log('token sauvegardé'); }",
+                  "if (d.user && d.user.id) pm.environment.set('userId', d.user.id);",
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Me",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            },
+            "description": "Profil de l'utilisateur courant (jetons, VIP, etc.)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update settings",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/settings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "settings"
+              ]
+            },
+            "description": "Met à jour les préférences par défaut de jeu.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"responseTimeMs\": 1000,\n  \"maxPlayTimeMs\": 10000,\n  \"defaultManches\": 2\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "description": "Profil, recherche, mise à jour.",
+      "item": [
+        {
+          "name": "Search users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/search?q=am",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "am"
+                }
+              ]
+            },
+            "description": "Recherche par username (préfixe)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Public profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}/profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}",
+                "profile"
+              ]
+            },
+            "description": "Profil public d'un utilisateur."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update me",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "me"
+              ]
+            },
+            "description": "Met à jour le profil courant (nom, avatar…).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Ameur\",\n  \"lastName\": \"Hamdouni\",\n  \"avatarId\": null\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Robots",
+      "description": "Fiches robots du joueur.",
+      "item": [
+        {
+          "name": "List",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/robots",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "robots"
+              ]
+            },
+            "description": "Liste des robots du joueur."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/robots",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "robots"
+              ]
+            },
+            "description": "Crée un robot. Enregistre {{robotId}}.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Athéna\",\n  \"personality\": {\n    \"aggressiveness\": 8,\n    \"concentration\": 7,\n    \"velocity\": 8\n  },\n  \"responseTimeMs\": 700\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const d = pm.response.json();",
+                  "if (d.robot && d.robot.id) pm.environment.set('robotId', d.robot.id);",
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Detail (public profile)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/robots/{{robotId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "robots",
+                "{{robotId}}"
+              ]
+            },
+            "description": "Fiche publique d'un robot."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/robots/{{robotId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "robots",
+                "{{robotId}}"
+              ]
+            },
+            "description": "Met à jour un robot.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Athéna\",\n  \"personality\": {\n    \"aggressiveness\": 9,\n    \"concentration\": 8,\n    \"velocity\": 8\n  }\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/robots/{{robotId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "robots",
+                "{{robotId}}"
+              ]
+            },
+            "description": "Supprime un robot."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Cerveaux (Brains)",
+      "description": "Cerveaux JSON versionnés (éditeur avancé).",
+      "item": [
+        {
+          "name": "List",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/brains",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "brains"
+              ]
+            },
+            "description": "Liste des cerveaux du joueur."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/brains",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "brains"
+              ]
+            },
+            "description": "Crée un cerveau (première version). Enregistre {{brainId}}.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Cerveau démo\",\n  \"spec\": {\n    \"version\": 1,\n    \"name\": \"démo\"\n  }\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const d = pm.response.json();",
+                  "if (d.brain && d.brain.id) pm.environment.set('brainId', d.brain.id);",
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/brains/{{brainId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "brains",
+                "{{brainId}}"
+              ]
+            },
+            "description": "Détail + toutes les versions."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update version 0",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/brains/{{brainId}}/versions/0",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "brains",
+                "{{brainId}}",
+                "versions",
+                "0"
+              ]
+            },
+            "description": "Met à jour la spec d'une version existante.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"spec\": {\n    \"version\": 1,\n    \"name\": \"démo v0\",\n    \"personality\": {\n      \"aggressiveness\": 6\n    }\n  }\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Add version",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/brains/{{brainId}}/versions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "brains",
+                "{{brainId}}",
+                "versions"
+              ]
+            },
+            "description": "Ajoute une nouvelle version.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"spec\": {\n    \"version\": 2,\n    \"name\": \"démo v2\"\n  }\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Switch active version = 0",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/brains/{{brainId}}/active/0",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "brains",
+                "{{brainId}}",
+                "active",
+                "0"
+              ]
+            },
+            "description": "Change la version active."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Clone",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/brains/{{brainId}}/clone",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "brains",
+                "{{brainId}}",
+                "clone"
+              ]
+            },
+            "description": "Clone le cerveau.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Copie\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/brains/{{brainId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "brains",
+                "{{brainId}}"
+              ]
+            },
+            "description": "Supprime le cerveau."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Teams",
+      "description": "Équipes du joueur.",
+      "item": [
+        {
+          "name": "Ranked list",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/teams",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "teams"
+              ]
+            },
+            "description": "Classement public des équipes."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "My team",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/teams/mine",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "teams",
+                "mine"
+              ]
+            },
+            "description": "Équipe courante de l'utilisateur."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/teams",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "teams"
+              ]
+            },
+            "description": "Crée une équipe. Enregistre {{teamId}}.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Les Atouts\",\n  \"visibility\": \"public\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const d = pm.response.json();",
+                  "if (d.team && d.team._id) pm.environment.set('teamId', d.team._id);",
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/teams/{{teamId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "teams",
+                "{{teamId}}"
+              ]
+            },
+            "description": "Fiche équipe."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/teams/{{teamId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "teams",
+                "{{teamId}}"
+              ]
+            },
+            "description": "Met à jour une équipe.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Les Atouts (renommée)\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Join",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/teams/{{teamId}}/join",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "teams",
+                "{{teamId}}",
+                "join"
+              ]
+            },
+            "description": "Rejoint une équipe publique."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Leave",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/teams/{{teamId}}/leave",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "teams",
+                "{{teamId}}",
+                "leave"
+              ]
+            },
+            "description": "Quitte l'équipe courante."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Kick member",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/teams/{{teamId}}/members/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "teams",
+                "{{teamId}}",
+                "members",
+                "{{userId}}"
+              ]
+            },
+            "description": "Retire un membre (admin/owner uniquement)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Change role",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/teams/{{teamId}}/members/{{userId}}/role",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "teams",
+                "{{teamId}}",
+                "members",
+                "{{userId}}",
+                "role"
+              ]
+            },
+            "description": "Change le rôle d'un membre.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"admin\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Invitations",
+      "description": "Invitations d'équipe (envoyées / reçues).",
+      "item": [
+        {
+          "name": "Invite user to team",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/teams/{{teamId}}/invite",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "teams",
+                "{{teamId}}",
+                "invite"
+              ]
+            },
+            "description": "Invite un utilisateur dans l'équipe. Enregistre {{invitationId}}.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{userId}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const d = pm.response.json();",
+                  "if (d.invitation && d.invitation._id) pm.environment.set('invitationId', d.invitation._id);",
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Received",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/invitations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "invitations"
+              ]
+            },
+            "description": "Invitations en attente reçues."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Count received",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/invitations/count",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "invitations",
+                "count"
+              ]
+            },
+            "description": "Compteur pour badge (nombre d'invitations en attente)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Sent by team",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/teams/{{teamId}}/invitations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "teams",
+                "{{teamId}}",
+                "invitations"
+              ]
+            },
+            "description": "Invitations envoyées par l'équipe (owner/admin)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Accept",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/invitations/{{invitationId}}/accept",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "invitations",
+                "{{invitationId}}",
+                "accept"
+              ]
+            },
+            "description": "Accepte une invitation."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Decline",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/invitations/{{invitationId}}/decline",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "invitations",
+                "{{invitationId}}",
+                "decline"
+              ]
+            },
+            "description": "Refuse une invitation."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cancel (as sender)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/invitations/{{invitationId}}/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "invitations",
+                "{{invitationId}}",
+                "cancel"
+              ]
+            },
+            "description": "Annule une invitation envoyée."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Tables",
+      "description": "Tables de jeu libres (créées par un joueur ou une équipe).",
+      "item": [
+        {
+          "name": "List (mine + team)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tables",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tables"
+              ]
+            },
+            "description": "Tables visibles pour l'utilisateur."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List public live",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tables/public-live",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tables",
+                "public-live"
+              ]
+            },
+            "description": "Tables publiques actuellement en jeu (spectate)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tables",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tables"
+              ]
+            },
+            "description": "Crée une table. Enregistre {{tableId}}.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"kind\": \"hybride\",\n  \"visibility\": \"public\",\n  \"config\": {\n    \"manches\": 2,\n    \"baseTarget\": 1500,\n    \"labelTarget\": 2000\n  }\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const d = pm.response.json();",
+                  "if (d.table && d.table._id) pm.environment.set('tableId', d.table._id);",
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tables/{{tableId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tables",
+                "{{tableId}}"
+              ]
+            },
+            "description": "État complet d'une table."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Change seat",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tables/{{tableId}}/seat",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tables",
+                "{{tableId}}",
+                "seat"
+              ]
+            },
+            "description": "S'asseoir à un siège (human / robot / empty).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"index\": 0,\n  \"kind\": \"human\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Start",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tables/{{tableId}}/start",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tables",
+                "{{tableId}}",
+                "start"
+              ]
+            },
+            "description": "Démarre la table (tous les sièges remplis)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Leave",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tables/{{tableId}}/leave",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tables",
+                "{{tableId}}",
+                "leave"
+              ]
+            },
+            "description": "Quitte la table."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cancel",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tables/{{tableId}}/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tables",
+                "{{tableId}}",
+                "cancel"
+              ]
+            },
+            "description": "Annule la table (propriétaire)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Compétitions (LEGACY)",
+      "description": "Ancien module — remplacé par Matches + Tournaments depuis v14. Conservé pour compat.",
+      "item": [
+        {
+          "name": "List open",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/competitions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "competitions"
+              ]
+            },
+            "description": "Compétitions ouvertes à la participation."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Mine",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/competitions/mine",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "competitions",
+                "mine"
+              ]
+            },
+            "description": "Mes compétitions."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/competitions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "competitions"
+              ]
+            },
+            "description": "Crée une compétition (2 robots). Enregistre {{competitionId}}.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"robots\": [\n    \"{{robotId1}}\",\n    \"{{robotId2}}\"\n  ],\n  \"manches\": 2\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const d = pm.response.json();",
+                  "if (d.competition && d.competition._id) pm.environment.set('competitionId', d.competition._id);",
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/competitions/{{competitionId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "competitions",
+                "{{competitionId}}"
+              ]
+            },
+            "description": "Détail d'une compétition."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Join",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/competitions/{{competitionId}}/join",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "competitions",
+                "{{competitionId}}",
+                "join"
+              ]
+            },
+            "description": "Rejoint une compétition ouverte.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"robots\": [\n    \"{{robotId1}}\",\n    \"{{robotId2}}\"\n  ]\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cancel",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/competitions/{{competitionId}}/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "competitions",
+                "{{competitionId}}",
+                "cancel"
+              ]
+            },
+            "description": "Annule une compétition."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Matchmaking & Matches",
+      "description": "File d'attente des matchs rapides + gestion du match courant.",
+      "item": [
+        {
+          "name": "Formats",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/matches/formats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "matches",
+                "formats"
+              ]
+            },
+            "description": "Catalogue des variantes MATCH RAPIDE (config back-office)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Queues",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/matches/queues",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "matches",
+                "queues"
+              ]
+            },
+            "description": "Taille des files par format."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Enqueue",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/matches/enqueue",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "matches",
+                "enqueue"
+              ]
+            },
+            "description": "S'inscrire à un match. Enregistre {{matchId}} si l'appariement est immédiat.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"formatConfigId\": \"{{formatConfigId}}\",\n  \"robotIds\": [\n    \"{{robotId1}}\"\n  ],\n  \"substituteRobotId\": \"{{substituteRobotId}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const d = pm.response.json();",
+                  "if (d.matchId) pm.environment.set('matchId', d.matchId); if (d.match && d.match._id) pm.environment.set('matchId', d.match._id);",
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cancel enqueued",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/matches/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "matches",
+                "cancel"
+              ]
+            },
+            "description": "Annule sa participation à la file (remboursement).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"formatConfigId\": \"{{formatConfigId}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Mine (current)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/matches/mine",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "matches",
+                "mine"
+              ]
+            },
+            "description": "Match courant (running ou dernier terminé)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "History",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/matches/history?page=1&format=DUO_STEEL&status=finished",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "matches",
+                "history"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "format",
+                  "value": "DUO_STEEL"
+                },
+                {
+                  "key": "status",
+                  "value": "finished"
+                }
+              ]
+            },
+            "description": "Historique des matchs rapides finis/en cours (v19.1)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/matches/{{matchId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "matches",
+                "{{matchId}}"
+              ]
+            },
+            "description": "Détail d'un match."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Provision live table",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/matches/{{matchId}}/live-table",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "matches",
+                "{{matchId}}",
+                "live-table"
+              ]
+            },
+            "description": "Provisionne (ou retourne) la table éphémère pour un match HYBRID/ROYAL. Enregistre {{tableId}}."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const d = pm.response.json();",
+                  "if (d.table && d.table._id) pm.environment.set('tableId', d.table._id);",
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Tournois",
+      "description": "Tournois à bracket (élimination directe). La création et la publication appartiennent au back-office (SEC-015) : renseigner {{tournamentId}} depuis la liste.",
+      "item": [
+        {
+          "name": "List (auto level filter)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tournaments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tournaments"
+              ]
+            },
+            "description": "Tournois visibles à l'utilisateur (filtre par level)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List by status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tournaments?status=live",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tournaments"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "live"
+                }
+              ]
+            },
+            "description": "Filtre par statut (upcoming/live/finished)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List all (?all=1)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tournaments?all=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tournaments"
+              ],
+              "query": [
+                {
+                  "key": "all",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Tous les tournois (mode admin/preview)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "My active",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tournaments/mine",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tournaments",
+                "mine"
+              ]
+            },
+            "description": "Tournoi LIVE dans lequel je suis engagé (état du prochain match)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "My history",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tournaments/history?status=all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tournaments",
+                "history"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "all"
+                }
+              ]
+            },
+            "description": "Tournois où l'user est inscrit, tous statuts (v19.1)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tournaments/{{tournamentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tournaments",
+                "{{tournamentId}}"
+              ]
+            },
+            "description": "Détail d'un tournoi. Enregistre {{tournamentId}}."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const d = pm.response.json();",
+                  "if (d.tournament && d.tournament._id) pm.environment.set('tournamentId', d.tournament._id);",
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Bracket (coupe du monde)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tournaments/{{tournamentId}}/bracket",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tournaments",
+                "{{tournamentId}}",
+                "bracket"
+              ]
+            },
+            "description": "Arbre bracket enrichi (v14.12)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Join (Duo d'acier : 2 robots)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tournaments/{{tournamentId}}/join",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tournaments",
+                "{{tournamentId}}",
+                "join"
+              ]
+            },
+            "description": "Inscription — Duo d'acier requiert 2 robots.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"robotIds\": [\n    \"{{robotId1}}\",\n    \"{{robotId2}}\"\n  ]\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Join (Alliance hybride)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tournaments/{{tournamentId}}/join",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tournaments",
+                "{{tournamentId}}",
+                "join"
+              ]
+            },
+            "description": "Inscription — Alliance hybride : 1 robot + 1 remplaçant.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"robotIds\": [\n    \"{{robotId1}}\"\n  ],\n  \"substituteRobotId\": \"{{substituteRobotId}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Leave",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tournaments/{{tournamentId}}/leave",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "tournaments",
+                "{{tournamentId}}",
+                "leave"
+              ]
+            },
+            "description": "Se désinscrit (remboursement possible)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Games (parties)",
+      "description": "Parties archivées + rejeu + simulation robots.",
+      "item": [
+        {
+          "name": "History (mine)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/games?scope=mine&page=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "games"
+              ],
+              "query": [
+                {
+                  "key": "scope",
+                  "value": "mine"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Historique de mes parties."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "History (filtered)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/games?scope=mine&origin=quickmatch&kind=acier&mode=competition",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "games"
+              ],
+              "query": [
+                {
+                  "key": "scope",
+                  "value": "mine"
+                },
+                {
+                  "key": "origin",
+                  "value": "quickmatch"
+                },
+                {
+                  "key": "kind",
+                  "value": "acier"
+                },
+                {
+                  "key": "mode",
+                  "value": "competition"
+                }
+              ]
+            },
+            "description": "Filtres v19.1 : origin (user/quickmatch/tournament), kind, mode, tournamentId, from, to."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "History (by tournament)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/games?scope=mine&tournamentId={{tournamentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "games"
+              ],
+              "query": [
+                {
+                  "key": "scope",
+                  "value": "mine"
+                },
+                {
+                  "key": "tournamentId",
+                  "value": "{{tournamentId}}"
+                }
+              ]
+            },
+            "description": "Toutes les parties d'un tournoi précis."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Public search",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/games/public?q=ameur",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "games",
+                "public"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "ameur"
+                }
+              ]
+            },
+            "description": "Recherche publique par nom de joueur ou robot."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Detail (with replay)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/games/{{gameId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "games",
+                "{{gameId}}"
+              ]
+            },
+            "description": "Charge le replay complet d'une partie (rejeu client)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Save (local training)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/games",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "games"
+              ]
+            },
+            "description": "Sauvegarde une partie jouée en entraînement local.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"replay\": {\n    \"players\": [],\n    \"manches\": []\n  },\n  \"logs\": [],\n  \"mode\": \"local\",\n  \"winner\": \"A\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const d = pm.response.json();",
+                  "if (d.id) pm.environment.set('gameId', d.id); if (d.gameId) pm.environment.set('gameId', d.gameId);",
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Simulate robots",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/games/robots",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "games",
+                "robots"
+              ]
+            },
+            "description": "Simule côté serveur une partie 100% robots (archivée).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"robotIds\": [\n    \"{{robotId1}}\",\n    \"{{robotId2}}\",\n    \"{{robotId1}}\",\n    \"{{robotId2}}\"\n  ],\n  \"manches\": 2\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const d = pm.response.json();",
+                  "if (d.id) pm.environment.set('gameId', d.id); if (d.gameId) pm.environment.set('gameId', d.gameId);",
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Analytics",
+      "description": "Statistiques dérivées des Games.",
+      "item": [
+        {
+          "name": "My stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/analytics/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "analytics",
+                "me"
+              ]
+            },
+            "description": "Statistiques agrégées de l'utilisateur."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Robot stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/analytics/robots/{{robotId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "analytics",
+                "robots",
+                "{{robotId}}"
+              ]
+            },
+            "description": "Statistiques d'un robot."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Rebuild (admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/analytics/rebuild",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "analytics",
+                "rebuild"
+              ]
+            },
+            "description": "Rebuild complet des projections analytics."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Wallet & VIP",
+      "description": "Porte-monnaie et VIP.",
+      "item": [
+        {
+          "name": "Get wallet",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/wallet",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "wallet"
+              ]
+            },
+            "description": "Solde + journal des transactions."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Claim daily",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/wallet/claim",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "wallet",
+                "claim"
+              ]
+            },
+            "description": "Récompense quotidienne (idempotent par jour UTC)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get VIP",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/wallet/vip",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "wallet",
+                "vip"
+              ]
+            },
+            "description": "Plans VIP + statut courant."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Purchase VIP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/wallet/vip",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "wallet",
+                "vip"
+              ]
+            },
+            "description": "Achète un plan VIP (débit du wallet).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"planId\": \"vip-1d\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Promo codes",
+      "description": "Codes promo — génération admin dans le back-office.",
+      "item": [
+        {
+          "name": "Redeem",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/promo/redeem",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "promo",
+                "redeem"
+              ]
+            },
+            "description": "Utilise un code promo pour créditer le wallet.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"111122223333\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Avatars",
+      "description": "Catalogues d'avatars (robots + joueurs).",
+      "item": [
+        {
+          "name": "Robot avatars",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/avatars",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "avatars"
+              ]
+            },
+            "description": "Catalogue d'avatars de robots (débloqués par niveau)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Player avatars",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/player-avatars",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "player-avatars"
+              ]
+            },
+            "description": "Catalogue d'avatars pour humains (libre)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Images de cartes",
+      "description": "Figures illustrées et dos de cartes envoyés au back-office (docs/cartes-illustrees.md).",
+      "item": [
+        {
+          "name": "Bytes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/card-assets/{{cardAssetId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "card-assets",
+                "{{cardAssetId}}"
+              ]
+            },
+            "description": "Octets d'une image (id = SHA-256). Public, immuable : Cache-Control immutable, ETag = id (304), nosniff. Id mal formé ou inconnu ⇒ 404."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Monitor",
+      "description": "Sonde interne — utile en dev.",
+      "item": [
+        {
+          "name": "Snapshot",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/monitor/snapshot",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "monitor",
+                "snapshot"
+              ]
+            },
+            "description": "Instantané dev : sessions live, files, comptes rapides."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 2xx', () => pm.response.code >= 200 && pm.response.code < 300);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4000/api"
+    }
+  ]
+}

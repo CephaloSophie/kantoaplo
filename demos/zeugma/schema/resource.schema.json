@@ -1,0 +1,316 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kantoaplo.dev/schema/resource/v1.json",
+  "title": "Ressource Kantoaplo (apiVersion kantoaplo.dev/v1)",
+  "description": "Enveloppe commune : apiVersion, kind, metadata, spec (déclaré), status (calculé, jamais relu), extensions (outils tiers, conservées).",
+  "type": "object",
+  "required": [
+    "apiVersion",
+    "kind",
+    "metadata"
+  ],
+  "properties": {
+    "apiVersion": {
+      "const": "kantoaplo.dev/v1"
+    },
+    "kind": {
+      "enum": [
+        "Project",
+        "Domino",
+        "Wire",
+        "Partie",
+        "Language",
+        "Workspace",
+        "List"
+      ]
+    },
+    "metadata": {
+      "$ref": "#/$defs/metadata"
+    },
+    "spec": {
+      "type": "object"
+    },
+    "status": {
+      "type": "object",
+      "description": "Calculé par le moteur ; ignoré au chargement."
+    },
+    "extensions": {
+      "$ref": "#/$defs/extensions"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "$ref": "#"
+      },
+      "description": "kind List seulement : les ressources Partie, Domino et Wire, dans l’ordre de lecture."
+    }
+  },
+  "$defs": {
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "Identifiant opaque et stable."
+        },
+        "name": {
+          "type": "string",
+          "description": "Identifiant lisible, unique dans son parent (pour une pierre : son id v2)."
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "created": {
+          "type": "object",
+          "properties": {
+            "at": {
+              "type": "string"
+            },
+            "by": {
+              "type": "string"
+            },
+            "how": {
+              "type": "string"
+            },
+            "from": {
+              "type": "string"
+            }
+          }
+        },
+        "modified": {
+          "type": "object",
+          "properties": {
+            "at": {
+              "type": "string"
+            },
+            "by": {
+              "type": "string"
+            },
+            "count": {
+              "type": "integer"
+            },
+            "last": {
+              "type": "string"
+            }
+          }
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "etag": {
+          "type": "string"
+        }
+      }
+    },
+    "extensions": {
+      "type": "object",
+      "description": "Clés « domaine/nom[/vN] » ; « kantoaplo.dev/ » est réservé au moteur."
+    },
+    "dominoSpec": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "fields": {
+          "type": "object"
+        },
+        "placement": {
+          "type": "object",
+          "properties": {
+            "partie": {
+              "type": "string"
+            },
+            "position": {
+              "type": "object",
+              "properties": {
+                "x": {
+                  "type": "number"
+                },
+                "y": {
+                  "type": "number"
+                }
+              }
+            },
+            "turn": {
+              "type": "string"
+            },
+            "order": {
+              "type": "integer"
+            },
+            "attachedTo": {
+              "type": "object",
+              "required": [
+                "element",
+                "via",
+                "pip"
+              ],
+              "properties": {
+                "element": {
+                  "type": "string"
+                },
+                "via": {
+                  "enum": [
+                    "next",
+                    "top",
+                    "bottom"
+                  ]
+                },
+                "pip": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "map": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  }
+                },
+                "label": {
+                  "type": "string"
+                },
+                "cond": {
+                  "type": "string"
+                },
+                "enabled": {
+                  "type": "boolean"
+                },
+                "order": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "flags": {
+          "type": "object",
+          "properties": {
+            "disabled": {
+              "type": "boolean"
+            },
+            "locked": {
+              "type": "boolean"
+            }
+          }
+        },
+        "note": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "presentation": {
+          "type": "object",
+          "properties": {
+            "display": {
+              "type": "string"
+            },
+            "faces": {
+              "type": "object"
+            },
+            "tint": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "wireSpec": {
+      "type": "object",
+      "required": [
+        "from",
+        "to"
+      ],
+      "properties": {
+        "from": {
+          "$ref": "#/$defs/end"
+        },
+        "to": {
+          "$ref": "#/$defs/end"
+        },
+        "blocking": {
+          "type": "boolean"
+        },
+        "label": {
+          "type": "string"
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "edgeType": {
+          "type": "string"
+        },
+        "fields": {
+          "type": "object"
+        }
+      }
+    },
+    "end": {
+      "type": "object",
+      "required": [
+        "element",
+        "pip"
+      ],
+      "properties": {
+        "element": {
+          "type": "string"
+        },
+        "pip": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "projectSpec": {
+      "type": "object",
+      "required": [
+        "content"
+      ],
+      "properties": {
+        "language": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            }
+          }
+        },
+        "settings": {
+          "type": "object"
+        },
+        "content": {
+          "type": "object",
+          "description": "Le projet au format kantoaplo.domino v2 (schéma domino.schema.json)."
+        }
+      }
+    }
+  }
+}

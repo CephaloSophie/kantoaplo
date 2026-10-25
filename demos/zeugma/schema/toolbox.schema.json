@@ -1,0 +1,218 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kantoaplo.dev/schema/domino/toolbox-1.json",
+  "title": "Boîte à outils (pioche) d’un éditeur de dominos",
+  "type": "object",
+  "properties": {
+    "mode": {
+      "enum": [
+        "full",
+        "compact"
+      ],
+      "description": "full : catégories, noms et descriptions ; compact : seulement les dominos."
+    },
+    "rest": {
+      "type": "boolean",
+      "description": "Ajouter les pierres non citées, groupées par catégorie (vrai par défaut)."
+    },
+    "contents": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/entry"
+      }
+    }
+  },
+  "$defs": {
+    "entry": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/category"
+        },
+        {
+          "$ref": "#/$defs/domino"
+        },
+        {
+          "$ref": "#/$defs/dominos"
+        },
+        {
+          "$ref": "#/$defs/label"
+        },
+        {
+          "$ref": "#/$defs/separator"
+        },
+        {
+          "$ref": "#/$defs/dynamic"
+        }
+      ]
+    },
+    "category": {
+      "type": "object",
+      "required": [
+        "kind",
+        "title"
+      ],
+      "properties": {
+        "kind": {
+          "const": "category"
+        },
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "help": {
+          "type": "string",
+          "description": "Une aide plus longue, montrée dans la fiche « ? »."
+        },
+        "link": {
+          "type": "string",
+          "description": "Une adresse (page de documentation, site) ouverte depuis la fiche d’aide."
+        },
+        "color": {
+          "type": "string"
+        },
+        "icon": {
+          "type": "string",
+          "description": "Un caractère montré sur le domino de la catégorie (sinon l’initiale)."
+        },
+        "domino": {
+          "type": "string",
+          "description": "Le type d’une pierre qui présente la catégorie."
+        },
+        "expanded": {
+          "type": "boolean"
+        },
+        "contents": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/entry"
+          }
+        }
+      }
+    },
+    "domino": {
+      "type": "object",
+      "required": [
+        "kind",
+        "type"
+      ],
+      "properties": {
+        "kind": {
+          "const": "domino"
+        },
+        "type": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "help": {
+          "type": "string",
+          "description": "Une aide plus longue, montrée dans la fiche « ? »."
+        },
+        "link": {
+          "type": "string",
+          "description": "Une adresse (page de documentation, site) ouverte depuis la fiche d’aide."
+        },
+        "fields": {
+          "type": "object",
+          "description": "Champs préréglés : la pierre est posée avec ces valeurs (une requête d’une collection, une vérification toute prête…)."
+        },
+        "fragment": {
+          "type": "object",
+          "description": "Un fragment : la pierre avec ce qui y est collé (adjacentes, suite), au format d’une pierre du projet ; posé d’un geste."
+        },
+        "badge": {
+          "type": "string",
+          "description": "Une étiquette courte (GET, POST…)."
+        },
+        "badgeColor": {
+          "type": "string"
+        },
+        "subtitle": {
+          "type": "string",
+          "description": "Remplace la ligne des faces (un chemin, une valeur…)."
+        },
+        "icon": {
+          "type": "string"
+        }
+      }
+    },
+    "dynamic": {
+      "type": "object",
+      "required": [
+        "kind",
+        "source"
+      ],
+      "description": "Une section calculée à chaque dessin par une source du langage (toolboxSources) ou du registre (Domino.Toolbox.source).",
+      "properties": {
+        "kind": {
+          "const": "dynamic"
+        },
+        "source": {
+          "type": "string"
+        }
+      }
+    },
+    "dominos": {
+      "type": "object",
+      "required": [
+        "kind"
+      ],
+      "description": "Toutes les pierres d’une catégorie du registre, ou dont le type correspond au motif.",
+      "properties": {
+        "kind": {
+          "const": "dominos"
+        },
+        "category": {
+          "type": "string"
+        },
+        "match": {
+          "type": "string",
+          "description": "Motif de type, * pour n’importe quoi : « kanto.cmp* »."
+        }
+      }
+    },
+    "label": {
+      "type": "object",
+      "required": [
+        "kind",
+        "text"
+      ],
+      "properties": {
+        "kind": {
+          "const": "label"
+        },
+        "text": {
+          "type": "string"
+        },
+        "help": {
+          "type": "string",
+          "description": "Une aide plus longue, montrée dans la fiche « ? »."
+        },
+        "link": {
+          "type": "string",
+          "description": "Une adresse (page de documentation, site) ouverte depuis la fiche d’aide."
+        }
+      }
+    },
+    "separator": {
+      "type": "object",
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "const": "separator"
+        }
+      }
+    }
+  }
+}

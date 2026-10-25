@@ -1,0 +1,1605 @@
+<!doctype html>
+<html lang="fr">
+<meta charset="utf-8">
+<title>Zeugma System</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<!-- Polices locales (npm @fontsource → vendor/fonts, voir tools/vendor.mjs) : aucun lien externe. -->
+<link rel="stylesheet" href="../fonts/fonts.css">
+<style>
+/* Mise en page : un manuel de règles de jeu. Navigation fixe à gauche, chaque section pose une règle puis la montre sur une bande « table de jeu ». */
+:root {
+  --table: #E3E8E4;
+  --table-dot: rgba(34, 56, 46, .17);
+  --panel: #F7F8F6;
+  --panel-2: #EDF0ED;
+  --raised: #FFFFFF;
+  --line: #D5DBD6;
+  --line-strong: #B9C2BC;
+  --ink: #18201C;
+  --ink-2: #4E5A54;
+  --ink-3: #7F8A84;
+  --brass: #A2742A;
+  --brass-ink: #8A6020;
+  --brass-soft: rgba(162, 116, 42, .13);
+  --on-brass: #FFFFFF;
+  --ok: #2B8752;
+  --warn: #B87700;
+  --err: #CC3838;
+  --ok-soft: rgba(43, 135, 82, .12);
+  --warn-soft: rgba(184, 119, 0, .12);
+  --err-soft: rgba(204, 56, 56, .11);
+  --shadow-1: 0 1px 2px rgba(16, 28, 22, .08);
+  --shadow-2: 0 2px 4px rgba(16, 28, 22, .06), 0 12px 32px rgba(16, 28, 22, .14);
+  --shadow-3: 0 4px 10px rgba(16, 28, 22, .10), 0 30px 80px rgba(16, 28, 22, .26);
+  --f-display: 'Bricolage Grotesque', 'Segoe UI', system-ui, sans-serif;
+  --f-body: 'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif;
+  --f-mono: 'IBM Plex Mono', ui-monospace, Menlo, monospace;
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 16px;
+  --ease: cubic-bezier(.2, .8, .2, 1);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --table: #121916; --table-dot: rgba(214, 236, 224, .09);
+    --panel: #19201D; --panel-2: #202825; --raised: #26302C; --line: #2C3632; --line-strong: #3E4A45;
+    --ink: #E7ECE9; --ink-2: #A8B3AE; --ink-3: #75817B;
+    --brass: #D2A452; --brass-ink: #E2B867; --brass-soft: rgba(210, 164, 82, .16); --on-brass: #1B1406;
+    --ok: #4DBB7C; --warn: #E6A73A; --err: #F06464;
+    --ok-soft: rgba(77, 187, 124, .14); --warn-soft: rgba(230, 167, 58, .14); --err-soft: rgba(240, 100, 100, .14);
+    --shadow-1: 0 1px 2px rgba(0, 0, 0, .3);
+    --shadow-2: 0 2px 4px rgba(0, 0, 0, .25), 0 12px 32px rgba(0, 0, 0, .4);
+    --shadow-3: 0 4px 10px rgba(0, 0, 0, .3), 0 30px 80px rgba(0, 0, 0, .6);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --table: #121916; --table-dot: rgba(214, 236, 224, .09);
+  --panel: #19201D; --panel-2: #202825; --raised: #26302C; --line: #2C3632; --line-strong: #3E4A45;
+  --ink: #E7ECE9; --ink-2: #A8B3AE; --ink-3: #75817B;
+  --brass: #D2A452; --brass-ink: #E2B867; --brass-soft: rgba(210, 164, 82, .16); --on-brass: #1B1406;
+  --ok: #4DBB7C; --warn: #E6A73A; --err: #F06464;
+  --ok-soft: rgba(77, 187, 124, .14); --warn-soft: rgba(230, 167, 58, .14); --err-soft: rgba(240, 100, 100, .14);
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, .3);
+  --shadow-2: 0 2px 4px rgba(0, 0, 0, .25), 0 12px 32px rgba(0, 0, 0, .4);
+  --shadow-3: 0 4px 10px rgba(0, 0, 0, .3), 0 30px 80px rgba(0, 0, 0, .6);
+  color-scheme: dark;
+}
+
+[hidden] { display: none !important; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--panel); color: var(--ink); font: 15px/1.6 var(--f-body); -webkit-font-smoothing: antialiased; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; }
+a { color: var(--brass-ink); }
+code, kbd { font-family: var(--f-mono); font-size: .88em; }
+code { background: var(--panel-2); border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; }
+kbd { padding: 1px 6px; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; background: var(--raised); white-space: nowrap; }
+
+.wrap { max-width: 1280px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+
+/* En-tête */
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10; background: color-mix(in srgb, var(--panel) 92%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+.top .wrap { display: flex; align-items: center; gap: 16px; padding-block: 10px; }
+.brand { display: flex; align-items: center; gap: 10px; font: 700 16px var(--f-display); letter-spacing: -.01em; }
+.brand span { color: var(--ink-3); font-weight: 500; }
+.top .spacer { flex: 1; }
+.ver { font: 500 11px var(--f-mono); color: var(--ink-3); letter-spacing: .06em; }
+.icon-btn { width: 34px; height: 34px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--raised); cursor: pointer; }
+.icon-btn svg { width: 16px; height: 16px; }
+
+/* Héros */
+.hero { padding-block: 56px 0; }
+.hero .eyebrow { margin-bottom: 14px; }
+.hero h1 { margin: 0; font: 800 clamp(44px, 8vw, 96px)/.96 var(--f-display); letter-spacing: -.028em; text-wrap: balance; font-variation-settings: "opsz" 96; }
+.hero h1 em { font-style: normal; color: var(--brass); }
+.hero .lede { margin: 22px 0 0; max-width: 62ch; font-size: 18px; color: var(--ink-2); }
+.hero-table { margin-top: 40px; background: var(--table); border-block: 1px solid var(--line); background-image: radial-gradient(var(--table-dot) 1.1px, transparent 1.3px); background-size: 24px 24px; }
+.hero-table .wrap { padding-block: 40px 34px; overflow-x: auto; }
+.hero-table svg { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+.hero-facts { display: flex; flex-wrap: wrap; gap: 8px 28px; justify-content: center; margin-top: 18px; font: 500 12px var(--f-mono); color: var(--ink-2); letter-spacing: .04em; }
+.hero-facts b { color: var(--ink); }
+
+/* Corps */
+.layout { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 48px; padding-block: 48px 96px; }
+.toc { position: sticky; top: calc(70px + env(safe-area-inset-top, 0px)); align-self: start; display: grid; gap: 2px; font-size: 13.5px; }
+.toc .eyebrow { margin: 0 0 8px 10px; }
+.toc a { color: var(--ink-2); text-decoration: none; padding: 5px 10px; border-radius: 6px; border-left: 2px solid transparent; }
+.toc a:hover { color: var(--ink); background: var(--panel-2); }
+.toc a.on { color: var(--ink); border-left-color: var(--brass); background: var(--panel-2); font-weight: 500; }
+main { min-width: 0; display: grid; gap: 88px; }
+section { scroll-margin-top: 80px; display: grid; gap: 22px; min-width: 0; }
+.eyebrow { font: 500 11px/1.4 var(--f-mono); text-transform: uppercase; letter-spacing: .1em; color: var(--ink-3); }
+h2 { margin: 0; font: 750 clamp(28px, 3.6vw, 40px)/1.05 var(--f-display); letter-spacing: -.03em; text-wrap: balance; }
+h3 { margin: 0; font: 650 18px/1.25 var(--f-display); letter-spacing: -.01em; }
+h4 { margin: 0; font: 600 14px/1.3 var(--f-display); }
+.sec-head { display: grid; gap: 10px; max-width: 70ch; }
+.sec-head p { margin: 0; color: var(--ink-2); }
+p { margin: 0; }
+.muted { color: var(--ink-3); }
+
+.board { background: var(--table); border: 1px solid var(--line); border-radius: var(--r-lg); background-image: radial-gradient(var(--table-dot) 1.1px, transparent 1.3px); background-size: 24px 24px; padding: 28px; overflow-x: auto; }
+.board > svg { display: block; margin: 0 auto; }
+.grid { display: grid; gap: 16px; }
+.g2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.g3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.g4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.card { background: var(--raised); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.card p { color: var(--ink-2); font-size: 14px; }
+.spec { display: grid; gap: 12px; align-content: start; min-width: 0; }
+.spec .stage { background: var(--table); border: 1px solid var(--line); border-radius: 12px; min-height: 132px; display: grid; place-items: center; padding: 16px 10px; overflow: hidden; background-image: radial-gradient(var(--table-dot) 1.1px, transparent 1.3px); background-size: 24px 24px; }
+.spec .stage svg { max-width: 100%; height: auto; }
+.spec h4 { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.spec h4 small { font: 400 11px var(--f-mono); color: var(--ink-3); }
+.spec p { font-size: 13.5px; color: var(--ink-2); }
+
+/* Principes */
+.principle { padding: 22px; gap: 10px; }
+.principle .k { font: 500 11px var(--f-mono); color: var(--brass-ink); letter-spacing: .08em; text-transform: uppercase; }
+.principle h3 { font-size: 21px; }
+
+/* Anatomie */
+.an-l { font: 600 13px var(--f-display); fill: var(--ink); }
+.an-s { font: 400 11.5px var(--f-mono); fill: var(--ink-3); }
+.an-line { stroke: var(--ink-3); stroke-width: 1; fill: none; }
+.an-dot { fill: var(--brass); }
+
+/* Faces */
+.faces { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 12px; }
+.face { display: grid; justify-items: center; gap: 6px; padding: 14px 6px 12px; background: var(--table); border: 1px solid var(--line); border-radius: 12px; }
+.face b { font: 600 13px var(--f-mono); }
+.face small { font-size: 11.5px; color: var(--ink-3); text-align: center; line-height: 1.3; }
+.face.over { background: var(--brass-soft); border-color: color-mix(in srgb, var(--brass) 45%, transparent); }
+
+/* Règles */
+.rule { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 14px; align-items: start; }
+.rule .glyph { width: 34px; height: 34px; border-radius: 9px; display: grid; place-items: center; font: 700 14px var(--f-mono); background: var(--panel-2); border: 1px solid var(--line); }
+.rule.no .glyph { background: var(--err-soft); color: var(--err); border-color: transparent; }
+.rule.yes .glyph { background: var(--ok-soft); color: var(--ok); border-color: transparent; }
+
+/* Swatches */
+.swatch-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.swatch { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--raised); }
+.swatch .chip-c { height: 64px; background: var(--c); border-bottom: 1px solid var(--line); position: relative; }
+.swatch .chip-c.split { background: linear-gradient(90deg, var(--c) 50%, var(--d) 50%); }
+.swatch .meta { padding: 10px 12px; display: grid; gap: 2px; }
+.swatch .meta b { font-size: 13px; font-weight: 600; }
+.swatch .meta code { background: none; border: 0; padding: 0; color: var(--ink-3); font-size: 11.5px; }
+.bar-strip { position: absolute; left: 12px; bottom: 10px; display: flex; gap: 3px; }
+.bar-strip i { width: 14px; height: 5px; border-radius: 3px; background: var(--c); box-shadow: 0 0 0 .5px rgba(0,0,0,.25); }
+
+/* Tableaux */
+.tbl-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--raised); }
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font: 500 11px var(--f-mono); text-transform: uppercase; letter-spacing: .08em; color: var(--ink-3); background: var(--panel-2); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td code { white-space: nowrap; }
+.num { font-variant-numeric: tabular-nums; font-family: var(--f-mono); font-size: 12.5px; }
+.sw-dot { display: inline-block; width: 14px; height: 14px; border-radius: 4px; vertical-align: -2px; margin-right: 8px; border: 1px solid rgba(0,0,0,.15); background: var(--c); }
+
+/* Typo */
+.type-row { display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 16px; align-items: baseline; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.type-row:last-child { border-bottom: 0; }
+.type-row .meta { font: 400 11.5px/1.5 var(--f-mono); color: var(--ink-3); }
+.type-row .meta b { color: var(--ink); font-weight: 500; display: block; }
+.space-row { display: grid; grid-template-columns: 64px 54px minmax(0, 1fr); gap: 12px; align-items: center; font-size: 13px; }
+.space-row i { height: 12px; background: var(--brass); border-radius: 3px; opacity: .85; display: block; }
+.radius-demo { display: flex; flex-wrap: wrap; gap: 14px; }
+.radius-demo div { width: 88px; height: 64px; border: 1.5px solid var(--line-strong); background: var(--panel-2); display: grid; place-items: center; font: 500 11px var(--f-mono); color: var(--ink-2); }
+.elev-demo { display: flex; flex-wrap: wrap; gap: 20px; }
+.elev-demo div { width: 150px; height: 84px; border-radius: 12px; background: var(--raised); display: grid; place-items: center; font: 500 11.5px var(--f-mono); color: var(--ink-2); border: 1px solid var(--line); }
+
+/* Motion */
+.motion-demo { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+.motion-track { position: relative; height: 44px; flex: 1 1 260px; background: var(--panel-2); border-radius: 10px; border: 1px solid var(--line); overflow: hidden; }
+.motion-track i { position: absolute; left: 8px; top: 9px; width: 48px; height: 24px; border-radius: 5px; background: #FBFAF5; border: 1px solid #CBC6B7; box-shadow: 0 2px 0 #D6D2C4; }
+.motion-track i::after { content: ""; position: absolute; left: 50%; top: 4px; bottom: 4px; width: 1px; background: #CBC6B7; }
+.motion-track.go i { animation: slide 1.1s var(--ease) forwards; }
+@keyframes slide { to { left: calc(100% - 56px); } }
+
+/* Plateau wireframe */
+.wire { display: grid; grid-template-columns: 150px minmax(0, 1fr); grid-template-rows: 40px 30px 1fr 26px; gap: 0; height: 360px; border: 1px solid var(--line-strong); border-radius: 14px; overflow: hidden; background: var(--panel); font: 500 11px var(--f-mono); color: var(--ink-2); min-width: 560px; }
+.wire > div { border: 1px dashed var(--line-strong); margin: -0.5px; padding: 8px 10px; position: relative; }
+.wire .w-bar { grid-column: 1 / -1; display: flex; gap: 10px; align-items: center; }
+.wire .w-pioche { grid-row: 2 / 5; background: var(--panel); }
+.wire .w-tabs { background: var(--panel-2); }
+.wire .w-table { background: var(--table); background-image: radial-gradient(var(--table-dot) 1.1px, transparent 1.3px); background-size: 16px 16px; }
+.wire .w-status { background: var(--panel); }
+.wire .tagw { display: inline-block; padding: 1px 6px; border-radius: 4px; background: var(--brass); color: var(--on-brass); margin-right: 6px; font-size: 10px; }
+.wire .w-mm { position: absolute; right: 10px; bottom: 10px; width: 96px; height: 60px; border: 1px dashed var(--line-strong); border-radius: 6px; background: var(--panel); padding: 4px 6px; }
+.wire .w-zoom { position: absolute; right: 10px; top: 10px; border: 1px dashed var(--line-strong); border-radius: 6px; background: var(--panel); padding: 2px 6px; }
+
+/* Composants (copie des styles du studio) */
+.btn { display: inline-flex; align-items: center; gap: 7px; height: 34px; padding: 0 12px; border-radius: var(--r-sm); border: 1px solid var(--line); background: var(--raised); color: var(--ink); font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; }
+.btn svg { width: 16px; height: 16px; }
+.btn.primary { background: var(--brass); border-color: var(--brass); color: var(--on-brass); }
+.btn.ghost { background: transparent; border-color: transparent; }
+.btn.danger { color: var(--err); }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.menu { min-width: 232px; max-width: 100%; padding: 5px; background: var(--raised); border: 1px solid var(--line); border-radius: var(--r-md); box-shadow: var(--shadow-2); }
+.menu .mh { padding: 6px 9px 7px; border-bottom: 1px solid var(--line); margin-bottom: 4px; }
+.menu .mh b { display: block; font: 650 13px var(--f-display); }
+.menu .mh small { font: 400 11px var(--f-mono); color: var(--ink-3); }
+.menu .mi { display: grid; grid-template-columns: 18px 1fr auto; align-items: center; gap: 10px; padding: 7px 9px; border-radius: 6px; font-size: 13px; }
+.menu .mi svg { width: 16px; height: 16px; color: var(--ink-2); }
+.menu .mi.hover { background: var(--panel-2); }
+.menu .mi.accent { color: var(--brass-ink); font-weight: 600; }
+.menu .mi.accent svg { color: var(--brass); }
+.menu .mi.danger, .menu .mi.danger svg { color: var(--err); }
+.menu kbd { border: 0; background: none; padding: 0; font-size: 11px; color: var(--ink-3); }
+.menu hr { border: 0; border-top: 1px solid var(--line); margin: 4px 2px; }
+.tabs { display: flex; align-items: flex-end; gap: 4px; padding: 6px 12px 0; background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px 12px 0 0; overflow-x: auto; }
+.tab { flex: none; display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 10px 0 12px; border: 1px solid transparent; border-bottom: 0; border-radius: 9px 9px 0 0; color: var(--ink-2); font-size: 13px; font-weight: 500; }
+.tab.active { background: var(--table); border-color: var(--line); color: var(--ink); margin-bottom: -1px; height: 35px; }
+.tab .tico { width: 18px; height: 10px; border-radius: 2.5px; border: 1.5px solid currentColor; position: relative; opacity: .75; }
+.tab .tico::after { content: ""; position: absolute; left: 50%; top: 1px; bottom: 1px; width: 1.5px; background: currentColor; transform: translateX(-50%); }
+.tab.sub .tico { background: var(--line-strong); }
+.tab .x { color: var(--ink-3); }
+.tab .crumb { color: var(--ink-3); font-weight: 400; }
+.tabs-under { height: 40px; background: var(--table); border: 1px solid var(--line); border-top: 0; border-radius: 0 0 12px 12px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { display: inline-flex; align-items: center; gap: 7px; height: 28px; padding: 0 10px 0 8px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel); font-size: 12.5px; color: var(--ink-2); }
+.chip i { width: 12px; height: 4px; border-radius: 2px; background: var(--c); opacity: .45; }
+.chip.on { border-color: var(--c); color: var(--ink); background: color-mix(in srgb, var(--c) 12%, var(--raised)); }
+.chip.on i { opacity: 1; }
+.chip.off { opacity: .4; }
+.stepper { display: grid; grid-template-columns: minmax(0, 1fr) auto auto auto; align-items: center; gap: 6px; max-width: 320px; }
+.stepper .lbl { font-size: 13px; }
+.stepper .lbl small { display: block; color: var(--ink-3); font-size: 11.5px; }
+.stepper span.b { width: 30px; height: 30px; border-radius: 7px; border: 1px solid var(--line); background: var(--panel); display: grid; place-items: center; font-size: 16px; }
+.stepper output { min-width: 28px; text-align: center; font: 600 16px var(--f-mono); }
+.tag { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 8px; border-radius: 6px; font-size: 12px; background: var(--panel); border: 1px solid var(--line); color: var(--ink-2); }
+.tag.warn { color: var(--warn); border-color: transparent; background: var(--warn-soft); }
+.tag.error { color: var(--err); border-color: transparent; background: var(--err-soft); }
+.tag.ok { color: var(--ok); border-color: transparent; background: var(--ok-soft); }
+.toast { display: inline-flex; gap: 10px; align-items: flex-start; padding: 10px 14px; border-radius: 10px; background: var(--ink); color: var(--panel); font-size: 13px; box-shadow: var(--shadow-2); max-width: 100%; }
+.toast i { width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; flex: none; background: var(--brass); }
+.toast.err i { background: var(--err); }
+.toast.ok i { background: var(--ok); }
+.snapchip { display: inline-flex; gap: 8px; align-items: flex-start; max-width: 320px; padding: 7px 10px; border-radius: 8px; font-size: 12.5px; line-height: 1.35; box-shadow: var(--shadow-2); background: var(--raised); border: 1px solid var(--line); }
+.snapchip i { width: 8px; height: 8px; border-radius: 50%; flex: none; margin-top: 5px; }
+.snapchip.ok i { background: var(--ok); }
+.snapchip.bad i { background: var(--err); }
+.lk { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 8px; border-radius: 6px; border: 1px solid var(--line); background: var(--panel); font-size: 12.5px; }
+.lk em { font: normal 400 10.5px var(--f-mono); color: var(--ink-3); }
+.lk.empty { color: var(--ink-3); border-style: dashed; background: transparent; }
+.mini-pips { width: 22px; height: 11px; border: 1.2px solid var(--ink-3); border-radius: 2.5px; position: relative; }
+.mini-pips::after { content: ""; position: absolute; left: 50%; top: 1px; bottom: 1px; width: 1px; background: var(--ink-3); }
+.pi { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 10px; padding: 6px 8px; border-radius: var(--r-sm); background: var(--raised); border: 1px solid var(--line); max-width: 280px; }
+.pi b { display: block; font-weight: 500; font-size: 13px; }
+.pi small { font: 400 11px var(--f-mono); color: var(--ink-3); }
+
+pre.code { margin: 0; padding: 18px 20px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px; overflow-x: auto; font: 12.5px/1.6 var(--f-mono); color: var(--ink); }
+pre.code .k { color: var(--brass-ink); }
+pre.code .s { color: var(--ok); }
+pre.code .c { color: var(--ink-3); }
+
+/* ---------- Framework ---------- */
+.flow { list-style: none; margin: 0 0 8px; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.flow li { position: relative; display: grid; gap: 6px; align-content: start; padding: 16px; background: var(--raised); border: 1px solid var(--line); border-radius: 14px; }
+.flow li:not(:last-child)::after { content: '→'; position: absolute; right: -14px; top: 50%; transform: translateY(-50%); font: 600 16px var(--f-mono); color: var(--brass); z-index: 1; }
+.flow .k { font: 500 11px var(--f-mono); color: var(--brass-ink); letter-spacing: .08em; text-transform: uppercase; }
+.flow b { font: 650 15px var(--f-display); }
+.flow p { margin: 0; color: var(--ink-2); font-size: 13.5px; }
+.flow code { font-size: 12px; }
+.chips-row { display: flex; flex-wrap: wrap; gap: 5px; }
+.chips-row span { padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line); font-size: 12px; background: var(--panel); }
+.chips-row .you { border-style: dashed; color: var(--brass-ink); }
+.sub-h { margin: 34px 0 6px; font: 650 19px var(--f-display); }
+.sub-p { margin: 0 0 14px; color: var(--ink-2); max-width: 760px; }
+.ext .card { gap: 8px; }
+.ext h4 { margin: 0; }
+.ext p { margin: 0; color: var(--ink-2); font-size: 13.5px; }
+pre.code.sm { font-size: 11.5px; padding: 10px 12px; white-space: pre-wrap; }
+@media (max-width: 900px) {
+  .flow { grid-template-columns: minmax(0, 1fr); }
+  .flow li:not(:last-child)::after { content: '↓'; right: 50%; top: auto; bottom: -17px; transform: translateX(50%); }
+}
+
+/* Tuiles d'état */
+.tile .t-ring { fill: none; stroke: transparent; stroke-width: 2.5; }
+.tile.hover .t-ring { stroke: var(--line-strong); }
+.tile.sel .t-ring { stroke: var(--brass); }
+.tile.snap-ok .t-ring { stroke: var(--ok); stroke-width: 3; }
+.tile.snap-bad .t-ring { stroke: var(--err); stroke-width: 3; }
+.tile.disabled { opacity: .45; }
+.ghost-demo rect { fill: var(--ok-soft); stroke: var(--ok); stroke-width: 2; stroke-dasharray: 7 5; }
+.branch { fill: none; stroke: var(--brass); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; opacity: .85; }
+.branch-end, .glue { fill: var(--brass); }
+.zone rect { fill: rgba(127, 138, 132, .06); stroke: var(--line-strong); stroke-width: 1.5; stroke-dasharray: 2 6; stroke-linecap: round; }
+.zone text { font: 500 11px var(--f-mono); letter-spacing: .1em; fill: var(--ink-2); }
+.callout { font: 500 12px var(--f-body); fill: var(--ink-2); }
+.callout-line { stroke: var(--ink-3); stroke-width: 1; stroke-dasharray: 3 3; fill: none; }
+.turnmark circle { fill: var(--raised); stroke: var(--brass); stroke-width: 1.5; }
+.turnmark text { font: 700 12px var(--f-body); fill: var(--brass-ink); }
+.turnmark.auto circle { stroke-dasharray: 3 2.5; }
+.table-edge { stroke: var(--ink-3); stroke-width: 1.5; stroke-dasharray: 2 6; stroke-linecap: round; fill: none; }
+.table-edge-l { font: 500 10.5px var(--f-mono); fill: var(--ink-3); letter-spacing: .04em; }
+.rules { counter-reset: r; list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+.rules li { counter-increment: r; display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 12px; align-items: start; padding: 14px 16px; background: var(--raised); border: 1px solid var(--line); border-radius: 12px; }
+.rules li::before { content: counter(r); display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--brass-soft); color: var(--brass-ink); font: 700 13px var(--f-mono); }
+.rules b { display: block; font: 650 14.5px var(--f-display); margin-bottom: 3px; }
+.rules p { margin: 0; color: var(--ink-2); }
+.step-n { font: 600 10.5px var(--f-mono); fill: var(--ink-3); }
+
+footer.foot { border-top: 1px solid var(--line); }
+footer.foot .wrap { padding-block: 28px; display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between; font-size: 13px; color: var(--ink-3); }
+
+@media (max-width: 1000px) {
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  .toc { display: none; }
+  .g4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .g3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .g2, .g3, .g4 { grid-template-columns: minmax(0, 1fr); }
+  .hero { padding-block: 36px 0; }
+  .board { padding: 16px; }
+  .type-row { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+  .ver { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+
+/* Pierres v0.2 : entête, tiges, joints, câbles */
+:root { --sheet: #FBFAF5; --sheet-side: #D6D2C4; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --sheet: #1C2220; --sheet-side: #090B0A; } }
+:root[data-theme="dark"] { --sheet: #1C2220; --sheet-side: #090B0A; }
+.t-head { fill: var(--ink); color: var(--ink); }
+.t-head text { stroke: var(--table); stroke-width: 4px; paint-order: stroke; stroke-linejoin: round; }
+.stem { fill: none; stroke: var(--brass); stroke-width: 2; stroke-linecap: round; }
+.rail { fill: none; stroke: var(--brass); stroke-width: 4; stroke-linecap: round; opacity: .55; }
+.knob { fill: var(--brass); stroke: var(--table); stroke-width: 1.5; }
+.knob.lab { fill: var(--brass-ink); }
+.knob.off { fill: var(--table); stroke: var(--ink-3); stroke-dasharray: 2 2; }
+.knob.ok { fill: var(--ok); }
+.pip-n { font: 600 10px var(--f-mono); fill: var(--brass-ink); }
+.dim { fill: var(--table); opacity: .62; }
+.cable { fill: none; stroke-width: 3.2; stroke-linecap: round; }
+.cable-under { fill: none; stroke: var(--table); stroke-width: 8; stroke-linecap: round; }
+.cable-lab { font: 500 12px var(--f-mono); fill: var(--brass-ink); text-anchor: middle; stroke: var(--table); stroke-width: 5px; paint-order: stroke; }
+.slot-ring { fill: none; stroke: var(--brass); stroke-width: 2; }
+.tile.far { opacity: .55; }
+.focus-ring { fill: none; stroke: var(--brass); stroke-width: 2; stroke-dasharray: 5 5; }
+.cap { font: 500 10px var(--f-mono); letter-spacing: .1em; fill: var(--ink-3); }
+.menu .mi.off { opacity: .45; }
+.ports-demo { display: grid; grid-template-columns: 16px 22px minmax(0, 1fr) auto; gap: 8px 10px; align-items: center; font-size: 13px; }
+.ports-demo .pidx { font: 500 11px var(--f-mono); color: var(--ink-3); text-align: right; }
+.pipdot { width: 20px; height: 20px; border-radius: 50%; background: var(--c); box-shadow: inset 0 0 0 1.5px rgba(0,0,0,.25), 0 0 0 3px var(--raised), 0 0 0 4px var(--line); }
+.ports-demo .port { height: 28px; display: flex; align-items: center; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); padding: 0 8px; min-width: 0; }
+.ports-demo small { font: 400 11px var(--f-mono); color: var(--ink-3); }
+
+/* Maquette DominoPopup : une grande pierre, la table à gauche, la fiche à droite */
+.pp2 { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 340px; border: 1px solid var(--line-strong); border-radius: 26px; background: var(--sheet); box-shadow: 0 9px 0 -1px var(--sheet-side), var(--shadow-3); overflow: hidden; margin-bottom: 10px; }
+.pp2-table { position: relative; background: var(--table); background-image: radial-gradient(var(--table-dot) 1.1px, transparent 1.3px); background-size: 24px 24px; border-right: 2px solid var(--line-strong); padding: 56px 16px 44px; min-width: 0; display: grid; align-items: center; }
+.pp2-table svg { display: block; margin: 0 auto; max-height: 380px; }
+.pp2-crumbs { position: absolute; left: 14px; top: 12px; display: flex; gap: 6px; align-items: center; font-size: 12px; color: var(--ink-3); background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 3px 12px; }
+.pp2-crumbs b { font-weight: 500; color: var(--ink-2); }
+.pp2-crumbs b.on { color: var(--brass-ink); }
+.pp2-legend { position: absolute; left: 14px; bottom: 12px; right: 14px; font-size: 12px; color: var(--ink-3); }
+.pp2-pin { position: absolute; left: calc(100% - 340px); top: 50%; width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; background: radial-gradient(circle at 38% 34%, #E9C987 0 18%, #B8893B 40%, #8A6020 100%); box-shadow: 0 1px 2px rgba(0,0,0,.3); }
+.pp2-side { padding: 20px 20px 22px 26px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.pp2-side .name { font: 700 24px/1.15 var(--f-display); letter-spacing: -.02em; }
+.pp2-tabs { display: flex; gap: 14px; border-bottom: 1px solid var(--line); font-size: 13px; color: var(--ink-2); overflow-x: auto; }
+.pp2-tabs span { padding: 6px 0; white-space: nowrap; }
+.pp2-tabs .on { color: var(--ink); border-bottom: 2px solid var(--brass); font-weight: 500; }
+.pp2 .c { background: var(--raised); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; display: grid; gap: 10px; }
+.pp2 .c h4 small { font: 400 11px var(--f-mono); color: var(--ink-3); }
+@media (max-width: 1000px) {
+  .pp2 { grid-template-columns: minmax(0, 1fr); }
+  .pp2-table { border-right: 0; border-bottom: 2px solid var(--line-strong); }
+  .pp2-pin { display: none; }
+}
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand">
+      <svg width="36" height="20" viewBox="0 0 40 22" aria-hidden="true">
+        <rect x="1" y="2.5" width="38" height="19" rx="4" fill="#C9C4B5"/>
+        <rect x="1" y="1" width="38" height="19" rx="4" fill="#FBFAF5" stroke="#B9B3A3"/>
+        <line x1="20" y1="4" x2="20" y2="17" stroke="#C9C4B5" stroke-width="1.2"/>
+        <circle cx="20" cy="10.5" r="1.6" fill="#B8893B"/>
+        <circle cx="10.5" cy="10.5" r="2" fill="#E5484D"/>
+        <circle cx="26" cy="5.5" r="1.7" fill="#151718"/><circle cx="34" cy="15.5" r="1.7" fill="#3B7DDD"/><circle cx="30" cy="10.5" r="1.7" fill="#151718"/>
+      </svg>
+      Zeugma <span>Design System</span>
+    </div>
+    <div class="spacer"></div>
+    <span class="ver">v1.0 · plateforme de langages · octobre 2026</span>
+    <button class="icon-btn" id="btn-theme" aria-label="Basculer le thème clair ou sombre">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="8" r="5.5"/><path d="M8 2.5v11a5.5 5.5 0 0 0 0-11z" fill="currentColor"/></svg>
+    </button>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Bibliothèque de blocs visuels · monde Kantoaplo</div>
+    <h1>Chaque bloc est<br>une <em>pierre de domino.</em></h1>
+    <p class="lede">La face gauche compte les entrées, la face droite compte les sorties ; chaque point peut porter sa propre couleur. Le nom se lit en entête, au-dessus de la pierre, qui reste un vrai domino. Les pierres liées forment une chaîne ; les adjacentes, plus petites, se collent à 90° en haut (elles alimentent une entrée) ou en bas (elles consomment une sortie).</p>
+  </div>
+  <div class="hero-table">
+    <div class="wrap">
+      <div id="hero-chain"></div>
+      <div class="hero-facts"><span><b>0</b> face scellée</span><span><b>1–6</b> points classiques</span><span><b>7+</b> affiche 9 points</span><span><b>●</b> une couleur par point</span><span><b>−</b> un trait par couleur acceptée</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap layout">
+  <nav class="toc" aria-label="Sommaire">
+    <div class="eyebrow">Sommaire</div>
+    <a href="#principes">Principes</a>
+    <a href="#framework">Un framework, des éditeurs</a>
+    <a href="#langage">Un langage, une instance</a>
+    <a href="#anatomie">Anatomie d’une pierre</a>
+    <a href="#faces">Faces et points</a>
+    <a href="#couleurs-points">Couleur des points</a>
+    <a href="#couleurs-faces">Couleur des faces</a>
+    <a href="#connecteurs">Bandes de connecteurs</a>
+    <a href="#variantes">Variantes de pierres</a>
+    <a href="#etats">États</a>
+    <a href="#assemblage">Règles d’assemblage</a>
+    <a href="#secondaires">Adjacentes haute et basse</a>
+    <a href="#connecter">Connecter</a>
+    <a href="#jeu">La règle du jeu</a>
+    <a href="#fils">Fils point à point</a>
+    <a href="#modules">Déclarations et instances</a>
+    <a href="#tout">Tout représenter</a>
+    <a href="#modele">Modélisation et traçage</a>
+    <a href="#inspecteur">Inspecteur</a>
+    <a href="#connexions">Connexions</a>
+    <a href="#virages">Virages</a>
+    <a href="#collisions">Non-collision et serpentin</a>
+    <a href="#plateau">Plateau et navigation</a>
+    <a href="#composants">Composants d’interface</a>
+    <a href="#popup">DominoPopup</a>
+    <a href="#effet">Effet domino</a>
+    <a href="#tokens">Tokens</a>
+    <a href="#api">Configuration développeur</a>
+    <a href="#accessibilite">Accessibilité</a>
+  </nav>
+
+  <main>
+    <section id="principes">
+      <div class="sec-head"><div class="eyebrow">Fondations</div><h2>Principes</h2><p>Six idées guident chaque décision. En cas de doute, elles tranchent, et la première passe avant les autres.</p></div>
+      <div class="grid g2">
+        <div class="card principle"><span class="k">Un moteur, des domaines</span><h3>La configuration fait l’éditeur.</h3><p>Le moteur ne connaît ni le code, ni les workflows, ni les circuits. Catégories, pierres, règles, mise en page et habillage viennent de l’instanciation, selon les besoins fonctionnels et techniques du projet. Ce que montre ce document est un exemple de ce que le moteur peut produire, pas une limite. Quand un choix n’est pas tranché, il devient une option, avec une valeur par défaut.</p></div>
+        <div class="card principle"><span class="k">La pierre est le bloc</span><h3>Un domino, c’est un bloc Blockly.</h3><p>Chaque pierre est l’unité de base : une fonction, une étape de workflow, un composant électronique, une scène, une source de données. Une classe, un service ou un module est une pierre conteneur qui regroupe des sous-dominos.</p></div>
+        <div class="card principle"><span class="k">Un domino reste un domino</span><h3>Rien n’est écrit sur la pierre.</h3><p>Deux faces, une ligne de partage, un pivot. Le nom s’affiche en entête, au-dessus. Ce qui distingue une pierre d’une autre, ce sont ses points : leur nombre et leur couleur.</p></div>
+        <div class="card principle"><span class="k">Les faces disent le contrat</span><h3>On lit les entrées et les sorties sans ouvrir la pierre.</h3><p>Gauche : nombre de paramètres. Droite : nombre de sorties. Zéro scelle la face. Au-delà de six, neuf points signalent « beaucoup ». La couleur d’un point identifie le paramètre ou le bloc.</p></div>
+        <div class="card principle"><span class="k">Quatre côtés</span><h3>Gauche, droite : la chaîne. Haut, bas : les adjacentes.</h3><p>Les pierres liées forment une chaîne. Les adjacentes sont de petites pierres collées à 90° : la haute au-dessus de la face d’entrée (elle l’alimente), la basse sous la face de sortie (elle la consomme). Quand la chaîne tourne, la pierre et ses adjacentes tournent d’un seul bloc.</p></div>
+        <div class="card principle"><span class="k">Le plateau est infini</span><h3>On joue sur une table, pas dans un formulaire.</h3><p>Zoom, déplacement, mini-carte, onglets de sous-partie. On plonge dans une pierre conteneur ; on lance l’effet domino pour voir la partie s’exécuter.</p></div>
+      </div>
+    </section>
+
+    <section id="framework">
+      <div class="sec-head"><div class="eyebrow">Fondations</div><h2>Un framework, des éditeurs</h2><p>Zeugma est d’abord une plateforme pour construire des langages visuels. Ce qui s’affiche dépend de l’instanciation : la configuration, et derrière elle les besoins fonctionnels ou techniques du projet. Les domaines de la démo (low-code, workflow, circuit, scénario, dashboard, recette) sont tous produits par le même moteur, à partir d’une configuration différente.</p></div>
+      <ol class="flow">
+        <li><span class="k">Besoins</span><b>Ce que le projet demande</b><p>Fonctionnels : quelles pierres, quelles règles, quel vocabulaire. Techniques : taille d’écran, exécution, stockage, intégration.</p></li>
+        <li><span class="k">Configuration</span><b>Ce que le développeur écrit</b><p><code>categories</code>, <code>dominos</code>, <code>rules</code>, <code>table</code>, <code>links</code>, <code>theme</code>, <code>locale</code>, et du code aux points d’extension.</p></li>
+        <li><span class="k">Moteur</span><b>Ce que le framework fait</b><p>Poser, aimanter, vérifier, mettre en page, animer, expliquer. Il ne connaît aucun domaine.</p></li>
+        <li><span class="k">Éditeur</span><b>Ce que l’utilisateur voit</b><p class="chips-row"><span>Low-code</span><span>Workflow</span><span>Circuit</span><span>Scénario</span><span>Dashboard</span><span>Recette</span><span class="you">le vôtre</span></p></li>
+      </ol>
+
+      <h3 class="sub-h">Choix par défaut, tous configurables</h3>
+      <p class="sub-p">Règle de décision : quand l’idée laisse un choix ouvert, ou que deux demandes semblent se contredire, on ne tranche pas à la place du développeur. Le choix devient une option ; sa valeur par défaut suit l’idée d’origine.</p>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Option</th><th>Valeurs</th><th>Défaut</th><th>Pourquoi ce défaut</th></tr></thead>
+        <tbody>
+          <tr><td><code>theme.skin</code></td><td><code>'ivoire'</code> · <code>'ebene'</code> · <code>'teinte'</code> · objet</td><td><code>'ivoire'</code></td><td>« Par défaut en blanc, comme les vrais dominos. »</td></tr>
+          <tr><td><code>theme.containerColor</code></td><td>couleur</td><td>gris clair</td><td>Demandé tel quel pour les pierres conteneurs.</td></tr>
+          <tr><td><code>dominos[].faces</code>, <code>pips[].color</code></td><td>couleur par face, par point</td><td>blanc, points noirs</td><td>Le développeur colore ce qui a un sens dans son domaine.</td></tr>
+          <tr><td><code>pips.overflow</code></td><td><code>'nine'</code> · <code>'engrave'</code></td><td><code>'nine'</code></td><td>« Au-delà de 6, afficher 9 points. » <code>'engrave'</code> grave en plus la valeur exacte.</td></tr>
+          <tr><td><code>shortcuts.face</code></td><td><code>'real'</code> · <code>'call'</code></td><td><code>'real'</code></td><td>Le raccourci du bas montre les paramètres de la fonction (2 | 0) ; <code>'call'</code> ne montre que ce que l’appel utilise.</td></tr>
+          <tr><td><code>docks</code></td><td><code>{ sources: 'top', sinks: 'bottom', maxDepth }</code></td><td>haut, bas, 3</td><td>Les sources en haut, les fonctions sans retour en bas. Au-delà de 3 niveaux, la colonne se replie en « + n ».</td></tr>
+          <tr><td><code>inputs.merge</code></td><td><code>'chain'</code> · <code>'converge'</code></td><td><code>'chain'</code></td><td>Une chaîne plus des secondaires. <code>'converge'</code> laisse plusieurs pierres se coller sur une face à plusieurs entrées.</td></tr>
+          <tr><td><code>rules.pipColor</code></td><td><code>'ignore'</code> · <code>'warn'</code> · <code>'refuse'</code></td><td><code>'warn'</code></td><td>Deux points reliés de couleurs différentes sont signalés sans bloquer ; un domaine strict (circuit) peut les refuser.</td></tr>
+          <tr><td><code>rules.custom</code></td><td>fonctions</td><td>aucune</td><td>Les règles propres au domaine s’ajoutent aux règles d’assemblage.</td></tr>
+          <tr><td><code>doubles</code></td><td><code>'plain'</code> · <code>'across'</code> · <code>'spinner'</code></td><td><code>'plain'</code></td><td>Aucun sens imposé. <code>'across'</code> pose le double en travers, comme au jeu ; <code>'spinner'</code> en fait un carrefour à quatre côtés.</td></tr>
+          <tr><td><code>table.width</code></td><td>nombre · <code>'screen'</code></td><td><code>1150</code></td><td>Même forme chez tout le monde ; <code>'screen'</code> suit la fenêtre.</td></tr>
+          <tr><td><code>table.serpentine</code></td><td>booléen</td><td><code>true</code></td><td>« Des règles de non-collision, donc un serpentin automatique. »</td></tr>
+          <tr><td><code>turns</code></td><td><code>'free'</code> · <code>'off'</code> · fonction</td><td><code>'free'</code></td><td>L’utilisateur tourne la chaîne où il veut ; un domaine peut l’interdire ou décider lui-même.</td></tr>
+          <tr><td><code>links.route</code></td><td><code>'around'</code> · <code>'straight'</code></td><td><code>'around'</code></td><td>Un fil caché sous une rangée se lit comme une fausse connexion.</td></tr>
+          <tr><td><code>contextMenu</code></td><td>fonction</td><td>Supprimer, Dupliquer, Copier, Configurer, Connexion précédente / suivante, Tourner la suite, Ouvrir la partie</td><td>Le menu du premier message, que le domaine complète.</td></tr>
+          <tr><td><code>locale</code></td><td><code>'fr'</code> · objet</td><td><code>'fr'</code></td><td>« Pierre », « partie », « Ouvrir la partie » : un domaine peut parler de « nœud » ou de « scène ».</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3 class="sub-h">Points d’extension</h3>
+      <p class="sub-p">Ce qu’une configuration ne suffit pas à dire, le développeur l’ajoute en code, sans toucher au moteur.</p>
+      <div class="grid g3 ext">
+        <div class="card"><h4>Règles</h4><p>Une règle reçoit les deux pierres et rend un refus expliqué, ou rien.</p><pre class="code sm">rules: { custom: [(a, b) =&gt;
+  a.type === <span class="s">'led'</span> &amp;&amp; !b.resistor
+    ? <span class="s">'Une LED sans résistance grille.'</span> : <span class="k">null</span>] }</pre></div>
+        <div class="card"><h4>Mise en page</h4><p>La table (chaîne, virages, serpentin) est la mise en page par défaut. Un domaine peut fournir la sienne.</p><pre class="code sm">layout: (partie, table) =&gt; positions</pre></div>
+        <div class="card"><h4>Dessin des pierres</h4><p>Remplacer ou décorer le rendu, sans perdre les règles des faces.</p><pre class="code sm">renderTile: (pierre, svg) =&gt; svg</pre></div>
+        <div class="card"><h4>Natures de conteneurs</h4><p>Fonction, Classe, Service, Module… et celles du domaine : Scène, Carte, Sous-circuit.</p><pre class="code sm">natures: { scene: { label: <span class="s">'Scène'</span>, icon } }</pre></div>
+        <div class="card"><h4>Événements</h4><p>Réagir à chaque geste : sauvegarder, exécuter, journaliser.</p><pre class="code sm">editor.on(<span class="s">'connect'</span> | <span class="s">'turn'</span> | <span class="s">'run'</span>, fn)</pre></div>
+        <div class="card"><h4>Vocabulaire</h4><p>Tous les textes de l’éditeur passent par la langue choisie.</p><pre class="code sm">locale: { stone: <span class="s">'nœud'</span>, game: <span class="s">'scénario'</span> }</pre></div>
+      </div>
+
+      <h3 class="sub-h">Pierres doubles</h3>
+      <p class="sub-p">Une pierre double a la même valeur des deux côtés (2 | 2). Le sens du double ne s’impose pas à tous les domaines : c’est l’option <code>doubles</code>.</p>
+      <div class="grid g3" id="doubles-demo"></div>
+    </section>
+
+    <section id="langage">
+      <div class="sec-head"><div class="eyebrow">Fondations</div><h2>Un langage, une instance</h2><p>Un éditeur est l’instance d’un langage. Le langage dit ce qui change d’un éditeur à l’autre ; le design, lui, reste le même : des dominos ivoire, des points colorés, une table. Kanto (programmation), Flux (automatisation) et l’Atelier (qui écrit des langages avec des dominos) sont trois langages de la même plateforme.</p></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Le langage définit</th><th>Ce que l’on voit</th><th>Exemple</th></tr></thead>
+        <tbody>
+          <tr><td><code>types</code> et leur genre</td><td>La couleur des points ; un point « fonction » se relie à un point « fonction »</td><td>Nombre bleu, Texte vert, Fonction violet</td></tr>
+          <tr><td><code>semantics</code></td><td>Le nom du rôle donné par le nombre de points, dans les mots du langage</td><td>Kanto : « Expression » (0 | n), « Instruction » ; Flux : « Déclencheur », « Action finale »</td></tr>
+          <tr><td><code>rules.chain</code></td><td>Ce qui se colle : couleurs, même nombre (le jeu), les deux</td><td>L’Atelier écrit « Calculette » avec la règle du jeu</td></tr>
+          <tr><td><code>rules.list</code></td><td>Des refus nommés, avec leur phrase</td><td>Flux : « Un déclencheur commence un flux : il ne se relie pas par un fil. »</td></tr>
+          <tr><td><code>faces</code></td><td>La couleur des façades selon le genre ou le rôle, et sa légende dans la pioche</td><td>Contrôle sable, entrée-sortie vert pâle, déclaration teintée de sa couleur</td></tr>
+          <tr><td><code>modules</code></td><td>La table des déclarations, renommée ou réduite</td><td>Flux : « Connecteurs », sans classes</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="anatomie">
+      <div class="sec-head"><div class="eyebrow">Pierre</div><h2>Anatomie d’une pierre</h2><p>Une pierre garde les proportions d’un vrai domino : deux faces carrées, une ligne médiane, un pivot en laiton et une épaisseur visible. Rien au milieu : le nom est posé au-dessus, comme l’entête d’une colonne.</p></div>
+      <div class="board" id="anatomy"></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Élément</th><th>Rôle</th><th>Règle</th></tr></thead>
+        <tbody>
+          <tr><td>Entête</td><td>Nom de la pierre</td><td>Au-dessus de la pierre, centré. Bricolage Grotesque 600 à <code>0,18 H</code>, couleur d’encre du thème, coupé avec « … » au-delà de <code>2,3 H</code>. Un pictogramme de pile précède le nom des pierres conteneurs. Le développeur peut le masquer (<code>showNames: false</code>).</td></tr>
+          <tr><td>Face d’entrée</td><td>Nombre de paramètres acceptés</td><td>Carré de côté <code>H</code>. Points de rayon <code>0,068 H</code> sur une grille 3 × 3 placée à 27 %, 50 % et 73 %.</td></tr>
+          <tr><td>Face de sortie</td><td>Nombre de sorties (pierres pouvant suivre)</td><td>Mêmes règles. Une sortie de plus ouvre une branche.</td></tr>
+          <tr><td>Point</td><td>Une entrée ou une sortie</td><td>Noir par défaut (ivoire sur ébène). Le développeur fixe la couleur de chaque point ; un point coloré reçoit un liseré plus sombre de <code>0,16 r</code>.</td></tr>
+          <tr><td>Ligne médiane et pivot</td><td>Repère du vrai domino</td><td>Trait de <code>0,022 H</code>, de 17 % à 83 % de la hauteur. Pivot laiton <code>#B8893B</code> de rayon <code>0,043 H</code>.</td></tr>
+          <tr><td>Bande de connecteurs</td><td>Couleurs acceptées à cette extrémité</td><td>Traits de <code>0,12 H × 0,046 H</code>, 4 par colonne. La bande dépasse de 45 % du bord pour se voir dans le joint.</td></tr>
+          <tr><td>Épaisseur</td><td>Lecture « objet physique »</td><td><code>0,075 H</code> (minimum 2 px). Rayon des coins : <code>0,13 H</code>.</td></tr>
+          <tr><td>Badge</td><td>Avertissement ou erreur</td><td>Pastille ambre ou rouge dans le coin haut droit, avec un « ! » blanc.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="faces">
+      <div class="sec-head"><div class="eyebrow">Pierre</div><h2>Faces et points</h2><p>Le nombre configuré par le développeur se lit en points. Les dispositions de 1 à 6 sont celles du jeu réel. Au-delà de 6, la face affiche les 9 points de la grille complète ; la valeur exacte reste lisible dans l’info-bulle et la DominoPopup.</p></div>
+      <div class="faces" id="faces-grid"></div>
+      <div class="grid g2">
+        <div class="card rule no"><div class="glyph">0|</div><div><h4>Face gauche à zéro : pierre libre</h4><p>Elle ne peut se coller après aucune autre pierre. Exemples : un événement de départ, un générateur de nombre aléatoire, une variable.</p></div></div>
+        <div class="card rule no"><div class="glyph">|0</div><div><h4>Face droite à zéro : pierre terminale</h4><p>Aucune pierre ne peut la suivre. Exemples : afficher un résultat, envoyer un e-mail, la masse d’un circuit, la fin d’un scénario.</p></div></div>
+      </div>
+    </section>
+
+    <section id="couleurs-points">
+      <div class="sec-head"><div class="eyebrow">Pierre</div><h2>Couleur des points</h2><p>Sur une pierre 3 | 2, les trois points de gauche et les deux de droite sont noirs par défaut. Le développeur qui construit les blocs peut donner une couleur à chacun d’eux : la couleur identifie le paramètre, la sortie ou le bloc lui-même. Les points se numérotent dans l’ordre de lecture, de gauche à droite puis de haut en bas.</p></div>
+      <div class="board" id="pip-order"></div>
+      <div class="grid g4" id="pip-examples"></div>
+      <div class="grid g2">
+        <div class="card"><h4>Identifier un paramètre</h4><p>« Construire JSON » a huit entrées : ses neuf points affichés prennent la couleur de chaque champ (texte vert, nombre bleu, booléen ambre, liste indigo). On reconnaît la pierre au premier coup d’œil, sans lire son nom.</p></div>
+        <div class="card"><h4>Identifier une sortie</h4><p>« Si … sinon » a un point vert (vrai) et un point rouge (faux) sur sa face droite. Dans l’éditeur de connexion, le fil prend la couleur du point dont il part.</p></div>
+        <div class="card"><h4>Identifier un bloc 0 | 0</h4><p>Une variable n’a ni entrée ni sortie. Quand une pierre l’appelle, son raccourci affiche un point à la couleur d’identité de la variable : a en bleu, b en indigo, total en vert.</p></div>
+        <div class="card"><h4>Rester lisible</h4><p>La couleur ne remplace jamais le nombre : les points se comptent toujours. Le nom de chaque point est donné dans la DominoPopup et l’info-bulle.</p></div>
+      </div>
+    </section>
+
+    <section id="couleurs-faces">
+      <div class="sec-head"><div class="eyebrow">Pierre</div><h2>Couleur des faces</h2><p>Chaque moitié de la pierre a sa propre couleur : la face gauche (entrées) et la face droite (sorties). Blanches par défaut, comme un vrai domino. Le développeur la fixe dans la définition du bloc ; l’utilisateur peut la changer dans la DominoPopup, d’un clic sur la moitié concernée. La couleur des points se règle à part, point par point.</p></div>
+      <div class="grid g4" id="face-examples"></div>
+      <div class="grid g3">
+        <div class="card"><h4>Deux réglages indépendants</h4><p>La face colore la moitié entière ; le point colore un seul point. Une face ciel peut porter un point bleu et deux points noirs : chaque réglage garde son rôle.</p></div>
+        <div class="card"><h4>Points toujours lisibles</h4><p>Un point sans couleur suit sa face : noir sur une face claire, ivoire sur une face sombre (nuit, ébène). Le choix se fait au contraste, sans réglage.</p></div>
+        <div class="card"><h4>Épaisseur assortie</h4><p>Le chant de la pierre prend une teinte plus sombre de chaque face. Couchée, la pierre montre ses deux couleurs ; debout, on voit le chant de la face du bas.</p></div>
+      </div>
+    </section>
+
+    <section id="connecteurs">
+      <div class="sec-head"><div class="eyebrow">Pierre</div><h2>Bandes de connecteurs</h2><p>Chaque extrémité porte un petit trait <code>−</code> par couleur ou catégorie acceptée. Les traits s’empilent par 4 ; au-delà, une nouvelle colonne élargit la bande. Une face à zéro n’a pas de bande : elle est scellée. Les bandes disent ce qui peut se coller ; les couleurs des points disent qui est qui.</p></div>
+      <div class="board"><div class="grid g3" id="strips"></div></div>
+      <h3>Palette des catégories et des points</h3>
+      <p class="muted" style="max-width:70ch">Neuf teintes saturées, lisibles sur l’ivoire comme sur l’ébène. Chaque domaine associe ses catégories à ces teintes ; les mêmes teintes colorent les points. Les couleurs ne servent jamais seules : leur nom apparaît dans l’info-bulle, la pioche et la DominoPopup.</p>
+      <div class="swatch-row" id="cat-swatches"></div>
+    </section>
+
+    <section id="variantes">
+      <div class="sec-head"><div class="eyebrow">Pierre</div><h2>Variantes de pierres</h2><p>Par défaut, les pierres sont blanches comme de vrais dominos. Le développeur choisit l’habillage à l’instanciation ; l’utilisateur peut teinter une pierre dans sa configuration.</p></div>
+      <div class="grid g4" id="variants"></div>
+    </section>
+
+    <section id="etats">
+      <div class="sec-head"><div class="eyebrow">Interaction</div><h2>États</h2><p>Les états passent par un anneau autour de la pierre et par son ombre. La pierre elle-même ne change jamais de couleur : un domino reste un domino.</p></div>
+      <div class="grid g4" id="states"></div>
+    </section>
+
+    <section id="assemblage">
+      <div class="sec-head"><div class="eyebrow">Règles</div><h2>Règles d’assemblage</h2><p>Une pierre B se colle après une pierre A quand toutes ces conditions sont réunies. L’éditeur vérifie les règles pendant le glisser : un anneau vert accepte, un anneau rouge refuse et une bulle explique pourquoi.</p></div>
+      <div class="grid g2">
+        <div class="card rule yes"><div class="glyph">1</div><div><h4>A a au moins une sortie</h4><p>Une face droite à 0 scelle la pierre.</p></div></div>
+        <div class="card rule yes"><div class="glyph">2</div><div><h4>B a au moins une entrée</h4><p>Une face gauche à 0 fait de B une pierre libre.</p></div></div>
+        <div class="card rule yes"><div class="glyph">3</div><div><h4>A a encore une sortie libre</h4><p>Une pierre à n sorties accepte au plus n pierres. La sortie 1 se colle bout à bout ; les suivantes ouvrent des branches dessous.</p></div></div>
+        <div class="card rule yes"><div class="glyph">4</div><div><h4>Les couleurs se rencontrent</h4><p>Au moins une couleur de sortie de A figure parmi les couleurs d’entrée de B. Une liste vide accepte tout. Des règles de catégorie (« peut suivre », « peut précéder ») s’ajoutent, comme dans Blockly.</p></div></div>
+      </div>
+      <div class="board" id="assembly"></div>
+      <div class="grid g3" id="refusals"></div>
+    </section>
+
+    <section id="secondaires">
+      <div class="sec-head"><div class="eyebrow">Règles</div><h2>Adjacentes haute et basse</h2><p>Une adjacente est une petite pierre collée à 90° sur le grand côté de son parent : ni tige, ni fil, ni distance. La <b>haute</b> se pose au-dessus de la face d’entrée, qu’elle alimente ; la <b>basse</b> sous la face de sortie, qu’elle consomme. Plusieurs adjacentes se partagent la place : leur taille diminue pour qu’elles restent toutes collées. Un trait à la couleur du type marque le joint. Ces figures sont dessinées par le moteur lui-même.</p></div>
+      <div class="board" id="docks"></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Sens de la pierre</th><th>Adjacente haute</th><th>Adjacente basse</th><th>Entête (nom)</th></tr></thead>
+        <tbody>
+          <tr><td>→ vers la droite</td><td>en haut, au-dessus de l’entrée</td><td>en bas, sous la sortie</td><td>au-dessus de l’autre moitié</td></tr>
+          <tr><td>↓ vers le bas</td><td>à droite</td><td>à gauche</td><td>au-dessus</td></tr>
+          <tr><td>← vers la gauche</td><td>en bas</td><td>en haut</td><td>au-dessus de l’autre moitié</td></tr>
+          <tr><td>↑ vers le haut</td><td>à gauche</td><td>à droite</td><td>au-dessus</td></tr>
+        </tbody>
+      </table></div>
+      <ul class="rules" style="margin-top:14px">
+        <li><div><b>Une haute rend une valeur</b><p>Face droite d’au moins un point, ou une valeur 0 | 0 (variable). Elle alimente l’entrée libre dont le type lui va : sa couleur doit aller avec celle du point.</p></div></li>
+        <li><div><b>Une basse reçoit une valeur</b><p>Face gauche d’au moins un point. Elle consomme une sortie du parent (journal, métriques, sonde) sans interrompre la chaîne.</p></div></li>
+        <li><div><b>Les proportions ne changent pas</b><p>Une adjacente fait la moitié de l’épaisseur de son parent ; à plusieurs, elles rétrécissent ensemble. Une adjacente d’adjacente continue la colonne vers l’extérieur ; au-delà de trois niveaux, un badge « +n » les résume.</p></div></li>
+        <li><div><b>Le nom ne gêne pas</b><p>Le nom d’une adjacente s’écrit au bout de sa colonne, dans le sens de la colonne ; celui du parent passe au-dessus de la moitié libre.</p></div></li>
+      </ul>
+    </section>
+
+    <section id="connecter">
+      <div class="sec-head"><div class="eyebrow">Interaction</div><h2>Connecter</h2><p>Trois façons de coller deux pierres, qui suivent toutes les mêmes règles et expliquent chaque refus par une phrase.</p></div>
+      <div class="grid g3">
+        <div class="card"><h4>Glisser une pierre</h4><p>Pendant le glisser, chaque pierre proche montre ses zones : la suite à droite de la face de sortie, l’insertion sur un joint, la haute au-dessus, la basse en dessous, la précédente devant une tête de chaîne. Zone verte : relâcher colle la pierre (un fantôme montre sa place). Zone rouge : la raison s’affiche sous le pointeur.</p></div>
+        <div class="card"><h4>Tirer une poignée</h4><p>Au survol, une pierre montre ses poignées ●+ sur ses bords : sortie, haute, basse. On tire un fil jusqu’à une autre pierre, comme entre deux nœuds ; elle vient se coller à sa place. Relâcher dans le vide ouvre l’ajout rapide, filtré sur les pierres qui peuvent se coller là.</p></div>
+        <div class="card"><h4>Clavier</h4><p><kbd>→</kbd> la suite, <kbd>←</kbd> la précédente, <kbd>↑</kbd> la haute, <kbd>↓</kbd> la basse. <kbd>/</kbd> ajout rapide après la sélection, <kbd>Alt</kbd>+flèche tourner la suite, <kbd>Suppr</kbd> retirer (la suite se recolle), <kbd>Ctrl</kbd>+<kbd>Z</kbd> annuler, <kbd>Entrée</kbd> inspecter. Chaque geste est annoncé aux lecteurs d’écran.</p></div>
+      </div>
+    </section>
+
+    <section id="jeu">
+      <div class="sec-head"><div class="eyebrow">Règles</div><h2>La règle du jeu</h2><p>Avec la règle de chaîne <code>count</code>, deux pierres se collent comme au jeu de dominos : les deux faces qui se touchent montrent le même nombre de points. <code>both</code> exige aussi des couleurs qui vont ensemble. Le refus s’explique par une phrase, comme les autres. Figure dessinée par le moteur.</p></div>
+      <div class="board" id="game"></div>
+    </section>
+
+    <section id="fils">
+      <div class="sec-head"><div class="eyebrow">Interaction</div><h2>Fils point à point</h2><p>En plus de coller, on relie un <b>point de sortie</b> à un <b>point d’entrée</b>, entre deux pierres quelconques de la même partie, collées ou libres. Le fil part de la face de sortie dans le sens de la pierre et prend <b>la couleur des deux points</b> : un dégradé de l’une à l’autre. Un anneau plein entoure le point de départ, un anneau pointillé la prise d’arrivée.</p></div>
+      <div class="board" id="wires"></div>
+      <div class="grid g3" style="margin-top:14px">
+        <div class="card"><h4>Tirer un fil</h4><p>On tire depuis un point : les points compatibles s’allument et le fil s’y aimante. Sur une pierre, la raison d’un refus s’affiche ; dans le vide, l’ajout rapide propose les pierres qui ont un point compatible et les relie. Tirer depuis une entrée déjà reliée reprend son fil ; le relâcher dans le vide le retire.</p></div>
+        <div class="card"><h4>Bloquant ou non</h4><p>Un petit bloc ▮ près de la cible : l’appelant attend. Un anneau ○ : il continue. Cliquer le fil le règle. « Appeler » non bloquant gagne un point « suite » qui part tout de suite ; sa branche « résultat » tombe quand le résultat arrive.</p></div>
+        <div class="card"><h4>Synchrone ou asynchrone</h4><p>Le genre d’appel vient de la pierre appelée : un fil vers une méthode ou une pierre asynchrone est en pointillé qui coule. Pendant l’effet domino, la valeur parcourt le fil, et la dernière valeur reste posée en son milieu.</p></div>
+      </div>
+    </section>
+
+    <section id="modules">
+      <div class="sec-head"><div class="eyebrow">Règles</div><h2>Déclarations et instances</h2><p>Une classe, une bibliothèque (ou un autre projet réutilisé) et une fonction se déclarent sur la table « Déclarations ». Leurs deux façades disent ce qu’elles sont : à gauche ce qu’elles exigent, à droite ce qu’elles offrent, un point coloré par méthode publique. Le corps s’ouvre dans un onglet. Une instance, posée libre et teintée de sa déclaration, exige les paramètres du constructeur et offre ses méthodes par leurs points. Figure dessinée par le moteur.</p></div>
+      <div class="board" id="decls"></div>
+      <div class="tbl-wrap" style="margin-top:14px"><table>
+        <thead><tr><th>Pierre</th><th>Face gauche</th><th>Face droite</th><th>Où</th></tr></thead>
+        <tbody>
+          <tr><td>Classe</td><td>paramètres du constructeur</td><td>une méthode publique par point</td><td>table des déclarations ; corps dans un onglet</td></tr>
+          <tr><td>Bibliothèque</td><td>sa configuration (souvent 0)</td><td>ses fonctions</td><td>idem ; « Projet d’origine » si elle vient d’ailleurs</td></tr>
+          <tr><td>Fonction</td><td>ses paramètres</td><td>son résultat</td><td>idem ; elle apparaît dans la pioche, prête à être appelée</td></tr>
+          <tr><td>Instance</td><td>les paramètres exigés (fils ou adjacentes hautes)</td><td>les méthodes publiques</td><td>libre sur la table ; double-clic : sa déclaration</td></tr>
+          <tr><td>Appeler</td><td>la fonction (par un fil), puis ses paramètres</td><td>le résultat, et la suite si l’appel ne bloque pas</td><td>dans une chaîne</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="tout">
+      <div class="sec-head"><div class="eyebrow">Règles</div><h2>Tout représenter</h2><p>Une pierre n’est pas « un bloc de code » : c’est ce que le langage décide. Une variable, une ligne, une classe, un algorithme, un projet entier d’un autre langage, une idée, une pièce de jeu. Ce qui contient un monde porte une marque dans son coin et s’ouvre dans un onglet. Figure dessinée par le moteur.</p></div>
+      <div class="board" id="everything"></div>
+      <div class="tbl-wrap" style="margin-top:14px"><table>
+        <thead><tr><th>La pierre représente</th><th>Comment le langage le dit</th><th>Double-clic</th></tr></thead>
+        <tbody>
+          <tr><td>une variable</td><td><code>decl.variable</code> ; « nom » et « nom ← » dans la pioche, liés par l’identifiant</td><td>sa déclaration</td></tr>
+          <tr><td>une ligne, une expression, une condition</td><td><code>represents: 'ligne'</code>…</td><td>la DominoPopup</td></tr>
+          <tr><td>une fonction, une classe, une bibliothèque</td><td>déclarations</td><td>leur corps</td></tr>
+          <tr><td>un algorithme, un scénario, un module</td><td><code>inside: { kind, template }</code></td><td>son intérieur, à toute profondeur</td></tr>
+          <tr><td>un projet, même d’un autre langage</td><td><code>domino.project</code></td><td>l’éditeur de son langage, dans un onglet</td></tr>
+          <tr><td>un renvoi</td><td><code>domino.ref</code> ou un champ <code>{ "$ref": "id" }</code></td><td>sa cible</td></tr>
+        </tbody>
+      </table></div>
+      <div class="grid g3" style="margin-top:14px">
+        <div class="card"><h4>Note ✎</h4><p>Toute pierre peut porter une note de l’utilisateur : une pastille jaune dans son coin, la note en info-bulle et dans la fiche.</p></div>
+        <div class="card"><h4>Neutralisée</h4><p>Grisée, le bord en pointillé : l’effet domino la traverse sans l’exécuter, ses entrées passent. Elle reste dans le JSON, marquée <code>disabled</code>.</p></div>
+        <div class="card"><h4>Verrouillée</h4><p>Un petit cadenas : l’utilisateur ne la déplace, ne la modifie ni ne la supprime. Une définition peut aussi l’interdire (<code>constraints</code>).</p></div>
+      </div>
+    </section>
+
+    <section id="modele">
+      <div class="sec-head"><div class="eyebrow">Développeur</div><h2>Modélisation et traçage</h2><p>Le JSON du projet sert à enregistrer. Le <b>document de modèle</b> sert à lire : chaque pierre, chaque point avec sa source et ses cibles, chaque relation, chaque déclaration, résolus. La génération de code reste à qui veut l’écrire ; tout ce dont elle a besoin est là, avec un schéma.</p></div>
+<pre class="code"><span class="c">// editor.describe() → « kantoaplo.model »</span>
+elements.snd.faces.left[0].source  <span class="c">// { via: 'wire', element: 'ntf', connection: 'w2' }</span>
+connections[<span class="s">'w2'</span>]                  <span class="c">// { kind: 'wire', wireKind: 'call', blocking: false, async: true, calls: { member: 'envoyer' } }</span>
+elements.pm.trace                  <span class="c">// { created: { by: 'ada', how: 'pioche', at: '…' }, modified: { count: 3, … } }</span>
+run.steps[<span class="s">'s21'</span>].cause             <span class="c">// { via: 'chain', step: 's19' } → s18 (appel) → s16 → … → s1 (départ)</span></pre>
+      <div class="grid g3" style="margin-top:14px">
+        <div class="card"><h4>Définition</h4><p>Champs validés (requis, bornes, motif, renvoi), contraintes côté par côté (<code>allow</code>, <code>deny</code>), nombre d’exemplaires, permissions, dépréciation. Schéma : <code>language.schema.json</code>.</p></div>
+        <div class="card"><h4>Provenance et journal</h4><p>Chaque pierre et chaque fil savent qui les a créés, quand, comment (pioche, ajout rapide, copie, import) et d’où ; chaque opération s’inscrit au journal.</p></div>
+        <div class="card"><h4>Exécution causale</h4><p>Chaque étape de l’effet domino renvoie à celle qui l’a provoquée (chaîne, fil, appel, création, adjacente) et à son chemin d’appel. Schéma : <code>model.schema.json</code>.</p></div>
+      </div>
+    </section>
+
+    <section id="inspecteur">
+      <div class="sec-head"><div class="eyebrow">Composant</div><h2>Inspecteur</h2><p>Un panneau à la manière des outils de développement d’un navigateur : on l’agrandit, on le réduit, on l’ancre en bas ou à droite, on le redimensionne en tirant sa bordure (ou au clavier). Chaque onglet montre une facette du projet ; chaque domaine, chaque entreprise ajoute les siens avec <code>editor.addInspectorTab()</code>.</p></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Onglet</th><th>Contenu</th></tr></thead>
+        <tbody>
+          <tr><td>Éléments</td><td>L’arbre des pierres (parties, chaînes, adjacentes), comme l’arbre DOM ; à droite la pierre en grand avec ses voisines des quatre côtés, la signification de ses faces, ses points et ce qui les alimente, ses champs (liables au contexte), sa connexion entrante, le sens de la suite, ses callbacks, son JSON.</td></tr>
+          <tr><td>Console</td><td>Journal filtrable et évaluation d’expressions (<code>ws</code>, <code>ctx</code>, <code>editor</code>).</td></tr>
+          <tr><td>Événements</td><td>Tout ce que reçoit <code>workspace.on('*')</code>, en direct, avec pause et filtre.</td></tr>
+          <tr><td>Contexte</td><td>Les valeurs du contexte, modifiables, et les liaisons qui les lisent.</td></tr>
+          <tr><td>JSON</td><td>Le projet, la sélection, les définitions, les types, le schéma ; copie, téléchargement, import vérifié.</td></tr>
+          <tr><td>Code</td><td>La sortie des générateurs du domaine, produite depuis le JSON.</td></tr>
+          <tr><td>Problèmes</td><td>Tous les diagnostics : règles, types, liaisons, exécution.</td></tr>
+          <tr><td>Exécution</td><td>Le dernier effet domino, étape par étape, avec la durée de chaque pierre.</td></tr>
+          <tr><td>Types</td><td>Les types de points (leur couleur) et les définitions de pierres.</td></tr>
+          <tr><td>Modules</td><td>Les déclarations : ce qu’elles exigent, ce qu’elles offrent, leurs instances et leurs appels ; exporter une déclaration, en importer une.</td></tr>
+          <tr><td>Modèle</td><td>Le document de modèle : la pierre sélectionnée, les relations, le journal, le document entier ; téléchargement et schéma.</td></tr>
+          <tr><td>Langage</td><td>Les règles d’assemblage, le sens des faces, les façades, les types ; le langage en JSON.</td></tr>
+          <tr><td>Onglets du domaine</td><td>Exemples de la démo : « Sécurité » (politique d’une entreprise), « Dépendances » (scénarios), « Banc de test » (laboratoire).</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="connexions">
+      <div class="sec-head"><div class="eyebrow">Règles</div><h2>Connexions</h2><p>Entre deux pierres collées, un joint en laiton marque la connexion. Elle est réglable : clic sur le joint, ou clic droit sur une pierre puis « Connexion précédente » ou « Connexion suivante ». L’éditeur de connexion montre la face droite de A et la face gauche de B, et les fils qui relient leurs points.</p></div>
+      <div class="board" id="cx-demo"></div>
+      <div class="grid g3">
+        <div class="card"><h4>Câblage</h4><p>Le fil part du point de sortie utilisé par la connexion et arrive sur un ou plusieurs points d’entrée de B. Un clic sur un point de B le câble ou le décâble ; un clic sur un autre point libre de A déplace la connexion sur cette sortie. « Câbler automatiquement » relie les points de même couleur.</p></div>
+        <div class="card"><h4>Réglages</h4><p>Un libellé (« vrai », « qualifiés », « fuir »), une condition de passage et un interrupteur. Désactivée, la connexion reste en place, son joint devient creux et pointillé, et l’effet domino s’arrête avant B.</p></div>
+        <div class="card"><h4>Navigation</h4><p>« Précédente » et « Suivante » parcourent la chaîne connexion par connexion. « Configurer A » et « Configurer B » ouvrent la DominoPopup de l’une ou l’autre pierre.</p></div>
+      </div>
+    </section>
+
+    <section id="virages">
+      <div class="sec-head"><div class="eyebrow">Règles</div><h2>Virages</h2><p>Comme sur une vraie table, la chaîne n’est pas condamnée à la ligne droite. À n’importe quelle pierre, par exemple la cinquième, on décide que la suite part vers le bas ou vers le haut. Les pierres qui suivent changent de sens. Plus loin, une pierre de la colonne peut à son tour envoyer la suite vers la droite ou vers la gauche.</p></div>
+      <div class="board" id="turn-demo"></div>
+      <div class="grid g4">
+        <div class="card"><h4>Quatre sens</h4><p>Une connexion part à droite (par défaut), à gauche, en bas ou en haut. À chaque virage, la chaîne tourne d’un quart de tour. Le demi-tour est refusé : la chaîne ne revient jamais sur elle-même.</p></div>
+        <div class="card"><h4>La pierre du coin</h4><p>La première pierre après un virage se pose en travers, sa face d’entrée contre la sortie de la précédente, comme sur une table de jeu. Une pierre qui file vers la gauche ou vers le haut est retournée : son entrée est à droite ou en bas.</p></div>
+        <div class="card"><h4>Adjacentes d’une colonne</h4><p>La pierre tourne avec ses adjacentes, d’un seul bloc : dans une colonne qui descend, la haute passe à droite et la basse à gauche. Les branches partent à droite de la colonne.</p></div>
+        <div class="card"><h4>Où décider</h4><p>Clic droit sur la pierre puis « Tourner la suite », <kbd>Alt</kbd> + flèche, ou le pavé « Sens de la suite » de la popup. Une pastille laiton marque chaque virage ; un clic dessus change le sens. Les pierres pivotent et glissent à leur nouvelle place.</p></div>
+      </div>
+    </section>
+
+    <section id="collisions">
+      <div class="sec-head"><div class="eyebrow">Règles</div><h2>Non-collision et serpentin</h2><p>Deux pierres ne se chevauchent jamais. Des règles simples, appliquées dans l’ordre, le garantissent. La plus visible est le serpentin automatique : arrivée au bord de la table, la chaîne tourne d’elle-même et repart dans l’autre sens, comme un joueur qui manque de place.</p></div>
+      <div class="board" id="serpent-demo"></div>
+      <ol class="rules">
+        <li><div><b>Aucun chevauchement</b><p>Chaque pierre occupe sa boîte : la pierre, son épaisseur, son entête et ses adjacentes. Deux boîtes ne se touchent jamais ; un joint ou un rail les sépare.</p></div></li>
+        <li><div><b>Serpentin au bord de la table</b><p>La table a une largeur : fixe (1 150 unités par défaut, réglable), pour que le projet ait la même forme chez tout le monde, ou liée à l’écran (<code>width: 'screen'</code>), et la chaîne se réarrange quand la fenêtre change. Quand la pierre suivante, plus la place d’une pierre du coin, dépasserait le bord, la chaîne tourne vers le bas, pose une pierre du coin, puis repart dans l’autre sens, sous toute la rangée précédente.</p></div></li>
+        <li><div><b>Évitement</b><p>Si la pierre suivante toucherait une pierre déjà posée, la chaîne tourne avant le contact (d’abord vers le bas, puis vers le haut) et reprend son sens après la pierre du coin.</p></div></li>
+        <li><div><b>Le choix de l’utilisateur passe en premier, sauf collision</b><p>Un virage choisi à la main est respecté. S’il touche une pierre, la chaîne contourne et la popup le signale. S’il enferme la chaîne plus loin (aucun sens libre), il est refusé, avec une phrase qui nomme la pierre en cause.</p></div></li>
+        <li><div><b>Une chaîne lâchée sur une autre glisse</b><p>La chaîne posée en dernier descend jusqu’à la première place libre. Les branches se posent sous ce qui est déjà posé, là où c’est libre. Les dominos libres remontent si une chaîne entre dans leur zone.</p></div></li>
+        <li><div><b>Les fils contournent les pierres</b><p>Le fil d’une branche ne passe jamais sous une pierre : il suit les couloirs entre les rangées, à angles droits arrondis, par le chemin le plus court qui a le moins de coudes. À droite d’une colonne, une branche qui passerait le bord de la table se pose dessous.</p></div></li>
+        <li><div><b>Pastilles</b><p>Pleine : virage choisi à la main. Pointillée : virage automatique (serpentin ou évitement) ; son info-bulle dit pourquoi. « Auto » au centre du pavé « Sens de la suite » rend la décision à la table.</p></div></li>
+      </ol>
+    </section>
+
+    <section id="plateau">
+      <div class="sec-head"><div class="eyebrow">Éditeur</div><h2>Plateau et navigation</h2><p>Le plateau est une table infinie. La grille de points rappelle les points des pierres : un point fin toutes les 24 unités, un point marqué toutes les 120. À la première ouverture, les dominos libres se rangent en haut et les chaînes se placent côte à côte sur des étagères.</p></div>
+      <div style="overflow-x:auto">
+        <div class="wire" role="img" aria-label="Schéma de l’éditeur">
+          <div class="w-bar"><span class="tagw">Barre</span>Marque · projet · domaines · Effet domino · options · thème</div>
+          <div class="w-pioche"><span class="tagw">Pioche</span><br><br>Recherche<br>Groupes de pierres<br>Glisser vers le plateau<br><br>Légende des couleurs</div>
+          <div class="w-tabs"><span class="tagw">Onglets</span>Partie principale · Fonction › Calculer le score ×</div>
+          <div class="w-table"><span class="tagw">Plateau</span>Dominos libres en haut · chaînes horizontales · secondaires en haut et en bas · joints · branches
+            <div class="w-zoom">− 100 % + ⤢</div>
+            <div class="w-mm">Mini-carte</div>
+          </div>
+          <div class="w-status"><span class="tagw">État</span>Sélection · pierres · connexions · secondaires · avertissements · erreurs</div>
+        </div>
+      </div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Geste</th><th>Effet</th></tr></thead>
+        <tbody>
+          <tr><td>Molette ou pincement</td><td>Zoom centré sur le curseur, de 20 % à 400 %</td></tr>
+          <tr><td>Glisser le fond</td><td>Déplacer le plateau</td></tr>
+          <tr><td>Glisser une pierre</td><td>La déplacer avec toutes les pierres qui la suivent ; elle se détache de sa précédente</td></tr>
+          <tr><td>Glisser depuis la pioche</td><td>Poser une nouvelle pierre ; relâcher au-dessus de la pioche annule</td></tr>
+          <tr><td>Double-clic ou <kbd>Entrée</kbd></td><td>Ouvrir la DominoPopup</td></tr>
+          <tr><td>Clic sur un joint</td><td>Ouvrir l’éditeur de connexion</td></tr>
+          <tr><td>Clic sur une secondaire</td><td>Aller à la pierre d’origine, dans les dominos libres</td></tr>
+          <tr><td>Clic droit</td><td>Menu contextuel de la pierre, de la secondaire, du joint ou du plateau</td></tr>
+          <tr><td><kbd>O</kbd> ou « Ouvrir la partie »</td><td>La caméra plonge dans la pierre conteneur, puis sa partie s’ouvre dans un nouvel onglet</td></tr>
+          <tr><td><kbd>R</kbd> ou « Effet domino »</td><td>Faire tomber les pierres une à une</td></tr>
+          <tr><td><kbd>F</kbd></td><td>Ajuster la vue à toute la partie (animation de 380 ms)</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="composants">
+      <div class="sec-head"><div class="eyebrow">Éditeur</div><h2>Composants d’interface</h2><p>L’interface autour du plateau reste discrète : panneaux neutres teintés de vert, un seul accent laiton, réservé à l’action principale, à la sélection et aux liaisons.</p></div>
+      <div class="grid g2">
+        <div class="spec"><h4>Menu contextuel : pierre <small>clic droit</small></h4><div class="menu" id="menu-plain"></div><p>Configurer, Connexion précédente, Connexion suivante (une ligne par sortie occupée), Dupliquer, Copier, Détacher, Supprimer. Une connexion absente est grisée et dit pourquoi.</p></div>
+        <div class="spec"><h4>Menu contextuel : pierre conteneur <small>+ Ouvrir la partie</small></h4><div class="menu" id="menu-cont"></div><p>Une classe, un service ou un module : « Ouvrir la partie » est mis en avant en laiton et déplie ses sous-dominos dans un nouvel onglet.</p></div>
+      </div>
+      <div class="spec"><h4>Onglets de partie <small>la nature du conteneur précède son nom</small></h4>
+        <div><div class="tabs"><span class="tab"><span class="tico"></span>Partie principale</span><span class="tab active sub"><span class="tico"></span><span class="crumb">Fonction ›</span>Calculer le score <span class="x">×</span></span><span class="tab sub"><span class="tico"></span><span class="crumb">Classe ›</span>Classe Dé <span class="x">×</span></span></div><div class="tabs-under"></div></div>
+      </div>
+      <div class="grid g3">
+        <div class="spec"><h4>Boutons</h4><div class="row"><span class="btn primary">▶ Effet domino</span><span class="btn">Dupliquer</span><span class="btn danger">Supprimer</span><span class="btn ghost">Fermer</span></div></div>
+        <div class="spec"><h4>Pastilles de couleur <small>active · inactive · bloquée</small></h4><div class="chips" id="chips-demo"></div></div>
+        <div class="spec"><h4>Joint <small>actif · libellé · désactivé</small></h4><div class="stage" id="joint-demo" style="min-height:92px"></div></div>
+        <div class="spec"><h4>Article de pioche</h4><div class="pi" id="pi-demo"></div></div>
+        <div class="spec"><h4>Ligne de point <small>DominoPopup</small></h4><div class="ports-demo"><span class="pidx">1</span><span class="pipdot" style="--c:#38A169"></span><span class="port">msg</span><small>vert</small><span class="pidx">2</span><span class="pipdot" style="--c:#151718"></span><span class="port">niveau</span><small>noir · défaut</small></div></div>
+        <div class="spec"><h4>Étiquettes d’état</h4><div class="row"><span class="tag ok">Aucun problème</span><span class="tag warn">1 avertissement</span><span class="tag error">1 erreur</span></div></div>
+      </div>
+      <div class="grid g2">
+        <div class="spec"><h4>Bulle d’aimantation <small>pendant le glisser</small></h4><div class="row"><span class="snapchip ok"><i></i><span>Se colle en sortie 1 de « Calculer le score »</span></span><span class="snapchip bad"><i></i><span>Couleurs incompatibles : « Calculer le score » sort nombre, « Afficher » accepte texte.</span></span></div></div>
+        <div class="spec"><h4>Notifications</h4><div class="row"><span class="toast ok"><i></i><span>Effet domino : 8 pierres tombées, sans erreur.</span></span><span class="toast err"><i></i><span>La sortie 1 de « Si score > record » est déjà prise par « Afficher ».</span></span></div></div>
+      </div>
+    </section>
+
+    <section id="popup">
+      <div class="sec-head"><div class="eyebrow">Éditeur</div><h2>DominoPopup</h2><p>« Configurer » agrandit la pierre elle-même : la fenêtre part du rectangle exact de la pierre sur le plateau et grandit en 460 ms. La popup est elle-même une grande pierre : à gauche la table, à droite la fiche, et entre les deux la ligne de partage et son pivot en laiton. Sur la table, la pierre est montrée en grand, entourée de ses voisines sur les quatre côtés, comme de vrais dominos.</p></div>
+      <div class="pp2" id="pp-mock"></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Côté</th><th>Ce qu’on y voit</th></tr></thead>
+        <tbody>
+          <tr><td>Centre</td><td>La pierre en grand (92 unités), son entête, ses points cliquables : un clic montre ce qui relie ce point (onglet Points)</td></tr>
+          <tr><td>Gauche</td><td>La pierre qui précède ; ou une place libre en pointillé (« Avant… ») ; ou « face gauche à zéro »</td></tr>
+          <tr><td>Droite</td><td>Les pierres qui suivent, une par sortie occupée, avec le nom de la sortie ; puis la première sortie libre, en pointillé</td></tr>
+          <tr><td>Haut</td><td>Les adjacentes hautes, collées à 90° au-dessus de la face d’entrée ; ou une place « + » en pointillé. Pour une adjacente basse : son parent</td></tr>
+          <tr><td>Bas</td><td>Les adjacentes basses, sous la face de sortie ; ou une place « + ». Pour une adjacente haute : la pierre qu’elle alimente</td></tr>
+          <tr><td>Places libres</td><td>Un clic ouvre l’ajout rapide, filtré sur les pierres qui peuvent se coller là</td></tr>
+          <tr><td>Fiche</td><td>Nom, type, faces ; onglets Fiche (aide, signification des faces, champs liables au contexte, sens de la suite), Points, Connexions (libellé, condition, activation), Diagnostic (avertissements, erreurs, journal, dernier passage) ; Inspecter, Ouvrir la partie, Dupliquer, Supprimer</td></tr>
+        </tbody>
+      </table></div>
+      <div class="card"><h3>Prendre en main une voisine</h3><p>Un clic sur une pierre voisine la choisit : la caméra glisse vers elle et la grossit jusqu’à la taille de la grande pierre en 440 ms, puis ses propres voisines apparaissent autour d’elle. Le fil d’Ariane en haut de la table garde le parcours. Au clavier, les flèches prennent en main la suite (→), la précédente (←), l’adjacente haute (↑) ou basse (↓) ; Échap referme la popup sur la pierre, à sa place.</p></div>
+    </section>
+
+    <section id="effet">
+      <div class="sec-head"><div class="eyebrow">Éditeur</div><h2>Effet domino</h2><p>Le bouton « Effet domino » fait tomber les pierres, rang après rang, depuis chaque pierre de départ (face gauche à zéro). Chaque pierre bascule légèrement et s’entoure de laiton ; ses secondaires vibrent avec elle ; les joints traversés passent au vert. La chute s’arrête sur une pierre en erreur (anneau rouge) ou devant une connexion désactivée, et une notification résume le parcours. Le moteur exécute vraiment la partie : chaque pierre reçoit ses entrées et rend ses sorties (callback <code>run</code>), et les valeurs s’affichent sur les joints.</p></div>
+      <div class="board" id="run-demo"></div>
+    </section>
+
+    <section id="tokens">
+      <div class="sec-head"><div class="eyebrow">Fondations</div><h2>Tokens</h2><p>Les tokens d’interface existent en clair et en sombre. Les tokens de pierre sont fixes : une pierre ivoire reste ivoire sur une table sombre, comme un vrai domino.</p></div>
+      <h3>Interface</h3>
+      <div class="tbl-wrap"><table id="ui-tokens"><thead><tr><th>Token</th><th>Clair</th><th>Sombre</th><th>Usage</th></tr></thead><tbody></tbody></table></div>
+      <h3>Pierres</h3>
+      <div class="swatch-row" id="tile-tokens"></div>
+      <h3>Typographie</h3>
+      <div class="card" id="type-scale" style="padding:6px 20px"></div>
+      <div class="grid g2">
+        <div class="card"><h3>Espacements <small class="muted" style="font:400 12px var(--f-mono)">base 4</small></h3><div id="space" style="display:grid;gap:8px"></div></div>
+        <div class="card"><h3>Rayons</h3><div class="radius-demo"><div style="border-radius:6px">6 · sm</div><div style="border-radius:10px">10 · md</div><div style="border-radius:16px">16 · lg</div><div style="border-radius:26px">26 · popup</div><div style="border-radius:999px">999 · chip</div></div><h3 style="margin-top:12px">Élévation</h3><div class="elev-demo"><div style="box-shadow:var(--shadow-1)">shadow-1 · outils</div><div style="box-shadow:var(--shadow-2)">shadow-2 · menus</div><div style="box-shadow:var(--shadow-3)">shadow-3 · popup</div></div></div>
+      </div>
+      <div class="card"><h3>Mouvement</h3><p>Une seule courbe, <code>cubic-bezier(.2, .8, .2, 1)</code> : départ franc, arrivée douce, comme une pierre qu’on pose. Avec <code>prefers-reduced-motion</code>, toutes les animations sont coupées.</p>
+        <div class="motion-demo"><button class="btn" id="play-motion">Rejouer</button><div class="motion-track" id="mt"><i></i></div></div>
+        <div class="tbl-wrap" style="margin-top:6px"><table><thead><tr><th>Mouvement</th><th>Durée</th></tr></thead><tbody>
+          <tr><td>Survol, anneau d’état, joint</td><td class="num">150 ms</td></tr>
+          <tr><td>Menu, popover, réglage d’un point</td><td class="num">140–160 ms</td></tr>
+          <tr><td>Ajuster la vue, centrer</td><td class="num">380 ms</td></tr>
+          <tr><td>DominoPopup (grandir, rentrer)</td><td class="num">460 ms</td></tr>
+          <tr><td>Prendre en main une voisine</td><td class="num">440 ms</td></tr>
+          <tr><td>Ouvrir la partie (plonger, puis déplier)</td><td class="num">360 ms + 420 ms</td></tr>
+          <tr><td>Effet domino</td><td class="num">300 ms par rang, bascule de 550 ms</td></tr>
+        </tbody></table></div>
+      </div>
+    </section>
+
+    <section id="api">
+      <div class="sec-head"><div class="eyebrow">Développeur</div><h2>Configuration développeur</h2><p>Esquisse de l’API d’instanciation, pour aligner le design sur ce que le développeur pourra régler. Ce n’est pas une implémentation. Chaque option a une valeur par défaut ; le studio montre, dans « Configuration », celle qui produit chaque domaine.</p></div>
+<pre class="code"><span class="k">const</span> editor = DominoEditor.create(<span class="s">'#studio'</span>, {
+  skin: <span class="s">'ivoire'</span>,              <span class="c">// 'ivoire' (défaut) | 'ebene' | 'teinte'</span>
+  showNames: <span class="k">true</span>,              <span class="c">// nom en entête, au-dessus de la pierre</span>
+  containerColor: <span class="s">'#E1E4E6'</span>,   <span class="c">// gris clair par défaut</span>
+  grid: <span class="k">true</span>,
+  snapDistance: 44,             <span class="c">// pixels écran</span>
+  table: { width: 1150, serpentine: <span class="k">true</span> },  <span class="c">// 1150 | 'screen' ; serpentin au bord ; jamais de chevauchement</span>
+  links: { route: <span class="s">'around'</span> },      <span class="c">// 'around' | 'straight'</span>
+  pips: { overflow: <span class="s">'nine'</span> },        <span class="c">// au-delà de 6 : 'nine' | 'engrave'</span>
+  shortcuts: { face: <span class="s">'real'</span> },        <span class="c">// 'real' (2 | 0) | 'call'</span>
+  docks: { sources: <span class="s">'top'</span>, sinks: <span class="s">'bottom'</span>, maxDepth: 3 },
+  inputs: { merge: <span class="s">'chain'</span> },        <span class="c">// 'chain' | 'converge'</span>
+  doubles: <span class="s">'plain'</span>,                <span class="c">// 'plain' | 'across' | 'spinner'</span>
+  turns: <span class="s">'free'</span>,                   <span class="c">// 'free' | 'off' | (pierre) =&gt; sens</span>
+  rules: { pipColor: <span class="s">'warn'</span>, custom: [] }, <span class="c">// 'ignore' | 'warn' | 'refuse'</span>
+  locale: <span class="s">'fr'</span>,
+  <span class="c">// Points d’extension : layout, renderTile, natures (voir « Un framework, des éditeurs »)</span>
+
+  categories: {
+    nombre: { label: <span class="s">'Nombre'</span>, color: <span class="s">'#3B7DDD'</span> },
+    texte:  { label: <span class="s">'Texte'</span>,  color: <span class="s">'#38A169'</span> },
+    flux:   { label: <span class="s">'Flux'</span>,   color: <span class="s">'#5E6E7A'</span> },
+  },
+
+  dominos: [
+    { type: <span class="s">'random'</span>, name: <span class="s">'Nombre aléatoire'</span>,
+      inputs:  { count: 0 },
+      outputs: { count: 1, colors: [<span class="s">'nombre'</span>], pips: [{ name: <span class="s">'n'</span>, color: <span class="s">'bleu'</span> }] },
+      help: <span class="s">'Rend un entier entre 1 et 6.'</span> },
+
+    { type: <span class="s">'if'</span>, name: <span class="s">'Si … sinon'</span>,
+      inputs:  { count: 1, colors: [<span class="s">'nombre'</span>, <span class="s">'bool'</span>], canFollow: [<span class="s">'math'</span>],
+                 pips: [{ name: <span class="s">'valeur'</span>, color: <span class="s">'ambre'</span> }] },
+      outputs: { count: 2, colors: [<span class="s">'flux'</span>], canPrecede: [<span class="s">'sortie'</span>],
+                 pips: [{ name: <span class="s">'vrai'</span>, color: <span class="s">'vert'</span> }, { name: <span class="s">'faux'</span>, color: <span class="s">'rouge'</span> }] } },
+
+    { type: <span class="s">'crm'</span>, name: <span class="s">'Créer le contact CRM'</span>,
+      inputs:  { count: 1, pips: [{ name: <span class="s">'lead'</span>, color: <span class="s">'bleu'</span> }] },
+      outputs: { count: 1, pips: [{ name: <span class="s">'contact'</span>, color: <span class="s">'vert'</span> }] },
+      faces: { left: <span class="s">'#DDE8F6'</span>, right: <span class="s">'#DCEFE3'</span> } },   <span class="c">// couleur de chaque moitié</span>
+
+    { type: <span class="s">'var'</span>, name: <span class="s">'Variable'</span>, inputs: { count: 0 }, outputs: { count: 0 },
+      identity: <span class="s">'bleu'</span> },          <span class="c">// couleur du point de ses raccourcis</span>
+
+    { type: <span class="s">'dice'</span>, name: <span class="s">'Classe Dé'</span>, container: { kind: <span class="s">'Classe'</span> },
+      inputs: { count: 0 }, outputs: { count: 2, colors: [<span class="s">'nombre'</span>, <span class="s">'flux'</span>] } },
+  ],
+
+  contextMenu: (pierre, items) =&gt; [...items, { label: <span class="s">'Exécuter jusqu’ici'</span>, run: () =&gt; {} }],
+});
+
+<span class="c">// Adjacentes : la haute alimente une entrée, la basse consomme une sortie.</span>
+editor.ws.connect(<span class="s">'somme'</span>, <span class="s">'a'</span>, { via: <span class="s">'top'</span> });   <span class="c">// 'next' | 'top' | 'bottom'</span>
+
+<span class="c">// Connexions : quel point de sortie alimente quels points d’entrée, avec un libellé.</span>
+editor.connect(<span class="s">'si'</span>, <span class="s">'rejouer'</span>, { slot: 1, pins: [0], label: <span class="s">'faux'</span>, when: <span class="s">'score &lt; record'</span>, enabled: <span class="k">true</span> });
+
+<span class="c">// Virages : à la 5ᵉ pierre, la suite part vers le bas ; null la remet tout droit.</span>
+editor.turn(<span class="s">'bienvenue'</span>, <span class="s">'down'</span>);        <span class="c">// 'down' | 'up' | 'left' | 'right' | 'straight' | null (auto)</span>
+
+editor.on(<span class="s">'connect'</span>, ({ from, to, slot, pins }) =&gt; {});
+editor.on(<span class="s">'configure'</span>, (pierre) =&gt; {});
+editor.on(<span class="s">'run'</span>, ({ order, stoppedAt }) =&gt; {});   <span class="c">// effet domino</span>
+editor.toJSON();</pre>
+    </section>
+
+    <section id="accessibilite">
+      <div class="sec-head"><div class="eyebrow">Qualité</div><h2>Accessibilité</h2><p>Rien ne passe par la couleur seule. Les points restent comptables, chaque point et chaque catégorie ont un nom, et chaque refus d’assemblage est expliqué par une phrase.</p></div>
+      <div class="grid g3">
+        <div class="card"><h4>Couleur jamais seule</h4><p>Les points colorés gardent leur nombre et leur nom (popup, info-bulle). Les conteneurs ont une pierre en retrait derrière eux et un pictogramme dans l’entête. Les badges ont un « ! ».</p></div>
+        <div class="card"><h4>Contraste</h4><p>Points noirs sur ivoire : 18:1. Les points colorés ont un liseré sombre pour rester visibles sur l’ivoire comme sur l’ébène. Texte d’interface au moins 4,5:1 dans les deux thèmes.</p></div>
+        <div class="card"><h4>Clavier</h4><p><kbd>Entrée</kbd> configurer · <kbd>Suppr</kbd> supprimer · <kbd>Ctrl D</kbd> dupliquer · <kbd>Ctrl C</kbd> / <kbd>Ctrl V</kbd> copier, coller · <kbd>O</kbd> ouvrir la partie · <kbd>R</kbd> effet domino · <kbd>F</kbd> ajuster · <kbd>Échap</kbd> fermer · flèches dans les menus.</p></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<footer class="foot"><div class="wrap"><span>Zeugma · design system v1.0</span><span>Voir aussi <code>studio.html</code> pour la démo interactive et <code>docs/IDEE.md</code> pour l’idée d’origine.</span></div></footer>
+
+<script src="../lib/domino.ui.js"></script>
+<script>
+(() => {
+'use strict';
+const K = window.DominoKit;
+K.injectDefs();
+const C = K.CAT;
+const $ = (s) => document.querySelector(s);
+
+// Une pierre placée dans une composition SVG : ombre sur la pierre, entête net au-dessus.
+function T(d, o = {}, x = 0, y = 0, cls = '') {
+  const t = K.tileSVG(d, { splitHead: true, ...o });
+  t.g = `<g class="tile ${cls}" transform="translate(${x} ${y})"><g filter="url(#${o.lift ? 'dk-lift' : 'dk-shadow'})">${t.svg}</g>${t.headSvg}</g>`;
+  return t;
+}
+// Tige en laiton entre une secondaire et sa pierre ; le rivet se pose sur la pierre (dot).
+const stem = (x, y1, y2, dot = y2) => `<path class="stem" d="M${x} ${y1} V${y2}"/><circle class="glue" cx="${x}" cy="${dot}" r="2.4"/>`;
+const knob = (x, y, cls = '') => `<rect class="knob ${cls}" x="${x - 3}" y="${y - 9}" width="6" height="18" rx="3"/>`;
+const svgBox = (vb, parts, minW, label) => `<svg viewBox="${vb.join(' ')}" width="${vb[2]}" height="${vb[3]}" style="${minW ? `min-width:${minW}px;` : ''}width:100%;max-width:${Math.round(vb[2] * 1.12)}px;height:auto" role="img" aria-label="${label}">${parts.join('')}</svg>`;
+
+function build() {
+  K.clearCache();
+
+  // ---------- Héros : une petite partie posée sur la table, mise en page par le moteur ----------
+  (() => {
+    const D = window.Domino, U = D.layoutUtil;
+    const types = new D.TypeSystem().define('flux', { label: 'Flux', color: C.ardoise }).define('nombre', { label: 'Nombre', color: C.bleu });
+    const reg = new D.Registry(types);
+    reg.defineAll([
+      { type: 'start', name: 'Au démarrage', right: [{ type: 'flux' }] },
+      { type: 'score', name: 'Calculer le score', container: { kind: 'Fonction' }, left: [{ type: 'flux' }], right: [{ type: 'nombre', color: C.bleu }] },
+      { type: 'if', name: 'Si score > record', left: [{ type: 'nombre', color: C.bleu }, { type: 'nombre', color: C.ambre }], right: [{ type: 'flux', color: C.vert }, { type: 'flux', color: C.rouge }] },
+      { type: 'print', name: 'Afficher « Gagné ! »', left: [{ type: 'flux' }] , right: [{ type: 'flux' }] },
+      { type: 'replay', name: 'Rejouer', left: [{ type: 'flux' }] },
+      { type: 'rec', name: 'record', right: [{ type: 'nombre', color: C.ambre }] },
+      { type: 'son', name: 'Son de victoire', left: [{ type: 'flux', color: C.vert }] },
+    ]);
+    const ws = new D.Workspace({ registry: reg, types });
+    const n = (t) => ws.create(t);
+    const a = n('start'), b = n('score'), c = n('if'), d = n('print'), e = n('replay'), r = n('rec'), so = n('son');
+    a.position = { x: 0, y: 0 };
+    ws.connect(a.id, b.id); ws.connect(b.id, c.id); ws.connect(c.id, r.id, { via: 'top' }); ws.connect(c.id, d.id); ws.connect(c.id, e.id, { pip: 1 }); ws.connect(d.id, so.id, { via: 'bottom' });
+    const lay = new D.Layout(ws, { T: 64, headerSize: 11.5, table: 4000 });
+    const L = lay.compute('main');
+    const parts = [];
+    for (const l of L.links) parts.push(`<path class="branch" d="${l.pts.map((p, i) => `${i ? 'L' : 'M'}${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join(' ')}"/>`);
+    for (const q of Object.values(L.R)) {
+      const node = ws.get(q.id);
+      const t = K.tileSVG(U.kitData(ws, node), { H: 64, ...U.kitOrient(U.ANGLE[q.hd]), header: true, headerSize: 11.5, splitHead: true });
+      parts.push(`<g transform="translate(${q.x} ${q.y})"><g filter="url(#dk-shadow)">${t.svg}</g><g transform="translate(${q.headerDx || 0} 0)">${t.headSvg}</g></g>`);
+    }
+    for (const p of L.adj) {
+      const node = ws.get(p.id), t = K.tileSVG(U.kitData(ws, node, { asTop: p.fam === 'top' }), { H: p.T, ...U.kitOrient(p.angle), header: false, mini: true, title: false });
+      parts.push(`<g transform="translate(${p.rect.x} ${p.rect.y})"><g filter="url(#dk-shadow)">${t.svg}</g></g>`);
+      if (p.label) parts.push(`<text x="${p.label.x}" y="${p.label.y}" font-size="${p.label.f}" text-anchor="${p.label.anchor}" dominant-baseline="central" style="font-family:var(--f-display);font-weight:600;fill:var(--ink-2)"${p.label.rot ? ` transform="rotate(${p.label.rot} ${p.label.x} ${p.label.y})"` : ''}>${K.esc(p.label.text)}</text>`);
+    }
+    for (const j of L.joints) parts.push(j.v ? knob(j.ky, j.kx, 'v').replace(/x="([\d.-]+)" y="([\d.-]+)" width="6" height="18"/, (m, x, y) => `x="${j.kx - 9}" y="${j.ky - 3}" width="18" height="6"`) : knob(j.kx, j.ky));
+    const b0 = L.bounds;
+    $('#hero-chain').innerHTML = svgBox([b0.x - 12, b0.y - 8, b0.w + 24, b0.h + 16], parts, 0, 'Une chaîne de pierres, une adjacente haute, une adjacente basse et une branche, posées par le moteur');
+  })();
+
+  // ---------- Anatomie ----------
+  (() => {
+    const H = 120;
+    const d = { name: 'Construire le message', inputs: 3, outputs: 2, inColors: [C.bleu, C.ambre], outColors: [C.ardoise, C.vert, C.bleu], inPips: [C.rouge, null, C.bleu], outPips: [C.vert, null] };
+    const t = T(d, { H, badge: 'warn', headerSize: 20 });
+    const W = t.W, D = t.D, L = -260, R = W + 260;
+    const call = (ax, ay, lx, ly, title, sub, anchor) => {
+      const tx = anchor === 'end' ? lx - 8 : anchor === 'middle' ? lx : lx + 8;
+      return `<path class="an-line" d="M${ax} ${ay} L${lx} ${ly}"/><circle class="an-dot" cx="${ax}" cy="${ay}" r="3.5"/>`
+        + `<text class="an-l" x="${tx}" y="${ly - 2}" text-anchor="${anchor}">${title}</text><text class="an-s" x="${tx}" y="${ly + 14}" text-anchor="${anchor}">${sub}</text>`;
+    };
+    const s = [
+      t.g,
+      call(W / 2 - 60, -26, -40, -84, 'Entête', 'nom de la pierre, au-dessus', 'end'),
+      call(H * 0.27, H * 0.27, -40, -30, 'Point coloré', 'entrée 1 · rouge', 'end'),
+      call(H * 0.5, H * 0.5, -40, H * 0.36, 'Point par défaut', 'entrée 2 · noir', 'end'),
+      call(-4, H * 0.55, -40, H * 0.72, 'Bande d’entrée', '2 couleurs acceptées', 'end'),
+      call(W * 0.12, H + D, -40, H + 64, 'Épaisseur', '0,075 H · coins 0,13 H', 'end'),
+      call(H, H / 2, H + 30, H + 74, 'Ligne médiane et pivot', 'laiton #B8893B', 'start'),
+      call(H * 1.27, H * 0.27, W + 40, -30, 'Face de sortie', '2 sorties · vert, noir', 'start'),
+      call(W + 4, H * 0.6, W + 40, H * 0.62, 'Bande de sortie', '3 couleurs', 'start'),
+      call(W - 2, 2, W + 40, -84, 'Badge', 'avertissement', 'start'),
+    ].join('');
+    $('#anatomy').innerHTML = svgBox([L, -120, R - L, H + 220], [s], Math.round((R - L) * 0.62), 'Anatomie d’une pierre');
+  })();
+
+  // ---------- Faces ----------
+  $('#faces-grid').innerHTML = [0, 1, 2, 3, 4, 5, 6, 7, 8, 12].map((n) =>
+    `<div class="face${n > 6 ? ' over' : ''}">${K.faceSVG(n, 60)}<b>${n}</b><small>${n === 0 ? 'face scellée' : n > 6 ? 'affiche 9 points' : n === 1 ? '1 point' : n + ' points'}</small></div>`).join('');
+
+  // ---------- Couleur des points ----------
+  (() => {
+    const S = 96, parts = [];
+    [2, 3, 5, 6, 9].forEach((n, k) => {
+      const ox = k * (S + 54);
+      const D = K.depth(S);
+      parts.push(`<g transform="translate(${ox} 0)" filter="url(#dk-shadow)"><rect x="0" y="${D}" width="${S}" height="${S}" rx="${S * 0.16}" fill="#D6D2C4"/><rect x="0" y="0" width="${S}" height="${S}" rx="${S * 0.16}" fill="#FBFAF5" stroke="#CBC6B7"/></g>`);
+      K.pipXY(n, 'in', S).forEach((p) => {
+        parts.push(`<circle cx="${ox + p.x}" cy="${p.y}" r="${p.r}" fill="#151718"/>`);
+        parts.push(`<text class="pip-n" x="${ox + p.x + p.r + 3}" y="${p.y - p.r + 2}">${p.i + 1}</text>`);
+      });
+      parts.push(`<text class="an-s" x="${ox + S / 2}" y="${S + D + 22}" text-anchor="middle">${n === 9 ? '7 et plus' : n + ' points'}</text>`);
+    });
+    $('#pip-order').innerHTML = svgBox([-14, -14, 5 * (S + 54) - 26, S + 54], parts, 520, 'Ordre de lecture des points');
+    const ex = [
+      ['Construire JSON', '8 | 1', 'Chaque point à la couleur de son champ.', { name: 'Construire JSON', inputs: 8, outputs: 1, inPips: [C.vert, C.bleu, C.ambre, C.indigo, C.vert, C.bleu, C.ambre, C.indigo], outPips: [C.vert] }],
+      ['Si … sinon', '1 | 2', 'Sortie vraie en vert, sortie fausse en rouge.', { name: 'Si … sinon', inputs: 1, outputs: 2, inPips: [C.ambre], outPips: [C.vert, C.rouge] }],
+      ['Microcontrôleur', '8 | 8', 'Une couleur par famille de broches.', { name: 'Microcontrôleur', inputs: 8, outputs: 8, inPips: [C.rouge, C.ardoise, C.sarcelle, C.sarcelle, C.indigo, C.indigo, C.ambre, C.ambre], outPips: [C.ambre, C.ambre, C.ambre, C.ambre, C.indigo, C.indigo, C.sarcelle, C.rouge] }],
+      ['Pierre 3 | 2 par défaut', '3 | 2', 'Sans réglage, tous les points sont noirs.', { name: 'Pierre 3 | 2', inputs: 3, outputs: 2 }],
+    ];
+    $('#pip-examples').innerHTML = ex.map(([t, k, p, d]) => `<div class="spec"><div class="stage">${K.standalone(d, { H: 56 })}</div><h4>${t} <small>${k}</small></h4><p>${p}</p></div>`).join('');
+  })();
+
+  // ---------- Couleur des faces ----------
+  (() => {
+    const ex = [
+      ['Créer le contact CRM', 'ciel | menthe', 'L’entrée (le lead) et la sortie (le contact) ont chacune leur couleur.', { name: 'Créer le contact CRM', inputs: 1, outputs: 1, inPips: [C.bleu], outPips: [C.vert], inFace: '#DDE8F6', outFace: '#DCEFE3' }],
+      ['Attendre 2 jours', 'sable | sable', 'Les deux faces de la même couleur : la pierre entière change de ton.', { name: 'Attendre 2 jours', inputs: 1, outputs: 1, inFace: '#F1E6CC', outFace: '#F1E6CC' }],
+      ['Notifier l’équipe', 'nuit | blanc', 'Sur la face sombre, le point par défaut passe en ivoire.', { name: 'Notifier l’équipe', inputs: 1, outputs: 0, inFace: '#26324A' }],
+      ['Ajouter le tag', 'blanc | corail', 'Face et points se combinent : point orange à gauche, point rouge sur corail.', { name: 'Ajouter le tag', inputs: 1, outputs: 1, inPips: [C.orange], outPips: [C.rouge], outFace: '#F2998C' }],
+    ];
+    $('#face-examples').innerHTML = ex.map(([t, k, p, d]) => `<div class="spec"><div class="stage">${K.standalone(d, { H: 56 })}</div><h4>${t} <small>${k}</small></h4><p>${p}</p></div>`).join('');
+  })();
+
+  // ---------- Bandes ----------
+  const pal = [C.bleu, C.vert, C.ambre, C.rose, C.indigo, C.rouge, C.sarcelle, C.orange];
+  $('#strips').innerHTML = [1, 2, 3, 4, 5, 8].map((k) => {
+    const cols = pal.slice(0, k);
+    return `<div class="spec"><div style="display:grid;place-items:center">${K.standalone({ name: '', inputs: Math.min(k, 9), outputs: Math.min(k, 9), inColors: cols, outColors: cols }, { H: 64, header: false })}</div><p style="text-align:center"><b>${k} couleur${k > 1 ? 's' : ''}</b> · ${k <= 4 ? '1 colonne' : '2 colonnes'}</p></div>`;
+  }).join('');
+  const CAT_NAMES = { rouge: 'Rouge', orange: 'Orange', ambre: 'Ambre', vert: 'Vert', sarcelle: 'Sarcelle', bleu: 'Bleu', indigo: 'Indigo', rose: 'Rose', ardoise: 'Ardoise' };
+  const CAT_USE = { rouge: 'alimentation, erreur, faux', orange: 'événement', ambre: 'booléen, signal', vert: 'texte, action, vrai', sarcelle: 'table, analogique', bleu: 'nombre, données', indigo: 'scène, liste', rose: 'choix, méthode', ardoise: 'flux, masse' };
+  $('#cat-swatches').innerHTML = Object.entries(C).map(([k, v]) =>
+    `<div class="swatch"><div class="chip-c" style="--c:${v}"></div><div class="meta"><b>${CAT_NAMES[k]}</b><code>--cat-${k} · ${v}</code><span class="muted" style="font-size:12px">${CAT_USE[k]}</span></div></div>`).join('');
+
+  // ---------- Variantes ----------
+  const base = { name: 'Requête HTTP', inputs: 1, outputs: 2, inColors: [C.bleu, C.orange], outColors: [C.bleu, C.rouge] };
+  const variants = [
+    ['Ivoire', 'défaut', 'Blanc cassé, points noirs. Comme un vrai domino.', base, { skin: 'ivoire' }],
+    ['Pierre conteneur', 'gris clair', 'Classe, service ou module. Une pierre en retrait dépasse derrière elle ; un pictogramme précède le nom.', { ...base, name: 'Enrichir le lead', container: true }, {}],
+    ['Ébène', 'skin: ebene', 'Pierre noire, points ivoire. Pour les éditeurs à forte identité.', base, { skin: 'ebene' }],
+    ['Teintée', 'skin: teinte', 'Face légèrement teintée par la première couleur de sortie.', base, { skin: 'teinte' }],
+    ['Teinte utilisateur', 'tint', 'Choisie dans la DominoPopup, pierre par pierre.', { ...base, tint: '#F1E6CC' }, {}],
+    ['Conteneur personnalisé', 'containerColor', 'La couleur des conteneurs se règle à l’instanciation.', { ...base, name: 'Oscillateur NE555', container: true }, { containerColor: '#3A4248' }],
+    ['Points colorés', 'pips', 'Chaque point porte la couleur fixée par le développeur.', { ...base, inPips: [C.orange], outPips: [C.vert, C.rouge] }, {}],
+    ['Secondaire', 'mini · 0,47 H', 'Horizontale quand elle est collée ; verticale quand c’est la connexion d’une secondaire.', null, {}],
+  ];
+  $('#variants').innerHTML = variants.map(([t, k, p, d, o]) => {
+    const art = d ? K.standalone(d, { H: o.H || 56, ...o })
+      : `<div class="row" style="gap:18px;align-items:center">${K.standalone({ name: 'Nombre aléatoire', inputs: 0, outputs: 1, outColors: [C.bleu], outPips: [C.bleu] }, { H: 34, mini: true, headerSize: 10 })}${K.standalone({ name: 'graine', inputs: 0, outputs: 1, outPips: [C.rose] }, { H: 30, mini: true, orient: 'v', header: 'right', headerSize: 10 })}</div>`;
+    return `<div class="spec"><div class="stage">${art}</div><h4>${t} <small>${k}</small></h4><p>${p}</p></div>`;
+  }).join('');
+
+  // ---------- États ----------
+  const sd = { name: 'Additionner', inputs: 2, outputs: 1, inColors: [C.bleu], outColors: [C.bleu], inPips: [C.bleu, C.indigo], outPips: [C.vert] };
+  const states = [
+    ['Repos', '', 'Ombre courte, pas d’anneau.', {}],
+    ['Survol', '.hover', 'Anneau neutre fin.', { cls: 'hover' }],
+    ['Sélection', '.sel', 'Anneau laiton. Une seule pierre à la fois.', { cls: 'sel' }],
+    ['En main', '.lift', 'Ombre portée longue : la pierre est levée.', { lift: true }],
+    ['Aimantation acceptée', '.snap-ok', 'Anneau vert sur la cible et emplacement fantôme.', { cls: 'snap-ok' }],
+    ['Aimantation refusée', '.snap-bad', 'Anneau rouge et bulle d’explication.', { cls: 'snap-bad' }],
+    ['Avertissement', 'badge: warn', 'Par exemple : entrée attendue mais rien de collé.', { badge: 'warn' }],
+    ['Erreur', 'badge: error', 'Par exemple : couleurs devenues incompatibles.', { badge: 'error' }],
+  ];
+  $('#states').innerHTML = states.map(([t, k, p, o]) =>
+    `<div class="spec"><div class="stage">${K.standalone(sd, { H: 56, ...o })}</div><h4>${t} <small>${k}</small></h4><p>${p}</p></div>`).join('');
+
+  // ---------- Assemblage ----------
+  (() => {
+    const H = 60, GAP = 12, parts = [];
+    const ta = T({ name: 'Au démarrage', inputs: 0, outputs: 1, outColors: [C.ardoise] }, { H }, 0, 0);
+    const xb = ta.W + GAP;
+    const tb = T({ name: 'Si score > 10', inputs: 1, outputs: 2, inColors: [C.ardoise, C.ambre], outColors: [C.ardoise], outPips: [C.vert, C.rouge] }, { H }, xb, 0);
+    const x1 = xb + tb.W + GAP, PITCH = 124;
+    const t1 = T({ name: 'Afficher « Gagné ! »', inputs: 1, outputs: 0, inColors: [C.ardoise, C.vert] }, { H }, x1, 0);
+    const x2 = x1 + 18;
+    const t2 = T({ name: 'Rejouer', inputs: 1, outputs: 0, inColors: [C.ardoise] }, { H }, x2, PITCH);
+    const mx = x1 - GAP / 2;
+    parts.push(`<path class="branch" d="M${xb + tb.W + 2} ${H / 2} H${mx} V${PITCH + H / 2} H${x2 - 2}"/>`);
+    parts.push(ta.g, tb.g, t1.g, t2.g, knob(xb - GAP / 2, H / 2), knob(mx, H / 2), knob(x2 - 9, PITCH + H / 2));
+    const note = (x, y, tx, ty, txt, anchor = 'start') => `<path class="callout-line" d="M${x} ${y} L${tx} ${ty}"/><text class="callout" x="${tx + (anchor === 'start' ? 6 : -6)}" y="${ty + 4}" text-anchor="${anchor}">${txt}</text>`;
+    parts.push(note(xb - GAP / 2, H + 8, xb - GAP / 2, H + 56, 'Joint : sortie 1 → entrée', 'middle'));
+    parts.push(note(mx, PITCH * 0.6, mx + 40, PITCH * 0.6, 'Branche : sortie 2 (point rouge)'));
+    parts.push(note(x1 + t1.W, H / 2, x1 + t1.W + 30, H / 2, 'Pierre terminale (|0)'));
+    parts.push(note(10, -24, 10, -46, 'Pierre libre (0|) : point de départ'));
+    const w = x1 + t1.W + 230, h = PITCH + H + 30;
+    $('#assembly').innerHTML = svgBox([-12, -64, w, h + 74], parts, 640, 'Exemple d’assemblage');
+
+    const pair = (a, b, cls) => {
+      const H2 = 44, x = T(a, { H: H2 }, 0, 0), y = T(b, { H: H2 }, 0, 0, cls);
+      const w2 = x.W + 30 + y.W;
+      return `<svg viewBox="-10 -24 ${w2 + 20} ${H2 + 40}" style="width:100%;height:auto;max-width:${w2 + 20}px" role="img">${x.g}<g transform="translate(${x.W + 30} 0)">${y.g}</g><path d="M${x.W + 9} ${H2 / 2 - 6} l12 12 m0 -12 l-12 12" stroke="var(--err)" stroke-width="2.4" stroke-linecap="round"/></svg>`;
+    };
+    $('#refusals').innerHTML = [
+      ['Face droite à zéro', '« Afficher » ne peut être suivie par rien.', pair({ name: 'Afficher', inputs: 1, outputs: 0, inColors: [C.vert] }, { name: 'Rejouer', inputs: 1, outputs: 0, inColors: [C.ardoise] }, '')],
+      ['Face gauche à zéro', '« Au clic » est une pierre libre : elle ne se colle après rien.', pair({ name: 'Calculer', inputs: 1, outputs: 1, outColors: [C.bleu], inColors: [C.ardoise] }, { name: 'Au clic', inputs: 0, outputs: 1, outColors: [C.ardoise] }, 'snap-bad')],
+      ['Couleurs incompatibles', 'Sortie nombre (bleu), entrée texte (vert).', pair({ name: 'Score', inputs: 1, outputs: 1, inColors: [C.ardoise], outColors: [C.bleu] }, { name: 'Majuscules', inputs: 1, outputs: 1, inColors: [C.vert], outColors: [C.vert] }, 'snap-bad')],
+    ].map(([t, p, s]) => `<div class="spec"><div class="stage">${s}</div><h4>${t} <small>refusé</small></h4><p>${p}</p></div>`).join('');
+  })();
+
+  // ---------- Adjacentes : géométrie calculée par le moteur ----------
+  (() => {
+    const D = window.Domino, U = D.layoutUtil;
+    const types = new D.TypeSystem().define('req', { label: 'Requête', color: C.bleu }).define('key', { label: 'Secret', color: C.rose }).define('log', { label: 'Journal', color: C.ardoise });
+    const reg = new D.Registry(types);
+    reg.define({ type: 'p', name: 'Auth JWT', left: [{ type: 'req' }, { type: 'key' }], right: [{ type: 'req' }] });
+    reg.define({ type: 'v', name: 'Valider', left: [{ type: 'req' }, { type: 'key' }, { type: 'key' }, { type: 'key' }], right: [{ type: 'req' }] });
+    reg.define({ type: 'k', name: 'Secret', right: [{ type: 'key' }] });
+    reg.define({ type: 'j', name: 'Journal', left: [{ type: 'any' }] });
+    const ws = new D.Workspace({ registry: reg, types });
+    const a = ws.create('p'), k1 = ws.create('k'), j1 = ws.create('j');
+    ws.connect(a.id, k1.id, { via: 'top' }); ws.connect(a.id, j1.id, { via: 'bottom' });
+    const b = ws.create('v'); ['Clé A', 'Clé B', 'Clé C'].forEach((l) => { const k = ws.create('k', { label: l }); ws.connect(b.id, k.id, { via: 'top' }); });
+    ['Journal', 'Métriques'].forEach((l) => { const j = ws.create('j', { label: l }); ws.connect(b.id, j.id, { via: 'bottom' }); });
+    const lay = new D.Layout(ws, { T: 56, headerSize: 11.5 });
+    const scene = (n, h, ox, oy) => {
+      const u = lay.unit(n, h), T = 56, parts = [];
+      const ko = U.kitOrient(U.ANGLE[h]);
+      const t = K.tileSVG(U.kitData(ws, n), { H: T, ...ko, header: true, headerSize: 11.5, splitHead: true, ...(U.isV(h) ? { headerMax: 2.3 * T } : {}) });
+      for (const p of u.parts) {
+        const c = ws.get(p.id), r = p.rect, pk = U.kitOrient(p.angle);
+        const s2 = K.tileSVG(U.kitData(ws, c, { asTop: p.fam === 'top' }), { H: p.T, ...pk, header: false, mini: true, title: false });
+        parts.push(`<g transform="translate(${ox + r.x} ${oy + r.y})"><g filter="url(#dk-shadow)">${s2.svg}</g></g>`);
+        if (p.label) parts.push(`<text x="${ox + p.label.x}" y="${oy + p.label.y}" font-size="${p.label.f}" text-anchor="${p.label.anchor}" dominant-baseline="central" fill="currentColor" style="font-family:var(--f-display);font-weight:600;color:var(--ink-2)"${p.label.rot ? ` transform="rotate(${p.label.rot} ${ox + p.label.x} ${oy + p.label.y})"` : ''}>${K.esc(p.label.text)}</text>`);
+      }
+      parts.push(`<g transform="translate(${ox} ${oy})"><g filter="url(#dk-shadow)">${t.svg}</g><g transform="translate(${u.headerDx || 0} 0)">${t.headSvg}</g></g>`);
+      return { svg: parts.join(''), ext: u.ext };
+    };
+    const items = [[a, 'E', 'sens → · haute en haut'], [b, 'E', 'trois hautes, deux basses'], [a, 'S', 'sens ↓ · haute à droite'], [a, 'W', 'sens ← · haute en bas'], [a, 'N', 'sens ↑ · haute à gauche']];
+    let x = 0; const out = [], caps = []; let top = 0, bottom = 0;
+    for (const [n, h, cap] of items) {
+      const u = lay.unit(n, h);
+      const ox = x - u.ext.x1;
+      out.push(scene(n, h, ox, 0).svg);
+      caps.push([ox + (u.ext.x1 + u.ext.x2) / 2, cap]);
+      top = Math.min(top, u.ext.y1); bottom = Math.max(bottom, u.ext.y2);
+      x = ox + u.ext.x2 + 46;
+    }
+    caps.forEach(([cx, cap]) => out.push(`<text x="${cx}" y="${bottom + 22}" text-anchor="middle" style="font:500 11px var(--f-mono);fill:var(--ink-3)">${cap}</text>`));
+    bottom += 30;
+    $('#docks').innerHTML = svgBox([-20, top - 14, x - 6, bottom - top + 24], out, 900, 'Adjacentes haute et basse, pour les quatre sens de la chaîne');
+  })();
+
+  // ---------- La règle du jeu : même nombre de points sur les faces qui se touchent ----------
+  (() => {
+    const D = window.Domino;
+    const L = D.language({ id: 'jeu', types: [{ name: 'n', label: 'Signal', color: '#151718' }], rules: { chain: 'count' },
+      dominos: [{ type: 'a', name: 'Départ', right: 2 }, { type: 'b', name: 'Mélange', left: 2, right: 3 }, { type: 'c', name: 'Tri', left: 3, right: 1 }, { type: 'd', name: 'Fusion', left: 2, right: 1 }].map((d) => ({ ...d, left: Array.from({ length: d.left || 0 }, () => ({ type: 'n' })), right: Array.from({ length: d.right || 0 }, () => ({ type: 'n' })) })) });
+    const { ws } = L.instantiate(null);
+    const a = ws.create('a'), b = ws.create('b'), c = ws.create('c'), d = ws.create('d');
+    const ok1 = ws.canConnect(a.id, b.id).ok, ok2 = ws.canConnect(b.id, c.id).ok, no = ws.canConnect(c.id, d.id);
+    const U = D.layoutUtil, S = 52, parts = [], gap = 18;
+    let x = 0;
+    for (const n of [a, b, c]) { parts.push(T({ ...U.kitData(ws, n) }, { H: S, header: true, headerSize: 11 }, x, 0).g); if (n !== c) parts.push(knob(x + 2 * S + gap / 2, S / 2, 'on')); x += 2 * S + gap; }
+    const x2 = x + 40;
+    parts.push(T({ ...U.kitData(ws, d) }, { H: S, header: true, headerSize: 11 }, x2, 0).g);
+    parts.push(`<g transform="translate(${x - gap + 20} ${S / 2})"><circle r="11" fill="var(--err-soft)" stroke="var(--err)" stroke-width="1.5"/><path d="M-4 -4 4 4M4 -4 -4 4" stroke="var(--err)" stroke-width="2" stroke-linecap="round"/></g>`);
+    parts.push(`<text x="0" y="${S + 34}" style="font:500 11px var(--f-mono);fill:var(--ink-3)">2 | 2 et 3 | 3 : collées (${ok1 && ok2 ? 'accepté' : '?'}) · 1 | 2 : refusé</text>`);
+    const [r1, r2] = no.reason.split(' : ');
+    parts.push(`<text x="0" y="${S + 56}" style="font:600 12.5px var(--f-body);fill:var(--err)">${K.esc(r1)} :</text><text x="0" y="${S + 74}" style="font:400 12.5px var(--f-body);fill:var(--err)">${K.esc(r2 || '')}</text>`);
+    $('#game').innerHTML = svgBox([-10, -30, Math.max(x2 + 2 * S + 30, 760), S + 120], parts, 760, 'La règle du jeu : deux faces qui se touchent montrent le même nombre de points');
+  })();
+
+  // ---------- Fils point à point ----------
+  (() => {
+    const S = 52, parts = [], gid = (i) => `ds-w${i}`;
+    const pip = (n, side, i, x, y) => { const q = K.pipXY(n, side, S, 'h', false)[i]; return { x: x + q.x, y: y + q.y, r: q.r }; };
+    const tile = (d, x, y, name) => T({ name, inputs: d[0], outputs: d[1], inColors: [], outColors: [], inPips: d[2] || [], outPips: d[3] || [] }, { H: S, header: true, headerSize: 11 }, x, y).g;
+    const wire = (i, a, b, ca, cb, o = {}) => {
+      const k = Math.max(36, Math.abs(b.x - a.x) * 0.45);
+      const dpath = `M${a.x} ${a.y} C${a.x + k} ${a.y}, ${b.x - k} ${b.y}, ${b.x} ${b.y}`;
+      let mk = '';
+      if (o.mark) {
+        const t = 0.8, u = 1 - t, p = [[a.x, a.y], [a.x + k, a.y], [b.x - k, b.y], [b.x, b.y]];
+        const mx = u * u * u * p[0][0] + 3 * u * u * t * p[1][0] + 3 * u * t * t * p[2][0] + t * t * t * p[3][0], my = u * u * u * p[0][1] + 3 * u * u * t * p[1][1] + 3 * u * t * t * p[2][1] + t * t * t * p[3][1];
+        mk = o.mark === 'block' ? `<rect x="${mx - 2.6}" y="${my - 5}" width="5.2" height="10" rx="1.6" fill="${cb}" stroke="var(--table)" stroke-width="1.2"/>` : `<circle cx="${mx}" cy="${my}" r="4.6" fill="var(--table)" stroke="${cb}" stroke-width="2"/>`;
+      }
+      return `<defs><linearGradient id="${gid(i)}" gradientUnits="userSpaceOnUse" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"><stop offset="0" stop-color="${ca}"/><stop offset="1" stop-color="${cb}"/></linearGradient></defs><path d="${dpath}" fill="none" stroke="url(#${gid(i)})" stroke-width="3" stroke-linecap="round"${o.async ? ' stroke-dasharray="7 5"' : ''}/><circle cx="${a.x}" cy="${a.y}" r="${a.r * 1.7}" fill="none" stroke="${ca}" stroke-width="2"/><circle cx="${b.x}" cy="${b.y}" r="${b.r * 1.7}" fill="none" stroke="${cb}" stroke-width="2" stroke-dasharray="2.2 1.6"/>${mk}`;
+    };
+    const rows = [
+      ['Valeur', 'une valeur passe ; la cible l’attend si besoin', C.bleu, C.bleu, null, false],
+      ['Appel bloquant', 'l’appelant attend le résultat (await)', C.rose, '#6A5BDC', 'block', false],
+      ['Appel non bloquant', 'l’appelant continue ; le résultat arrive plus tard', C.orange, '#6A5BDC', 'nb', true],
+    ];
+    rows.forEach(([title, txt, ca, cb, mark, async], i) => {
+      const y = i * 120;
+      parts.push(tile([1, 2, [], [ca, '#151718']], 0, y, i === 0 ? 'Prix' : i === 1 ? 'panier : Panier' : 'notif : Notifications'));
+      parts.push(tile([2, 1, [cb, '#151718'], []], 330, y + 26, i === 0 ? 'Calcul' : 'Appeler'));
+      parts.push(wire(i, pip(2, 'out', 0, 0, y), pip(2, 'in', 0, 330, y + 26), ca, cb, { mark, async }));
+      parts.push(`<text x="480" y="${y + S / 2 - 4}" style="font:650 13px var(--f-display);fill:var(--ink)">${title}</text><text x="480" y="${y + S / 2 + 14}" style="font:400 12px var(--f-body);fill:var(--ink-2)">${txt}</text>`);
+    });
+    $('#wires').innerHTML = svgBox([-14, -30, 820, 390], parts, 720, 'Trois fils : une valeur, un appel bloquant, un appel non bloquant et asynchrone');
+  })();
+
+  // ---------- Déclarations et instances (calculées par le moteur) ----------
+  (() => {
+    const D = window.Domino, U = D.layoutUtil;
+    const L = D.language({ id: 'ds', types: [{ name: 'texte', label: 'Texte', color: C.vert }, { name: 'nombre', label: 'Nombre', color: C.bleu }], modules: true,
+      dominos: [{ type: 'txt', name: 'Texte', right: [{ type: 'texte' }], fields: { value: { default: 'EUR' } }, title: (api) => `« ${api.raw('value')} »` }] });
+    const { ws } = L.instantiate(null);
+    const c = ws.create('decl.class', { partie: 'decl', fields: { name: 'Panier', color: '#D9539A' } });
+    ws.create('decl.ctor', { partie: c.id, fields: { params: 'devise:texte' } });
+    ws.create('decl.method', { partie: c.id, fields: { name: 'ajouter', params: 'prix:nombre', returns: 'nombre', color: '#D9539A' } });
+    ws.create('decl.method', { partie: c.id, fields: { name: 'total', returns: 'nombre', color: '#B03B7A' } });
+    const inst = ws.create(`inst.${c.id}`, { fields: { name: 'panier' } });
+    const eur = ws.create('txt'); ws.connect(inst.id, eur.id, { via: 'top' });
+    const call = ws.create('call');
+    ws.wire(inst.id, 0, call.id, 0);
+    const S = 56, parts = [];
+    parts.push(T(U.kitData(ws, c), { H: S, header: true, headerSize: 11.5 }, 0, 0).g);
+    parts.push(`<text x="${S}" y="${S + 30}" text-anchor="middle" style="font:500 11px var(--f-mono);fill:var(--ink-3)">déclaration · 1 | 2</text>`);
+    parts.push(`<path d="M${2 * S + 22} ${S / 2} H${2 * S + 92}" stroke="var(--ink-3)" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#ds-arrow)"/><text x="${2 * S + 57}" y="${S / 2 - 8}" text-anchor="middle" style="font:500 11px var(--f-mono);fill:var(--ink-3)">instance</text>`);
+    const ix = 2 * S + 110, lay = new D.Layout(ws, { T: S, headerSize: 11.5 }), u = lay.unit(inst, 'E');
+    for (const p of u.parts) { const n = ws.get(p.id), pk = U.kitOrient(p.angle); parts.push(`<g transform="translate(${ix + p.rect.x} ${p.rect.y})"><g filter="url(#dk-shadow)">${K.tileSVG(U.kitData(ws, n, { asTop: true }), { H: p.T, ...pk, header: false, mini: true, title: false }).svg}</g></g>`); if (p.label) parts.push(`<text x="${ix + p.label.x}" y="${p.label.y}" font-size="${p.label.f}" text-anchor="${p.label.anchor}" dominant-baseline="central" style="font-family:var(--f-display);font-weight:600;fill:var(--ink-2)"${p.label.rot ? ` transform="rotate(${p.label.rot} ${ix + p.label.x} ${p.label.y})"` : ''}>${K.esc(p.label.text)}</text>`); }
+    const ti = K.tileSVG(U.kitData(ws, inst), { H: S, header: true, headerSize: 11.5, splitHead: true });
+    parts.push(`<g transform="translate(${ix} 0)"><g filter="url(#dk-shadow)">${ti.svg}</g><g transform="translate(${u.headerDx || 0} 0)">${ti.headSvg}</g></g>`);
+    parts.push(`<text x="${ix + S}" y="${S + 30}" text-anchor="middle" style="font:500 11px var(--f-mono);fill:var(--ink-3)">instance libre</text>`);
+    const cx = ix + 2 * S + 140;
+    parts.push(T(U.kitData(ws, call), { H: S, header: true, headerSize: 11.5 }, cx, 40).g);
+    const q1 = K.pipXY(2, 'out', S, 'h', false)[0], q2 = K.pipXY(ws.pipsOf(call).left.length, 'in', S, 'h', false)[0];
+    const a = { x: ix + q1.x, y: q1.y }, b = { x: cx + q2.x, y: 40 + q2.y }, k = 60;
+    parts.push(`<defs><marker id="ds-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="var(--ink-3)"/></marker><linearGradient id="ds-wm" gradientUnits="userSpaceOnUse" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"><stop offset="0" stop-color="#D9539A"/><stop offset="1" stop-color="#D9539A"/></linearGradient></defs><path d="M${a.x} ${a.y} C${a.x + k} ${a.y}, ${b.x - k} ${b.y}, ${b.x} ${b.y}" fill="none" stroke="url(#ds-wm)" stroke-width="3" stroke-linecap="round"/><circle cx="${a.x}" cy="${a.y}" r="${q1.r * 1.7}" fill="none" stroke="#D9539A" stroke-width="2"/><circle cx="${b.x}" cy="${b.y}" r="${q2.r * 1.7}" fill="none" stroke="#D9539A" stroke-width="2" stroke-dasharray="2.2 1.6"/>`);
+    parts.push(`<text x="${cx + S}" y="${40 + S + 30}" text-anchor="middle" style="font:500 11px var(--f-mono);fill:var(--ink-3)">${K.esc(ws.titleOf(call))} · ${ws.pipsOf(call).left.length} | ${ws.pipsOf(call).right.length}</text>`);
+    $('#decls').innerHTML = svgBox([-14, -150, cx + 2 * S + 40, S + 260], parts, 760, 'Une classe déclarée, son instance libre (paramètre fourni par une adjacente haute) et un appel de méthode par un fil');
+  })();
+
+  // ---------- Tout représenter : une pierre par échelle, dessinée par le moteur ----------
+  (() => {
+    const D = window.Domino, U = D.layoutUtil;
+    D.packs = D.packs || {};
+    D.packs.dsflux = D.packs.dsflux || D.language({ id: 'dsflux', name: 'Flux', color: '#EE7D2F', types: [], dominos: [] });
+    const L = D.language({ id: 'dsall', modules: true,
+      types: [{ name: 'nombre', label: 'Nombre', color: C.bleu }, { name: 'idée', label: 'Idée', color: '#6A5BDC' }, { name: 'point', label: 'Point', color: '#151718' }],
+      dominos: [
+        { type: 'ligne', name: 'Ligne', represents: 'ligne', left: [{ type: 'nombre' }], right: [{ type: 'nombre' }] },
+        { type: 'algo', name: 'Algorithme', represents: 'algorithme', left: [{ type: 'nombre' }], right: [{ type: 'nombre' }], inside: { kind: 'Algorithme' }, faces: { left: '#F4E9D2', right: '#F4E9D2' } },
+        { type: 'idee', name: 'Idée', represents: 'idée', right: [{ type: 'idée' }], faces: { left: '#EDE8FB', right: '#DCD3F5' } },
+        { type: 'piece', name: 'Pièce', represents: 'pièce', left: Array.from({ length: 3 }, () => ({ type: 'point' })), right: Array.from({ length: 5 }, () => ({ type: 'point' })) },
+      ] });
+    const { ws } = L.instantiate(null);
+    const v = ws.create('decl.variable', { partie: 'decl', fields: { name: 'taux', type: 'nombre', color: '#13A3A0' } });
+    const c = ws.create('decl.class', { partie: 'decl', fields: { name: 'Panier', color: '#D9539A' } });
+    ws.create('decl.ctor', { partie: c.id, fields: { params: 'devise:nombre' } });
+    ws.create('decl.method', { partie: c.id, fields: { name: 'ajouter', params: 'prix:nombre', color: '#D9539A' } });
+    const items = [
+      [ws.create(`get.${v.id}`), 'variable', false], [ws.create('ligne'), 'ligne', false], [c, 'classe', true],
+      [ws.create('algo'), 'algorithme', true], [ws.create('domino.project', { fields: { language: 'dsflux', project: { format: 'kantoaplo.domino', version: 2, name: 'Accueil', parties: [{ id: 'main', dominos: [] }] } } }), 'projet (autre langage)', true],
+      [ws.create('idee'), 'idée', false], [ws.create('piece'), 'pièce de jeu', false],
+    ];
+    const S = 46, gap = 34, parts = [];
+    items.forEach(([n, cap, open], i) => {
+      const x = i * (2 * S + gap);
+      parts.push(T(U.kitData(ws, n), { H: S, header: true, headerSize: 10.5 }, x, 0).g);
+      if (open) parts.push(`<g transform="translate(${x + 2 * S - 8} ${S - 8})"><circle r="7" fill="var(--brass-soft)" stroke="var(--brass)"/><path d="M-3 -3h6v6h-6z M-1 -1h4" fill="none" stroke="var(--brass-ink)" stroke-width="1.1"/></g>`);
+      parts.push(`<text x="${x + S}" y="${S + 28}" text-anchor="middle" style="font:500 11px var(--f-mono);fill:var(--ink-3)">${cap}</text>`);
+    });
+    $('#everything').innerHTML = svgBox([-12, -30, items.length * (2 * S + gap), S + 72], parts, 860, 'Une variable, une ligne, une classe, un algorithme, un projet d’un autre langage, une idée, une pièce de jeu : sept pierres');
+  })();
+
+  // ---------- Virages ----------
+  (() => {
+    const H = 56, GAP = 12, GV = 14, HS = 11, HEAD = HS * 1.3 + 4, D = K.depth(H), M = 26, MD = K.depth(M), parts = [], tiles = [];
+    const o = (extra = {}) => ({ H, headerSize: HS, ...extra });
+    const flow = [C.ardoise];
+    const row = [
+      ['Webhook reçu', { inputs: 0, outputs: 1, outPips: [C.orange] }],
+      ['Filtrer', { inputs: 1, outputs: 2, outPips: [C.vert, C.rouge] }],
+      ['Enrichir', { inputs: 1, outputs: 1 }],
+      ['Créer le contact', { inputs: 1, outputs: 1, inPips: [C.bleu], outPips: [C.vert], inFace: '#DDE8F6', outFace: '#DCEFE3' }],
+      ['E-mail de bienvenue', { inputs: 1, outputs: 1, outPips: [C.vert] }],
+    ];
+    row.forEach(([name, d], i) => {
+      const x = i * (2 * H + GAP);
+      tiles.push(T({ name, inColors: d.inputs ? flow : [], outColors: d.outputs ? flow : [], ...d }, o(), x, 0));
+      parts.push(`<text class="step-n" x="${x + H}" y="${H + D + 16}" text-anchor="middle">${i + 1}</text>`);
+      if (i) parts.push(knob(x - GAP / 2, H / 2));
+    });
+    const x5 = 4 * (2 * H + GAP), x6 = x5 + 2 * H + GAP + 44;
+    // Virage vers le bas après la 5e pierre : la pierre du coin se pose en travers.
+    parts.push(`<path class="rail" d="M${x5 + 2 * H + 3} ${H / 2} H${x6 - 3}"/>`);
+    parts.push(knob(x5 + 2 * H + GAP / 2, H / 2));
+    const mark = (x, y, a) => `<g class="turnmark" transform="translate(${x} ${y})"><circle r="10"/><text y="4" text-anchor="middle">${a}</text></g>`;
+    parts.push(mark((x5 + 2 * H + x6) / 2, H / 2 + 28, '↓'));
+    tiles.push(T({ name: 'Attendre 2 jours', inputs: 1, outputs: 1, inColors: flow, outColors: flow, inFace: '#F1E6CC', outFace: '#F1E6CC' }, o({ orient: 'v', headerMax: 2.3 * H }), x6, 0));
+    parts.push(`<text class="step-n" x="${x6 + H + 8}" y="16">6</text>`);
+    const y7 = 2 * H + D + GV + HEAD;
+    parts.push(`<rect class="knob" x="${x6 + H / 2 - 9}" y="${2 * H + D + GV / 2 - 3}" width="18" height="6" rx="3"/>`);
+    tiles.push(T({ name: 'Relancer par e-mail', inputs: 1, outputs: 1, inColors: flow, outColors: flow, outPips: [C.vert] }, o({ orient: 'v', headerMax: 2.3 * H }), x6, y7));
+    // Secondaires d'une pierre debout : source à gauche, fonction sans retour à droite.
+    const lab = 10 * 1.3 + 4, my = y7 + lab, cy = my + M / 2;
+    const src = T({ name: 'Modèle', inputs: 0, outputs: 1, outColors: [C.bleu], outPips: [C.indigo] }, { H: M, mini: true, header: 'top', headerSize: 10 }, x6 - 10 - 2 * M, my);
+    const snk = T({ name: 'Stockage', inputs: 1, outputs: 0, inColors: [C.bleu] }, { H: M, mini: true, header: 'top', headerSize: 10 }, x6 + H + 10, my);
+    parts.push(`<path class="stem" d="M${x6 - 10} ${cy} H${x6}"/><circle class="glue" cx="${x6}" cy="${cy}" r="2.4"/><path class="stem" d="M${x6 + H} ${cy} H${x6 + H + 10}"/><circle class="glue" cx="${x6 + H}" cy="${cy}" r="2.4"/>`);
+    tiles.push(src, snk);
+    // Virage vers la gauche : les pierres suivantes sont retournées, entrée à droite.
+    const y8 = y7 + 2 * H + D + GV + HEAD, x8 = x6 - H, x9 = x8 - GAP - 2 * H;
+    parts.push(`<rect class="knob" x="${x6 + H / 2 - 9}" y="${y7 + 2 * H + D + GV / 2 - 3}" width="18" height="6" rx="3"/>`);
+    parts.push(mark(x6 + H / 2 + 30, y7 + 2 * H + D + GV / 2, '←'));
+    tiles.push(T({ name: 'Ajouter le tag', inputs: 1, outputs: 1, inColors: flow, outColors: flow, inPips: [C.orange], outPips: [C.rouge], outFace: '#F2998C' }, o({ flip: true }), x8, y8));
+    tiles.push(T({ name: 'Notifier l’équipe', inputs: 1, outputs: 0, inColors: flow, inFace: '#26324A' }, o({ flip: true }), x9, y8));
+    parts.push(knob(x8 - GAP / 2, y8 + H / 2));
+    parts.push(`<text class="step-n" x="${x8 + H}" y="${y8 + H + D + 16}" text-anchor="middle">8</text><text class="step-n" x="${x9 + H}" y="${y8 + H + D + 16}" text-anchor="middle">9</text><text class="step-n" x="${x6 - 8}" y="${y7 + 2 * H - 4}" text-anchor="end">7</text>`);
+    const note = (x, y, tx, ty, txt, sub, anchor = 'start') => `<path class="callout-line" d="M${x} ${y} L${tx} ${ty}"/><text class="callout" x="${tx + (anchor === 'start' ? 6 : -6)}" y="${ty + 4}" text-anchor="${anchor}">${txt}</text>` + (sub ? `<text class="an-s" x="${tx + (anchor === 'start' ? 6 : -6)}" y="${ty + 19}" text-anchor="${anchor}">${sub}</text>` : '');
+    const R = x6 + H + 10 + 2 * M + 40;
+    parts.push(note(x5 + H, -HEAD - 4, x5 + H - 40, -HEAD - 34, '5ᵉ pierre : « Tourner la suite vers le bas »', 'clic droit, Alt + ↓ ou popup', 'end'));
+    parts.push(note(x6 + H, H, R, H - 6, 'Pierre du coin, posée en travers', 'entrée contre la sortie de la 5ᵉ'));
+    parts.push(note(x6 + H + 10 + 2 * M, cy, R, y7 + 2 * H - 10, 'Secondaires d’une colonne', 'sources à gauche, sans retour à droite'));
+    parts.push(note(x8 + 2 * H, y8 + H / 2, R, y8 + H / 2, 'Pierre retournée', 'vers la gauche : entrée à droite'));
+    parts.push(...tiles.map((t) => t.g));
+    $('#turn-demo').innerHTML = svgBox([-16, -HEAD - 60, R + 330, y8 + H + D + 30 + HEAD + 60], parts, 760, 'Une chaîne qui tourne vers le bas à la cinquième pierre, puis vers la gauche');
+  })();
+
+  // ---------- Serpentin ----------
+  (() => {
+    const H = 40, GAP = 10, GV = 12, HS = 9.5, HEAD = HS * 1.3 + 4, D = K.depth(H), TW = 700, parts = [], tiles = [];
+    const o = (extra = {}) => ({ H, headerSize: HS, headerMax: 2 * H + 8, ...extra });
+    const flow = [C.sarcelle];
+    const names = ['ventes.sql', 'Nettoyer', 'Filtrer T3', 'Agréger', 'Trier par CA', 'Top 10', 'Croissance', 'Mettre en forme', 'Exporter PDF', 'Envoyer'];
+    const room = H + 22 + GAP + 26, pitch = 2 * H + GAP;
+    let i = 0, x = 0;
+    for (; i < names.length; i++, x += pitch) {
+      if (i && x + 2 * H + room > TW) break;
+      tiles.push(T({ name: names[i], inputs: i ? 1 : 0, outputs: 1, inColors: i ? flow : [], outColors: flow, inFace: i === 6 ? '#DCEFE3' : null }, o(), x, 0));
+      if (i) parts.push(knob(x - GAP / 2, H / 2));
+    }
+    // Pierre du coin, puis la rangée repart vers la gauche, sous la première.
+    const cx = x + 22, yc = 0;
+    parts.push(`<path class="rail" d="M${x - GAP + 3} ${H / 2} H${cx - 3}"/>`, knob(x - GAP / 2, H / 2));
+    tiles.push(T({ name: names[i], inputs: 1, outputs: 1, inColors: flow, outColors: flow }, o({ orient: 'v', headerMax: 2.6 * H }), cx, yc));
+    const mark = (mx, my, a) => `<g class="turnmark auto" transform="translate(${mx} ${my})"><circle r="9"/><text y="4" text-anchor="middle" style="font-size:11px">${a}</text></g>`;
+    parts.push(mark(cx - 16, H / 2 + 24, '↓'));
+    const y2 = yc + 2 * H + D + GV + HEAD;
+    parts.push(`<rect class="knob" x="${cx + H / 2 - 9}" y="${2 * H + D + GV / 2 - 3}" width="18" height="6" rx="3"/>`);
+    parts.push(mark(cx + H / 2 + 26, 2 * H + D + GV / 2, '←'));
+    let x2 = cx - H;
+    for (let k = i + 1; k < names.length; k++) {
+      tiles.push(T({ name: names[k], inputs: 1, outputs: k < names.length - 1 ? 1 : 0, inColors: flow, outColors: k < names.length - 1 ? flow : [], inFace: k === names.length - 1 ? '#26324A' : null, outFace: k === i + 1 ? '#F5DFE6' : null }, o({ flip: true }), x2, y2));
+      if (k < names.length - 1) parts.push(knob(x2 - GAP / 2, y2 + H / 2));
+      x2 -= pitch;
+    }
+    const top = -HEAD - 36, bottom = y2 + H + D + 30;
+    parts.unshift(`<path class="table-edge" d="M${-8} ${top + 14} V${bottom}"/><path class="table-edge" d="M${TW} ${top + 14} V${bottom}"/><text class="table-edge-l" x="${-8}" y="${top + 6}">bord de la table</text><text class="table-edge-l" x="${TW}" y="${top + 6}" text-anchor="end">largeur 1 150 · réglable</text>`);
+    parts.push(...tiles.map((t) => t.g));
+    $('#serpent-demo').innerHTML = svgBox([-24, top - 4, TW + 48, bottom - top + 8], parts, 620, 'Une chaîne qui tourne d’elle-même au bord de la table et repart dans l’autre sens');
+  })();
+
+  // ---------- Connexions ----------
+  (() => {
+    const CH = 80, gap = 220, bx = 2 * CH + gap, parts = [];
+    const A = { name: 'Si score > record', inputs: 1, outputs: 2, inColors: [C.bleu, C.ambre], outColors: [C.ardoise], inPips: [C.ambre], outPips: [C.vert, C.rouge] };
+    const B = { name: 'Rejouer', inputs: 2, outputs: 0, inColors: [C.ardoise], inPips: [C.rouge, null] };
+    const ta = T(A, { H: CH, headerSize: 15 }, 0, 0), tb = T(B, { H: CH, headerSize: 15 }, bx, 0);
+    parts.push(ta.g, tb.g);
+    parts.push(`<rect class="dim" x="0" y="0" width="${CH}" height="${CH + ta.D}" rx="${CH * 0.13}"/><rect class="dim" x="${bx + CH}" y="0" width="${CH}" height="${CH + tb.D}" rx="${CH * 0.13}"/>`);
+    const a = K.pipXY(2, 'out', CH)[1], b = K.pipXY(2, 'in', CH)[0];
+    const x1 = a.x, y1 = a.y, x2 = bx + b.x, y2 = b.y, dx = (x2 - x1) / 2;
+    parts.push(`<circle class="slot-ring" cx="${x1}" cy="${y1}" r="${a.r * 2.1}"/>`);
+    parts.push(`<path class="cable-under" d="M${x1} ${y1} C${x1 + dx} ${y1}, ${x2 - dx} ${y2}, ${x2} ${y2}"/><path class="cable" stroke="${C.rouge}" d="M${x1} ${y1} C${x1 + dx} ${y1}, ${x2 - dx} ${y2}, ${x2} ${y2}"/>`);
+    parts.push(`<text class="cable-lab" x="${(2 * CH + bx) / 2}" y="-10">faux · si score &lt; record</text>`);
+    const note = (x, y, tx, ty, txt, anchor = 'start') => `<path class="callout-line" d="M${x} ${y} L${tx} ${ty}"/><text class="callout" x="${tx + (anchor === 'start' ? 6 : -6)}" y="${ty + 4}" text-anchor="${anchor}">${txt}</text>`;
+    parts.push(note(x1, y1 + 12, x1 - 10, CH + 50, 'Sortie 2 utilisée (anneau laiton)', 'end'));
+    parts.push(note(x2, y2 + 10, x2 + 30, CH + 50, 'Entrée 1 câblée, même couleur'));
+    parts.push(note(CH / 2, CH * 0.3, -30, -20, 'Faces non concernées : estompées', 'end'));
+    $('#cx-demo').innerHTML = svgBox([-260, -50, bx + 2 * CH + 520, CH + 130], parts, 680, 'Éditeur de connexion entre deux pierres');
+  })();
+
+  // ---------- Composants ----------
+  const IC = {
+    cfg: '<path d="M2.5 4h6M11.5 4h2M2.5 8h2M7.5 8h6M2.5 12h8"/><circle cx="10" cy="4" r="1.5"/><circle cx="6" cy="8" r="1.5"/><circle cx="12" cy="12" r="1.5"/>',
+    open: '<rect x="2.5" y="5" width="8.5" height="8.5" rx="1.5"/><path d="M8.5 2.5h5v5M13.5 2.5 7.5 8.5"/>',
+    dup: '<rect x="5.5" y="5.5" width="8" height="8" rx="1.5"/><path d="M10.5 5.5v-2a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2"/>',
+    copy: '<rect x="3.5" y="3" width="9" height="11" rx="1.5"/><path d="M6 3V1.8h4V3M6 7h4M6 10h3"/>',
+    cut: '<rect x="1.5" y="5" width="5.5" height="6" rx="1.2"/><rect x="9" y="5" width="5.5" height="6" rx="1.2"/><path d="M7.5 8h1"/>',
+    del: '<path d="M2.5 4.5h11M6.5 4.5V2.8h3v1.7M4 4.5l.7 9h6.6l.7-9"/>',
+    prev: '<rect x="8.5" y="5" width="6" height="6" rx="1.2"/><path d="M8.5 8H1.5M4 5.5 1.5 8 4 10.5"/>',
+    next: '<rect x="1.5" y="5" width="6" height="6" rx="1.2"/><path d="M7.5 8h7M12 5.5l2.5 2.5-2.5 2.5"/>',
+  };
+  const ico = (k) => `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">${IC[k]}</svg>`;
+  const mi = (i, l, k = '', cls = '') => `<div class="mi ${cls}">${ico(i)}<span>${l}</span><kbd>${k}</kbd></div>`;
+  $('#menu-plain').innerHTML = `<div class="mh"><b>Si score > record</b><small>Condition · 1 | 2</small></div>${mi('cfg', 'Configurer…', 'Entrée')}<hr>${mi('prev', 'Connexion précédente…')}${mi('next', 'Connexion suivante → Afficher', 'sortie 1', 'hover')}${mi('next', 'Connexion suivante → Rejouer', 'sortie 2')}<hr>${mi('dup', 'Dupliquer', 'Ctrl D')}${mi('copy', 'Copier', 'Ctrl C')}${mi('cut', 'Détacher')}<hr>${mi('del', 'Supprimer', 'Suppr', 'danger')}`;
+  $('#menu-cont').innerHTML = `<div class="mh"><b>Classe Dé</b><small>Classe · pierre conteneur · 0 | 2</small></div>${mi('cfg', 'Configurer…', 'Entrée')}${mi('open', 'Ouvrir la partie', 'O', 'accent hover')}<hr>${mi('prev', 'Connexion précédente', 'face à 0', 'off')}${mi('next', 'Connexion suivante → Afficher le dé', 'sortie 1')}<hr>${mi('dup', 'Dupliquer', 'Ctrl D')}${mi('copy', 'Copier', 'Ctrl C')}<hr>${mi('del', 'Supprimer', 'Suppr', 'danger')}`;
+  $('#chips-demo').innerHTML = `<span class="chip on" style="--c:${C.bleu}"><i></i>Nombre</span><span class="chip on" style="--c:${C.ambre}"><i></i>Booléen</span><span class="chip" style="--c:${C.vert}"><i></i>Texte</span><span class="chip off" style="--c:${C.indigo}"><i></i>Liste</span>`;
+  $('#pi-demo').innerHTML = `${K.standalone({ name: 'Si … sinon', inputs: 1, outputs: 2, inColors: [C.bleu, C.ambre], outColors: [C.ardoise], inPips: [C.ambre], outPips: [C.vert, C.rouge] }, { H: 22, header: false, pad: 5, shadow: false })}<div><b>Si … sinon</b><small>1|2 · Condition</small></div>`;
+  (() => {
+    const H = 30, parts = [];
+    [['', ''], ['lab', 'vrai'], ['off', '']].forEach(([cls, lab], i) => {
+      const ox = i * 140;
+      const a = T({ name: '', inputs: 1, outputs: 1 }, { H, header: false }, ox, 0), b = T({ name: '', inputs: 1, outputs: 1 }, { H, header: false }, ox + 2 * H + 10, 0);
+      parts.push(a.g, b.g, knob(ox + 2 * H + 5, H / 2, cls));
+      if (lab) parts.push(`<text class="cable-lab" x="${ox + 2 * H + 5}" y="-6">${lab}</text>`);
+    });
+    $('#joint-demo').innerHTML = `<svg viewBox="-8 -20 ${3 * 140} ${H + 34}" style="width:100%;height:auto" role="img" aria-label="Trois états de joint">${parts.join('')}</svg>`;
+  })();
+
+  // ---------- Maquette DominoPopup ----------
+  (() => {
+    const PB = 92, PN = 54, PM = 32, PJ = 18, parts = [], under = [];
+    const hs = (t) => Math.max(10, Math.round(t * 0.21));
+    const F = T({ name: 'Somme a + b', inputs: 1, outputs: 1, inColors: [C.bleu], outColors: [C.bleu], inPips: [C.bleu], outPips: [C.vert] }, { H: PB, headerSize: 17 }, 0, 0, 'focus');
+    const cy = PB / 2, ly = cy - PN / 2, lx = -PJ - 2 * PN, rx = F.W + PJ;
+    parts.push(F.g);
+    parts.push(T({ name: 'Lancer deux dés', inputs: 1, outputs: 1, outPips: [C.vert] }, { H: PN, headerSize: hs(PN) }, lx, ly).g, knob(-PJ / 2, cy));
+    parts.push(T({ name: '', inputs: 0, outputs: 1 }, { H: 34, header: false }, lx - 12 - 68, cy - 17, 'far').g);
+    parts.push(T({ name: 'Retourner total', inputs: 1, outputs: 0 }, { H: PN, headerSize: hs(PN) }, rx, ly).g, knob(F.W + PJ / 2, cy));
+    const tops = [['a', C.bleu], ['b', C.indigo], ['total', C.vert]];
+    const tw = K.layoutTile({ name: 'total', inputs: 0, outputs: 1 }, { H: PM, header: 'top', headerSize: hs(PM) }).W;
+    const total = tops.length * (tw + 16) - 16;
+    let x = (F.W - total) / 2;
+    tops.forEach(([n, c]) => {
+      const ty = -(17 * 1.3 + 4) - 20 - PM - K.depth(PM);
+      under.push(`<path class="stem" d="M${x + tw / 2} ${ty + PM + K.depth(PM)} V0"/>`);
+      parts.push(T({ name: n, inputs: 0, outputs: 1, outPips: [c] }, { H: PM, mini: true, header: 'top', headerSize: hs(PM) }, x, ty).g);
+      x += tw + 16;
+    });
+    parts.push(`<rect class="focus-ring" x="-7" y="-7" width="${F.W + 14}" height="${PB + F.D + 14}" rx="${PB * 0.13 + 7}"/>`);
+    parts.push(`<text class="cap" x="${lx}" y="${ly - hs(PN) * 1.3 - 14}">PRÉCÉDÉE PAR</text><text class="cap" x="${rx}" y="${ly - hs(PN) * 1.3 - 14}">SUIVIE PAR</text><text class="cap" x="${(F.W - total) / 2 - 14}" y="-62" text-anchor="end">COLLÉES EN HAUT</text>`);
+    const stage = svgBox([lx - 100, -130, rx + 2 * PN - lx + 140, 280], [...under, ...parts], 0, 'La pierre et ses voisines');
+    $('#pp-mock').innerHTML = `
+      <div class="pp2-table"><div class="pp2-crumbs"><span>Parcours</span><b>Lancer deux dés</b>›<b class="on">Somme a + b</b></div>${stage}<div class="pp2-legend">Cliquez une voisine pour la prendre en main · un point pour sa couleur · un joint pour la connexion</div></div>
+      <span class="pp2-pin" aria-hidden="true"></span>
+      <div class="pp2-side">
+        <div class="eyebrow">Math · 1 | 1 · #c3</div>
+        <div class="name">Somme a + b</div>
+        <div class="row"><span class="tag ok">Aucun problème</span></div>
+        <div class="pp2-tabs"><span class="on">Faces et points</span><span>Apparence</span><span>Aide</span><span>Diagnostic</span></div>
+        <div class="c"><h4>Face gauche <small>entrées · 1</small></h4><div class="ports-demo"><span class="pidx">1</span><span class="pipdot" style="--c:${C.bleu}"></span><span class="port">dés</span><small>bleu</small></div>
+          <div class="chips"><span class="chip" style="--c:${C.ardoise}"><i></i>Flux</span><span class="chip on" style="--c:${C.bleu}"><i></i>Nombre</span><span class="chip" style="--c:${C.vert}"><i></i>Texte</span></div></div>
+        <div class="c"><h4>Face droite <small>sorties · 1</small></h4><div class="ports-demo"><span class="pidx">1</span><span class="pipdot" style="--c:${C.vert}"></span><span class="port">somme</span><small>vert</small></div></div>
+      </div>`;
+  })();
+
+  // ---------- Effet domino ----------
+  (() => {
+    const H = 50, GAP = 12, parts = [];
+    const names = ['Au démarrage', 'Calculer le score', 'Si score > record', 'Afficher', 'Rejouer'];
+    let x = 0;
+    names.forEach((n, i) => {
+      const cls = i < 3 ? 'sel' : i === 3 ? 'snap-bad' : '';
+      const t = T({ name: n, inputs: i ? 1 : 0, outputs: i < 4 ? 1 : 0, outPips: i === 2 ? [C.vert] : [] }, { H, headerSize: 10.5, badge: i === 3 ? 'error' : null }, x, i < 3 ? 0 : 0, cls);
+      parts.push(`<g transform="rotate(${i < 3 ? -4 + i * 1.5 : 0} ${x + t.W / 2} ${H})">${t.g}</g>`);
+      if (i < names.length - 1) parts.push(knob(x + t.W + GAP / 2, H / 2, i < 3 ? 'ok' : ''));
+      parts.push(`<text class="an-l" x="${x + t.W / 2}" y="${H + 28}" text-anchor="middle">${i < 4 ? `${i * 300} ms` : '—'}</text><text class="an-s" x="${x + t.W / 2}" y="${H + 44}" text-anchor="middle">${i < 3 ? 'tombée' : i === 3 ? 'arrêt : erreur' : 'non atteinte'}</text>`);
+      x += t.W + GAP;
+    });
+    $('#run-demo').innerHTML = svgBox([-16, -34, x + 20, H + 92], parts, 620, 'L’effet domino traverse trois pierres et s’arrête sur une erreur');
+  })();
+
+  // ---------- Tokens ----------
+  const UI = [
+    ['--table', '#E3E8E4', '#121916', 'Fond du plateau'],
+    ['--panel', '#F7F8F6', '#19201D', 'Panneaux, barre, pioche'],
+    ['--panel-2', '#EDF0ED', '#202825', 'Survol, onglets, champs'],
+    ['--raised', '#FFFFFF', '#26302C', 'Cartes, menus, popover'],
+    ['--sheet', '#FBFAF5', '#1C2220', 'Face de la DominoPopup (ivoire comme une pierre)'],
+    ['--line', '#D5DBD6', '#2C3632', 'Bordures'],
+    ['--line-strong', '#B9C2BC', '#3E4A45', 'Bordures appuyées, ligne de partage de la popup'],
+    ['--ink', '#18201C', '#E7ECE9', 'Texte principal, entêtes des pierres'],
+    ['--ink-2', '#4E5A54', '#A8B3AE', 'Texte secondaire, entêtes des secondaires'],
+    ['--ink-3', '#7F8A84', '#75817B', 'Légendes, méta'],
+    ['--brass', '#A2742A', '#D2A452', 'Accent unique : sélection, action principale, joints, tiges, branches'],
+    ['--ok', '#2B8752', '#4DBB7C', 'Aimantation acceptée, joint traversé'],
+    ['--warn', '#B87700', '#E6A73A', 'Avertissements'],
+    ['--err', '#CC3838', '#F06464', 'Erreurs, refus'],
+  ];
+  $('#ui-tokens tbody').innerHTML = UI.map(([t, l, d, u]) => `<tr><td><code>${t}</code></td><td class="num"><span class="sw-dot" style="--c:${l}"></span>${l}</td><td class="num"><span class="sw-dot" style="--c:${d}"></span>${d}</td><td>${u}</td></tr>`).join('');
+  const TT = [
+    ['Ivoire · face', '#FBFAF5', '#D6D2C4', '--tile-face / --tile-side'],
+    ['Ivoire · points', '#151718', '#CBC6B8', '--tile-pip / --tile-divider'],
+    ['Pivot laiton', '#B8893B', '#FBFAF5', '--tile-pin'],
+    ['Conteneur', '#E1E4E6', '#BBBDBF', '--tile-container'],
+    ['Ébène · face', '#1F2122', '#090A0A', '--tile-ebony-face / side'],
+    ['Ébène · points', '#F4F1E8', '#43474A', '--tile-ebony-pip / divider'],
+  ];
+  $('#tile-tokens').innerHTML = TT.map(([n, a, b, t]) => `<div class="swatch"><div class="chip-c split" style="--c:${a};--d:${b}"></div><div class="meta"><b>${n}</b><code>${t}</code><code>${a} · ${b}</code></div></div>`).join('');
+  const TS = [
+    ['Display XL', 'Bricolage Grotesque 800 · 96/0,96 · −2,8 %', '<span style="font:800 56px/1 var(--f-display);letter-spacing:-.028em">Partie</span>'],
+    ['Titre de section', 'Bricolage Grotesque 750 · 40/1,05 · −3 %', '<span style="font:750 34px/1.05 var(--f-display);letter-spacing:-.03em">Règles d’assemblage</span>'],
+    ['Nom de pierre (popup)', 'Bricolage Grotesque 700 · 26/1,15', '<span style="font:700 26px/1.15 var(--f-display);letter-spacing:-.02em">Calculer le score</span>'],
+    ['Entête de pierre', 'Bricolage Grotesque 600 · 0,18 H (13 px à 100 %)', '<span style="font:600 13px var(--f-display)">Nombre aléatoire</span>'],
+    ['Entête de secondaire', 'Bricolage Grotesque 600 · 10 px', '<span style="font:600 10px var(--f-display);color:var(--ink-2)">graine</span>'],
+    ['Corps', 'IBM Plex Sans 400 · 14–15/1,5', '<span>Une pierre B se colle après A quand leurs couleurs se rencontrent.</span>'],
+    ['Interface', 'IBM Plex Sans 500 · 13', '<span style="font:500 13px var(--f-body)">Ouvrir la partie</span>'],
+    ['Étiquette', 'IBM Plex Mono 500 · 11 · capitales +9 %', '<span class="eyebrow">Dominos libres</span>'],
+    ['Donnée', 'IBM Plex Mono 400 · 12 · chiffres tabulaires', '<span class="num">12:04:31 · exécutée en 3 ms</span>'],
+  ];
+  $('#type-scale').innerHTML = TS.map(([n, m, s]) => `<div class="type-row"><div class="meta"><b>${n}</b>${m}</div><div style="min-width:0;overflow-wrap:anywhere">${s}</div></div>`).join('');
+  // ---------- Pierres doubles : trois valeurs de l'option doubles ----------
+  (() => {
+    const t = 44, G = 12, D = K.depth(t), o = { H: t, header: false };
+    const dbl = { name: '', inputs: 2, outputs: 2, inColors: [C.ardoise], outColors: [C.ardoise], inFace: '#F1E6CC', outFace: '#F1E6CC' };
+    const a = { name: '', inputs: 1, outputs: 2, outColors: [C.ardoise] }, b = { name: '', inputs: 2, outputs: 1, inColors: [C.ardoise] };
+    const hk = (x, y) => knob(x, y), vk = (x, y) => `<rect class="knob" x="${x - 9}" y="${y - 3}" width="18" height="6" rx="3"/>`;
+    const scenes = [];
+    // plain : dans le sens de la chaîne.
+    {
+      const p = [T(a, o, 0, 0).g, T(dbl, o, 2 * t + G, 0).g, T(b, o, 4 * t + 2 * G, 0).g, hk(2 * t + G / 2, t / 2), hk(4 * t + G * 1.5, t / 2)];
+      scenes.push(['plain', 'défaut', 'Le double est une pierre comme les autres, posée dans le sens de la chaîne. Aucun sens particulier n’est imposé.', svgBox([-10, -12, 6 * t + 2 * G + 20, t + D + 24], p, 0, 'Double posé dans le sens de la chaîne')]);
+    }
+    // across : en travers, la chaîne le touche en son milieu.
+    {
+      const x1 = 2 * t + G, x2 = x1 + t + G;
+      const p = [T(a, o, 0, t / 2).g, T(dbl, { ...o, orient: 'v' }, x1, 0).g, T(b, o, x2, t / 2).g, hk(2 * t + G / 2, t), hk(x1 + t + G / 2, t)];
+      scenes.push(['across', 'comme au jeu', 'Le double se pose en travers ; la chaîne le touche en son milieu. On repère l’étape d’un coup d’œil.', svgBox([-10, -12, x2 + 2 * t + 20, 2 * t + D + 24], p, 0, 'Double posé en travers de la chaîne')]);
+    }
+    // spinner : un carrefour à quatre côtés.
+    {
+      const x1 = 2 * t + G, x2 = x1 + t + G, y1 = 2 * t + D + G, y2 = y1 + 2 * t + D + G;
+      const v = { name: '', inputs: 2, outputs: 1, inColors: [C.ardoise] };
+      const p = [T(v, { ...o, orient: 'v', flip: true }, x1, 0).g, T(a, o, 0, y1 + t / 2).g, T(dbl, { ...o, orient: 'v' }, x1, y1).g, T(b, o, x2, y1 + t / 2).g, T(v, { ...o, orient: 'v' }, x1, y2).g,
+        hk(2 * t + G / 2, y1 + t), hk(x1 + t + G / 2, y1 + t), vk(x1 + t / 2, y1 - G / 2), vk(x1 + t / 2, y2 - G / 2)];
+      scenes.push(['spinner', 'carrefour', 'Le double devient un carrefour : des suites sur ses quatre côtés. Utile pour un fork / join de workflow ou un nœud de circuit.', svgBox([-10, -12, x2 + 2 * t + 20, y2 + 2 * t + D + 24], p, 0, 'Double carrefour avec des suites sur quatre côtés')]);
+    }
+    $('#doubles-demo').innerHTML = scenes.map(([k, d, txt, art]) => `<div class="spec"><div class="board" style="padding:18px;display:grid;place-items:center;min-height:370px">${art}</div><h4><code>'${k}'</code> <small>${d}</small></h4><p>${txt}</p></div>`).join('');
+  })();
+  $('#space').innerHTML = [2, 4, 6, 8, 12, 16, 22, 28, 48, 88].map((v) => `<div class="space-row"><code>${v}</code><span class="muted num">${v}px</span><i style="width:${v * 2}px;max-width:100%"></i></div>`).join('');
+}
+
+build();
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(build);
+
+$('#btn-theme').addEventListener('click', () => {
+  const root = document.documentElement;
+  const cur = root.dataset.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  root.dataset.theme = cur === 'dark' ? 'light' : 'dark';
+});
+$('#play-motion').addEventListener('click', () => {
+  const t = $('#mt');
+  t.classList.remove('go');
+  void t.offsetWidth;
+  t.classList.add('go');
+});
+
+// Sommaire : section courante
+const links = [...document.querySelectorAll('.toc a')];
+const io = new IntersectionObserver((entries) => {
+  entries.forEach((e) => {
+    if (!e.isIntersecting) return;
+    links.forEach((a) => a.classList.toggle('on', a.getAttribute('href') === '#' + e.target.id));
+  });
+}, { rootMargin: '-30% 0px -60% 0px' });
+document.querySelectorAll('main section').forEach((s) => io.observe(s));
+})();
+</script>

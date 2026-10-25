@@ -1,0 +1,985 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kantoaplo.dev/schema/domino/language-1.json",
+  "title": "Langage Zeugma",
+  "description": "Ce qu’un éditeur instancie : types, pierres, sens des faces, règles, façades, modules.",
+  "type": "object",
+  "required": [
+    "id"
+  ],
+  "properties": {
+    "format": {
+      "const": "kantoaplo.language"
+    },
+    "version": {
+      "const": 1
+    },
+    "id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "color": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "types": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "color"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "color": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "description": "data (valeur), call (fonction), ou un genre propre au langage."
+          },
+          "extends": {
+            "type": "string"
+          },
+          "accepts": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "dominos": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/domino"
+      }
+    },
+    "execution": {
+      "type": "object",
+      "description": "Le moteur d’exécution (sans moteur : l’effet domino).",
+      "properties": {
+        "engine": {
+          "enum": [
+            "dataflow",
+            "statemachine",
+            "tokens",
+            "decision"
+          ]
+        }
+      }
+    },
+    "projections": {
+      "type": "object",
+      "description": "Les vues du même modèle : dominos, diagram, grid, text.",
+      "properties": {
+        "default": {
+          "type": "string"
+        },
+        "list": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "edges": {
+      "type": "array",
+      "description": "Genres de liens : des fils typés qui portent des champs (transition, relation, flux…).",
+      "items": {
+        "type": "object",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "color": {
+            "type": "string"
+          },
+          "dash": {
+            "type": "boolean"
+          },
+          "fields": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "enum": [
+                    "text",
+                    "textarea",
+                    "number",
+                    "select",
+                    "toggle",
+                    "code",
+                    "color",
+                    "json",
+                    "list",
+                    "ref",
+                    "expr",
+                    "table"
+                  ]
+                },
+                "columns": {
+                  "type": "object",
+                  "description": "table : les colonnes, chacune un champ (text, number, toggle, select, expr, color)."
+                },
+                "jump": {
+                  "type": "boolean",
+                  "description": "ref : un saut (l’exécution continue à la cible)."
+                },
+                "label": {
+                  "type": "string"
+                },
+                "default": {},
+                "options": {
+                  "type": "array",
+                  "description": "Valeurs possibles (ou une fonction de l’instance)."
+                },
+                "bindable": {
+                  "type": "boolean",
+                  "description": "Peut se lier au contexte ({ $bind })."
+                },
+                "help": {
+                  "type": "string"
+                },
+                "placeholder": {
+                  "type": "string"
+                },
+                "required": {
+                  "type": "boolean"
+                },
+                "min": {
+                  "type": "number"
+                },
+                "max": {
+                  "type": "number"
+                },
+                "pattern": {
+                  "type": "string",
+                  "description": "Expression régulière (Unicode)."
+                },
+                "to": {
+                  "description": "Renvoi : domino, partie, declaration, variable, ou des types de pierres.",
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  ]
+                },
+                "unit": {
+                  "type": "string"
+                },
+                "group": {
+                  "type": "string"
+                },
+                "hidden": {
+                  "type": "boolean"
+                },
+                "readonly": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "label": {
+            "type": "string",
+            "description": "Gabarit affiché sur le fil : « {{event}} [{{guard}}] »."
+          },
+          "from": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "to": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "default": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "rules": {
+      "type": "object",
+      "properties": {
+        "chain": {
+          "enum": [
+            "types",
+            "count",
+            "both"
+          ]
+        },
+        "wires": {
+          "type": "boolean"
+        },
+        "cycles": {
+          "type": "boolean",
+          "description": "Les fils peuvent boucler (machines à états, graphes)."
+        },
+        "list": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "on": {
+                "anyOf": [
+                  {
+                    "enum": [
+                      "next",
+                      "top",
+                      "bottom",
+                      "wire"
+                    ]
+                  },
+                  {
+                    "type": "array"
+                  }
+                ]
+              },
+              "when": {
+                "type": "string",
+                "description": "Expression JavaScript : refus si vraie (q.parent, q.child, q.via, q.pip)."
+              },
+              "if": {
+                "description": "Expression déclarative (texte ou JSON), sans code : refus si vraie (parent, child, via, pip)."
+              },
+              "message": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "faces": {
+      "type": "object",
+      "properties": {
+        "kinds": {
+          "type": "object"
+        },
+        "roles": {
+          "type": "object"
+        },
+        "legend": {
+          "type": "array"
+        }
+      }
+    },
+    "modules": {
+      "description": "true, false, ou { title, class, library, function, variable, faces } (chaque genre : false ou { name, uses, description })."
+    },
+    "ui": {
+      "type": "object",
+      "description": "{ pioche: { hide, order }, toolboxTitle, coach }"
+    },
+    "toolbox": {
+      "type": "object",
+      "description": "La boîte à outils (pioche) : { mode, rest, contents: [catégorie | pierre | groupe | texte | séparateur | dynamique] }. Schéma : toolbox.schema.json."
+    },
+    "variables": {
+      "type": "object",
+      "description": "Portées où chercher un nom court ({{token}} → local.token, env.token…) et variables dynamiques ({{$guid}}).",
+      "properties": {
+        "scopes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "dynamic": {
+          "type": "boolean"
+        }
+      }
+    },
+    "templates": {
+      "type": "array",
+      "description": "Modèles de projet proposés par « Fichier › Nouveau ▸ » (en plus du projet vide et de l’exemple).",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "project": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "contributes": {
+      "type": "object",
+      "description": "Contributions au studio : commands, menus, keybindings, displays, generators (fonctions : hors JSON)."
+    },
+    "kits": {
+      "type": "array",
+      "description": "Kits de pierres inclus : « flow », « data »… ou { id, only, patch }.",
+      "items": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "only": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "patch": {
+                "type": "object"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "expr": {
+      "type": "object",
+      "description": "Le dialecte d’expressions du langage : { ops } (fonctions : hors JSON)."
+    }
+  },
+  "$defs": {
+    "pip": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "description": "Un type déclaré (sa couleur)."
+        },
+        "label": {
+          "type": "string"
+        },
+        "accepts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "required": {
+          "type": "boolean",
+          "description": "Entrée : faut-il l’alimenter ? (vrai par défaut)"
+        },
+        "color": {
+          "type": "string",
+          "description": "Couleur imposée au point."
+        },
+        "help": {
+          "type": "string"
+        },
+        "wire": {
+          "const": false,
+          "description": "Ce point ne se relie pas par un fil."
+        },
+        "multiple": {
+          "type": "boolean",
+          "description": "Entrée qui reçoit plusieurs fils (liste)."
+        }
+      }
+    },
+    "field": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "enum": [
+            "text",
+            "textarea",
+            "number",
+            "select",
+            "toggle",
+            "code",
+            "color",
+            "json",
+            "list",
+            "ref",
+            "expr",
+            "table"
+          ]
+        },
+        "columns": {
+          "type": "object",
+          "description": "table : les colonnes, chacune un champ (text, number, toggle, select, expr, color)."
+        },
+        "jump": {
+          "type": "boolean",
+          "description": "ref : un saut (l’exécution continue à la cible)."
+        },
+        "label": {
+          "type": "string"
+        },
+        "default": {},
+        "options": {
+          "type": "array",
+          "description": "Valeurs possibles (ou une fonction de l’instance)."
+        },
+        "bindable": {
+          "type": "boolean",
+          "description": "Peut se lier au contexte ({ $bind })."
+        },
+        "help": {
+          "type": "string"
+        },
+        "placeholder": {
+          "type": "string"
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "min": {
+          "type": "number"
+        },
+        "max": {
+          "type": "number"
+        },
+        "pattern": {
+          "type": "string",
+          "description": "Expression régulière (Unicode)."
+        },
+        "to": {
+          "description": "Renvoi : domino, partie, declaration, variable, ou des types de pierres.",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "unit": {
+          "type": "string"
+        },
+        "group": {
+          "type": "string"
+        },
+        "hidden": {
+          "type": "boolean"
+        },
+        "readonly": {
+          "type": "boolean"
+        }
+      }
+    },
+    "domino": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "help": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string",
+          "description": "Genre : façades et règles du langage s’y réfèrent."
+        },
+        "represents": {
+          "type": "string",
+          "description": "Ce que la pierre représente : variable, instruction, classe, module, projet, scénario, algorithme, idée…"
+        },
+        "meaning": {
+          "type": "object",
+          "properties": {
+            "left": {
+              "type": "string"
+            },
+            "right": {
+              "type": "string"
+            },
+            "zeroLeft": {
+              "type": "string"
+            },
+            "zeroRight": {
+              "type": "string"
+            }
+          }
+        },
+        "left": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "type"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string",
+                    "description": "Un type déclaré (sa couleur)."
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "accepts": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "required": {
+                    "type": "boolean",
+                    "description": "Entrée : faut-il l’alimenter ? (vrai par défaut)"
+                  },
+                  "color": {
+                    "type": "string",
+                    "description": "Couleur imposée au point."
+                  },
+                  "help": {
+                    "type": "string"
+                  },
+                  "wire": {
+                    "const": false,
+                    "description": "Ce point ne se relie pas par un fil."
+                  },
+                  "multiple": {
+                    "type": "boolean",
+                    "description": "Entrée qui reçoit plusieurs fils (liste)."
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "right": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "type"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string",
+                    "description": "Un type déclaré (sa couleur)."
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "accepts": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "required": {
+                    "type": "boolean",
+                    "description": "Entrée : faut-il l’alimenter ? (vrai par défaut)"
+                  },
+                  "color": {
+                    "type": "string",
+                    "description": "Couleur imposée au point."
+                  },
+                  "help": {
+                    "type": "string"
+                  },
+                  "wire": {
+                    "const": false,
+                    "description": "Ce point ne se relie pas par un fil."
+                  },
+                  "multiple": {
+                    "type": "boolean",
+                    "description": "Entrée qui reçoit plusieurs fils (liste)."
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "chain": {
+          "type": "boolean",
+          "description": "false : pierre libre, reliée par des fils seulement."
+        },
+        "wires": {
+          "type": "boolean"
+        },
+        "async": {
+          "type": "boolean"
+        },
+        "where": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "main",
+              "body",
+              "component",
+              "declarations"
+            ]
+          }
+        },
+        "top": {
+          "anyOf": [
+            {
+              "const": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "max": {
+                  "type": "integer"
+                },
+                "accepts": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "bottom": {
+          "anyOf": [
+            {
+              "const": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "max": {
+                  "type": "integer"
+                },
+                "accepts": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "fields": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "enum": [
+                  "text",
+                  "textarea",
+                  "number",
+                  "select",
+                  "toggle",
+                  "code",
+                  "color",
+                  "json",
+                  "list",
+                  "ref",
+                  "expr",
+                  "table"
+                ]
+              },
+              "columns": {
+                "type": "object",
+                "description": "table : les colonnes, chacune un champ (text, number, toggle, select, expr, color)."
+              },
+              "jump": {
+                "type": "boolean",
+                "description": "ref : un saut (l’exécution continue à la cible)."
+              },
+              "label": {
+                "type": "string"
+              },
+              "default": {},
+              "options": {
+                "type": "array",
+                "description": "Valeurs possibles (ou une fonction de l’instance)."
+              },
+              "bindable": {
+                "type": "boolean",
+                "description": "Peut se lier au contexte ({ $bind })."
+              },
+              "help": {
+                "type": "string"
+              },
+              "placeholder": {
+                "type": "string"
+              },
+              "required": {
+                "type": "boolean"
+              },
+              "min": {
+                "type": "number"
+              },
+              "max": {
+                "type": "number"
+              },
+              "pattern": {
+                "type": "string",
+                "description": "Expression régulière (Unicode)."
+              },
+              "to": {
+                "description": "Renvoi : domino, partie, declaration, variable, ou des types de pierres.",
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "unit": {
+                "type": "string"
+              },
+              "group": {
+                "type": "string"
+              },
+              "hidden": {
+                "type": "boolean"
+              },
+              "readonly": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        "inside": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "type": "string"
+                },
+                "partie": {
+                  "enum": [
+                    "component",
+                    "body"
+                  ]
+                },
+                "template": {
+                  "type": "array",
+                  "description": "Les pierres posées à la création (JSON de pierres)."
+                },
+                "title": {
+                  "type": "string"
+                }
+              }
+            }
+          ]
+        },
+        "constraints": {
+          "type": "object",
+          "properties": {
+            "deletable": {
+              "type": "boolean"
+            },
+            "movable": {
+              "type": "boolean"
+            },
+            "editable": {
+              "type": "boolean"
+            },
+            "duplicable": {
+              "type": "boolean"
+            },
+            "max": {
+              "type": "integer"
+            },
+            "maxPerPartie": {
+              "type": "integer"
+            },
+            "allow": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "description": "next, prev, top, bottom, wireIn, wireOut → types, genres, « ce que représente », ou « * »."
+            },
+            "deny": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "description": "next, prev, top, bottom, wireIn, wireOut → types, genres, « ce que représente », ou « * »."
+            }
+          }
+        },
+        "faces": {
+          "type": "object",
+          "properties": {
+            "left": {
+              "type": "string"
+            },
+            "right": {
+              "type": "string"
+            }
+          }
+        },
+        "tint": {
+          "type": "string"
+        },
+        "identity": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "hidden": {
+          "type": "boolean"
+        },
+        "display": {
+          "type": "string",
+          "description": "Mode d’affichage propre à la pierre : stone, compact, card, outline, ou un mode inscrit."
+        },
+        "traits": {
+          "type": "array",
+          "description": "Traits composés : « nommé », « état », { id: \"état\", final: true }…",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "object",
+                "required": [
+                  "id"
+                ]
+              }
+            ]
+          }
+        },
+        "behaviour": {
+          "type": "object",
+          "description": "Comportement déclaré, sans code : title (gabarit), validate, faces, pips (each), canConnect, run (set, log, wait, jump, out)."
+        },
+        "roles": {
+          "type": "object",
+          "description": "Rôles sémantiques lus par les moteurs d’exécution (state, flow, decision…)."
+        },
+        "notation": {
+          "type": "object",
+          "description": "Comment la pierre se dessine dans chaque projection (diagram : shape, label…)."
+        },
+        "version": {
+          "type": "string"
+        },
+        "deprecated": {
+          "type": "string"
+        },
+        "examples": {
+          "type": "array"
+        },
+        "code": {
+          "type": "object",
+          "description": "Callbacks écrits en texte : run, title, pips, validate, canConnect…",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
