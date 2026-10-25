@@ -141,5 +141,5 @@ window.KANTO = {
     { fr: 'Tu composes. On joue.', en: 'You compose. We play.' }
   ],
 
-  clients: ['IFPEN', 'La Poste', 'LeadsHook', 'Docaposte', 'Softia', 'JCDecaux', 'Unibet', 'Allianz']
+  clients: ['IFPEN', 'La Poste','Docaposte', 'LeadsHook', 'Docaposte', 'Softia', 'JCDecaux', 'Genybet', 'Allianz']
 };
