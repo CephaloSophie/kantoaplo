@@ -2,6 +2,8 @@
 
 > **Zeugma** (ζεῦγμα, « joug, attelage, ce qui lie deux choses ») : c'est la connexion entre dominos. Le nom porte le mécanisme central (ça s'emboîte, ça s'enchaîne), et le mot est aussi une figure de style, donc il a du caractère. Zeugma est un projet du monde **Kantoaplo**.
 
+> **Psèphos** (ψῆφος, « le caillou qui compte et qui vote ») : le nom propre d'une pierre de Zeugma. Au lieu de dire « un bloc » ou « un domino », on dit **un psèphos** (pluriel : **psèphoi**). Même racine que ψηφίς, la tesselle des mosaïques : un éditeur Zeugma est une mosaïque de psèphoi.
+
 Une plateforme pour construire des **langages visuels** à partir du jeu de dominos : langages de programmation, outils d'automatisation, éditeurs métier, solutions de logique. Chaque bloc est une pierre :
 
 - **face gauche** : ses entrées ; **face droite** : ses sorties. Le nombre de points a un sens, que chaque langage définit (zéro compris) ;

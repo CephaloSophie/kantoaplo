@@ -31,8 +31,8 @@ window.KANTO = {
     { id: 'zeugma', greek: 'ΖΕΥΓΜΑ', latin: 'Zeugma', accent: '#4FD1C5',
       role_fr: 'Le lien', role_en: 'The link',
       meaning_fr: 'ζεῦγμα — joug, attelage, ce qui lie deux choses', meaning_en: 'ζεῦγμα — yoke, coupling, what binds two things',
-      pitch_fr: "Une bibliothèque de dominos pour construire sans code des éditeurs visuels, des workflows et des outils d'automatisation — généralistes, métier ou internes.",
-      pitch_en: 'A domino-based library for building visual editors, workflows and automation tools without code — general-purpose, domain-specific or internal.',
+      pitch_fr: "Une bibliothèque de dominos pour construire sans code des éditeurs visuels, des workflows et des outils d'automatisation — généralistes, métier ou internes. Chaque pierre a son nom : un psèphos (ψῆφος, le caillou qui compte et qui vote).",
+      pitch_en: 'A domino-based library for building visual editors, workflows and automation tools without code — general-purpose, domain-specific or internal. Every stone has a name: a psèphos (ψῆφος, the pebble that counts and votes).',
       status: 'ready', href: 'demos/zeugma/index.html', shots: 7 },
 
     { id: 'typos', greek: 'ΤΥΠΟΣ', latin: 'Typos', accent: '#D4A373',
