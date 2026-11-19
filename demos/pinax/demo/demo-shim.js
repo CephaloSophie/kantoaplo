@@ -70,7 +70,7 @@
 
   function load() {
     if (!loading) {
-      loading = realFetch(CFG.dataUrl, { cache: 'force-cache' })
+      loading = realFetch(CFG.dataUrl)
         .then(function (r) { return r.json(); })
         .then(function (d) {
           DATA = d;

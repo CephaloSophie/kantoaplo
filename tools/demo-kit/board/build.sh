@@ -22,13 +22,17 @@ cp -r "$SRC/demo-dist/." "$OUT/"
 cp "$KIT/lib/demo-shim.js" "$KIT/board/pinax-rules.js" "$KIT/board/demo-config.js" "$OUT/demo/"
 cp "$DATA" "$OUT/demo/demo-data.json"
 python3 - "$OUT/index.html" <<'PY'
-import sys
+import re, sys
 p = sys.argv[1]
 s = open(p, encoding='utf-8').read()
 inject = ('<script src="/demos/pinax/demo/demo-config.js"></script>\n'
           '<script src="/demos/pinax/demo/demo-shim.js"></script>\n'
           '<script src="/demos/pinax/demo/pinax-rules.js"></script>\n')
 s = s.replace('<head>', '<head>\n' + inject, 1)
+# fonts are served from the site, never from Google
+s = re.sub(r'\s*<link rel="preconnect" href="https://fonts.googleapis.com" />\s*<link\s+href="(https://fonts.googleapis.com/css2[^"]*)"\s+rel="stylesheet"\s*/>',
+           '\n    <link rel="stylesheet" href="/demos/pinax/fonts/fonts.css" />', s)
 open(p, 'w', encoding='utf-8').write(s)
 PY
+python3 "$SITE/tools/vendor-fonts.py" "https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700&family=Ubuntu:wght@400;500;700&display=swap" "$OUT/fonts"
 echo "Pinax demo → $OUT ($(du -sh "$OUT" | cut -f1))"

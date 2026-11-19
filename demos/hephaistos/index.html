@@ -5,9 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>KANTO APLO — Atelier · Héphaïstos</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Cinzel:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="vendor/fonts/fonts.css">
 <style>
   :root {
     --bg-0: #0b0f17;
@@ -1390,9 +1388,9 @@
 
   <div class="toast success" id="toast"></div>
 
-  <script src="https://unpkg.com/blockly@10.4.3/blockly.min.js"></script>
-  <script src="https://unpkg.com/blockly@10.4.3/msg/fr.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+  <script src="vendor/blockly/blockly.min.js"></script>
+  <script src="vendor/blockly/msg/fr.js"></script>
+  <script src="vendor/sortablejs/Sortable.min.js"></script>
 
   <script>
   // ============================================================
@@ -1660,6 +1658,7 @@
 
   // ============ Workspaces ============
   const mainWorkspace = Blockly.inject('blocklyMain', {
+    media: 'vendor/blockly/media/',
     toolbox: buildToolboxXml(),
     trashcan: true,
     grid: { spacing: 22, length: 3, colour: '#cbd5e1', snap: true },
@@ -1668,6 +1667,7 @@
     renderer: 'thrasos',
   });
   const previewWorkspace = Blockly.inject('blocklyPreview', {
+    media: 'vendor/blockly/media/',
     toolbox: null, trashcan: false, scrollbars: true, sounds: false,
     move: { scrollbars: false, drag: false, wheel: false },
     zoom: { controls: false, wheel: false, startScale: 1.0 },
@@ -1838,7 +1838,7 @@
     if (type === 'text')     return { ...base, defaultValue: 'défaut' };
     if (type === 'checkbox') return { ...base, checked: true };
     if (type === 'dropdown') return { ...base, options: [['Option A', 'A'], ['Option B', 'B']] };
-    if (type === 'image')    return { ...base, src: 'https://www.gstatic.com/codesite/ph/images/star_on.gif', width: 16, height: 16, alt: '*' };
+    if (type === 'image')    return { ...base, src: 'vendor/blockly/star_on.gif', width: 16, height: 16, alt: '*' };
   }
   function fieldToBlocklyJson(field) {
     if (field.type === 'label')    return { type: 'field_label',    text: field.text || '' };
