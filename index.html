@@ -4,13 +4,13 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <title>KANTO APLO · Rends-le simple</title>
-<meta name="description" content="KANTO APLO — plateforme SaaS no-code / low-code. Onze éditeurs grecs pour bâtir des applications métier complètes, sans écrire de code."/>
+<meta name="description" content="KANTO APLO — plateforme SaaS no-code / low-code. Douze éditeurs grecs pour bâtir des applications métier complètes, sans écrire de code — démos interactives en ligne."/>
 <meta name="theme-color" content="#08090d"/>
 <link rel="canonical" href="https://kantoaplo.com/"/>
 <meta property="og:type" content="website"/>
 <meta property="og:site_name" content="KANTO APLO"/>
 <meta property="og:title" content="KANTO APLO · Rends-le simple"/>
-<meta property="og:description" content="Onze éditeurs grecs, une seule partition : bâtissez des applications métier complètes sans écrire de code."/>
+<meta property="og:description" content="Douze éditeurs grecs, une seule partition : bâtissez des applications métier complètes sans écrire de code."/>
 <meta property="og:url" content="https://kantoaplo.com/"/>
 <meta property="og:image" content="https://kantoaplo.com/assets/previews/tekton.webp"/>
 <meta name="twitter:card" content="summary_large_image"/>
@@ -61,6 +61,7 @@
     <nav class="hdr-nav" aria-label="Navigation principale">
       <a href="#partition"><span data-fr>La partition</span><span data-en>The score</span></a>
       <a href="#movements"><span data-fr>Éditeurs</span><span data-en>Editors</span></a>
+      <a href="#projects"><span data-fr>Projets</span><span data-en>Projects</span></a>
       <a href="#team"><span data-fr>Orchestre</span><span data-en>Orchestra</span></a>
       <a href="#contact">Contact</a>
     </nav>
@@ -82,6 +83,7 @@
     <ol class="menu-list" id="menuList"></ol>
     <div class="menu-foot" id="menuFoot">
       <a href="#partition"><span data-fr>La partition</span><span data-en>The score</span></a>
+      <a href="#projects"><span data-fr>Autres projets</span><span data-en>Other projects</span></a>
       <a href="#team"><span data-fr>L'orchestre</span><span data-en>The orchestra</span></a>
       <a href="#contact">Contact</a>
       <a class="menu-mail" href="mailto:contact@cephalosophie.com">contact@cephalosophie.com</a>
@@ -118,8 +120,8 @@
     </div>
 
     <p class="sub">Κάντο απλό — <span data-fr>Rends-le simple</span><span data-en>Just make it simple</span></p>
-    <p class="desc" data-fr>Une plateforme SaaS no-code / low-code. Onze éditeurs grecs, un langage commun, des applications métier complètes — sans écrire de code.</p>
-    <p class="desc" data-en>A no-code / low-code SaaS platform. Eleven Greek editors, one shared language, complete business apps — without writing code.</p>
+    <p class="desc" data-fr>Une plateforme SaaS no-code / low-code. <span data-count="">Douze</span> éditeurs grecs, un langage commun, des applications métier complètes — sans écrire de code.</p>
+    <p class="desc" data-en>A no-code / low-code SaaS platform. <span data-en data-count="">Twelve</span> Greek editors, one shared language, complete business apps — without writing code.</p>
 
     <div class="cta-row">
       <a class="btn btn-gold" href="#partition"><span data-fr>Découvrir les éditeurs</span><span data-en>Discover the editors</span> <span aria-hidden="true">→</span></a>
@@ -131,21 +133,23 @@
   <a class="scroll-cue" href="#partition" aria-label="Défiler / Scroll"><span></span></a>
 </section>
 
-<!-- ═══════════════ La partition : vue d'ensemble de tous les éditeurs ═══════════════ -->
+<!-- ═══════════════ La partition : mur de captures tirées au sort + index des éditeurs ═══════════════ -->
 <section class="overview" id="partition">
-  <div class="wrap">
-    <header class="section-head" data-reveal>
+  <div class="ov-wall" id="ovWall" aria-hidden="true"></div>
+  <div class="wrap ov-grid">
+    <header class="ov-head" data-reveal>
       <p class="eyebrow"><span data-fr>La partition</span><span data-en>The score</span></p>
-      <h2 data-fr>Onze éditeurs. Une seule partition.</h2>
-      <h2 data-en>Eleven editors. One shared score.</h2>
+      <h2 class="ov-title" data-fr><span class="ov-count" data-count="">Douze</span> éditeurs.<em>Une seule partition.</em></h2>
+      <h2 class="ov-title" data-en><span class="ov-count" data-en data-count="">Twelve</span> editors.<em>One shared score.</em></h2>
       <p class="lead" data-fr>Chaque éditeur joue sa partie ; ensemble, ils composent une application complète.</p>
       <p class="lead" data-en>Each editor plays its part; together they compose a complete application.</p>
+      <p class="ov-now" id="ovNow" aria-live="off"></p>
     </header>
-    <div class="ov-grid" id="ovGrid"></div>
+    <ol class="ov-index" id="ovIndex" data-reveal></ol>
   </div>
 </section>
 
-<!-- ═══════════════ Les mouvements : un éditeur après l'autre ═══════════════ -->
+<!-- ═══════════════ Les mouvements : un éditeur par diapositive ═══════════════ -->
 <section class="movements" id="movements" aria-label="Éditeurs">
   <div id="movementsBody"></div>
   <noscript>
@@ -156,9 +160,23 @@
       <p><a href="demos/typos/index.html">ΤΥΠΟΣ — Typos</a></p>
       <p><a href="demos/tekton/index.html">ΤΈΚΤΩΝ — Tektôn</a></p>
       <p><a href="demos/skhema/index.html">ΣΧΗΜΑ — Skhêma</a></p>
-      <p><a href="https://kydosbelote.com">ΚΥΔΟΣ — Kydos</a></p>
+      <p><a href="demos/pinax/">ΠΊΝΑΞ — Pinax</a></p>
+      <p><a href="demos/mantis/">ΜΆΝΤΙΣ — Mantis</a></p>
     </div>
   </noscript>
+</section>
+
+<!-- ═══════════════ Autres projets Cephalo Sophie ═══════════════ -->
+<section class="projects" id="projects">
+  <div class="wrap">
+    <header class="section-head" data-reveal>
+      <p class="eyebrow"><span data-fr>Hors partition</span><span data-en>Beyond the score</span></p>
+      <h2 data-fr>Les autres projets de Cephalo Sophie.</h2><h2 data-en>Other Cephalo Sophie projects.</h2>
+      <p class="lead" data-fr>Des applications indépendantes de KANTO APLO, conçues par la même équipe.</p>
+      <p class="lead" data-en>Applications independent from KANTO APLO, crafted by the same team.</p>
+    </header>
+    <div class="proj-list" id="projectsList"></div>
+  </div>
 </section>
 
 <!-- ═══════════════ L'orchestre ═══════════════ -->
@@ -237,6 +255,7 @@
     <button type="button" class="lb-close" id="lbClose" aria-label="Fermer">✕</button>
   </div>
   <div class="lb-stage" id="lbStage"><img id="lbImg" alt=""/></div>
+  <p class="lb-cap" id="lbCap"></p>
   <button type="button" class="lb-nav prev" id="lbPrev" aria-label="Précédente">←</button>
   <button type="button" class="lb-nav next" id="lbNext" aria-label="Suivante">→</button>
 </div>
