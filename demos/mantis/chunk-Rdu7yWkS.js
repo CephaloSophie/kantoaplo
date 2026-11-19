@@ -1,0 +1,1 @@
+import{P as Ce,cr as S}from"./chunk-CdGphUY4.js";import{S as R}from"./chunk-DRKOA_i_.js";var a=class t{metric=Ce(R.Visits);static ɵfac=function(c){return new(c||t)};static ɵprov=S({token:t,factory:t.ɵfac})};export{a as t};

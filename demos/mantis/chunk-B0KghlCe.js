@@ -1,0 +1,1 @@
+import"./chunk-DRKOA_i_.js";import{n,t as e}from"./chunk-SdCoLTTO.js";export{n as CLASSIC_TEMPLATE};

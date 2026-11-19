@@ -1,0 +1,1 @@
+import"./chunk-DRKOA_i_.js";import{n as o,t as e}from"./chunk-BQYAuOy-.js";export{o as HORIZON_TEMPLATE};
