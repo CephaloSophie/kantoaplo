@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kantoaplo.dev/schema/zeugma/theme-1.json",
+  "title": "Thème Zeugma",
+  "type": "object",
+  "required": [
+    "id"
+  ],
+  "properties": {
+    "apiVersion": {
+      "const": "zeugma/v1"
+    },
+    "kind": {
+      "const": "Theme"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[\\w.-]+$"
+    },
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "extends": {
+      "type": "string",
+      "description": "Un autre thème dont celui-ci reprend les jetons."
+    },
+    "prefers": {
+      "enum": [
+        "light",
+        "dark",
+        "system"
+      ]
+    },
+    "tokens": {
+      "type": "object",
+      "properties": {
+        "shared": {
+          "type": "object",
+          "description": "Variables CSS (avec ou sans « -- ») : table, panel, panel-2, raised, line, line-strong, ink, ink-2, ink-3, brass (accent), brass-ink, brass-soft, on-brass, ok, warn, err, f-display, f-body, f-mono, r-sm, r-md, r-lg…",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "light": {
+          "type": "object",
+          "description": "Variables CSS (avec ou sans « -- ») : table, panel, panel-2, raised, line, line-strong, ink, ink-2, ink-3, brass (accent), brass-ink, brass-soft, on-brass, ok, warn, err, f-display, f-body, f-mono, r-sm, r-md, r-lg…",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "dark": {
+          "type": "object",
+          "description": "Variables CSS (avec ou sans « -- ») : table, panel, panel-2, raised, line, line-strong, ink, ink-2, ink-3, brass (accent), brass-ink, brass-soft, on-brass, ok, warn, err, f-display, f-body, f-mono, r-sm, r-md, r-lg…",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "skin": {
+      "type": "object",
+      "description": "Habillage des pierres en mode « auto ».",
+      "properties": {
+        "light": {
+          "type": "string"
+        },
+        "dark": {
+          "type": "string"
+        }
+      }
+    },
+    "preview": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

@@ -30,6 +30,29 @@ Chaque élément s'écrit en JSON selon une abstraction publiée (`apiVersion`, 
 
 Un éditeur est une **instance d'un langage**. Le langage dit les types, les pierres et leurs callbacks, le sens des faces, les règles, les façades, les modules, les générateurs et les onglets de l'inspecteur. Il peut s'écrire en JavaScript ou en JSON, et même avec des dominos (démo « Atelier »).
 
+## Un module pour construire des éditeurs : templates, thèmes, connexions, plugins
+
+Toute l'interface est **configurable, en données** (docs/TEMPLATES.md, docs/PLUGINS.md) :
+
+- un **template d'éditeur** (`Domino.EditorTemplates`) décrit la coque (barre de menus, **ruban** ou **barre
+  d'activité**), les menus, la barre d'outils, les raccourcis, les onglets, la densité, les options des éditeurs,
+  la page d'accueil, le thème et les connexions. Trois sont livrés, choisis dans `domino.config.js`
+  (`template: 'atelier' | 'flux' | 'console'`) ou à chaud (*Affichage › Apparence*) :
+  **Atelier** (menus complets, low-code), **Flux** (ruban, no-code, workflow), **Console** (barre d'activité, sombre, développeur) ;
+- des **thèmes** (`Domino.Themes` : Laiton, Aurore, Nuit néon, Contraste élevé), en clair et en sombre ;
+- des **connexions** (`Domino.Connections` : Câbles, Métro, Néon, Schéma, Fil tendu) : tracé, bouts, flux animé, lueur, étiquettes ;
+- des **plugins** (`Domino.Plugins`) : un paquet JSON qui apporte thèmes, connexions, templates, langages,
+  **blocs** (avec ce qu'ils génèrent, en gabarits sans code : `Domino.BlockGen`), générateurs, menus,
+  raccourcis, commandes composées ; gestionnaire *Outils › Extensions*, sources et **Store Zeugma** (à venir) ;
+- *Outils › Personnaliser l'interface…* (Ctrl+K Ctrl+T) change tout en direct et **exporte le résultat comme un nouveau template** ;
+- *Outils › Vue d'ensemble du projet…* (Ctrl+Alt+O) : chiffres, parties, composition, connexions ;
+- **Héphaïstos** (dépôt `hephaestosZeugma`) : l'atelier visuel des blocs, qui exporte des plugins.
+
+```js
+await Zeugma.app('#app', { template: 'console', plugins: ['flux-codegen'] });          // l'éditeur complet
+Zeugma.embed('#zone', 'flux', { theme: 'aurore', connections: 'metro', project });     // un éditeur seul
+```
+
 ## Installer, lancer, construire
 
 ```sh
@@ -86,6 +109,12 @@ engine/
     domino.commands.js    commandes, clauses when, raccourcis, menus déclaratifs (et menus en JSON)
     domino.display.js     modes d'affichage des pierres
     domino.meta.js        le Concepteur : un langage pour créer des langages (compiler, décompiler)
+    domino.blockgen.js    génération déclarative : ce que chaque pierre génère, en gabarits sans code
+    domino.themes.js      thèmes (jetons CSS clair / sombre) : Laiton, Aurore, Nuit néon, Contraste
+    domino.connections.js styles des fils (tracé, bouts, flux, lueur) : géométrie et rendu SVG sans DOM
+    domino.editortemplates.js  templates d'éditeur : l'interface entière en données (héritage, menus en correctifs)
+    domino.plugins.js     plugins : manifestes, installation, dépendances, confiance, sources et store
+  templates/           les templates d'éditeur livrés : atelier, flux, console
   ui/                  les composants d'édition (DOM ; les modèles marqués * se chargent aussi dans Node)
     domino.templates.js * gabarits : tout le balisage des composants, à un seul endroit, remplaçable
     domino.selection.js * sélection multiple : ensemble, rectangle, racines, presse-papiers de plusieurs pierres
@@ -102,15 +131,18 @@ engine/
     domino.studio.templates.js  gabarits du studio (en-tête, barre d'état, bienvenue)
     domino.studio.menus.js      la barre de menus et les menus contextuels, en JSON
     domino.studio.js      le studio : commandes, documents, Concepteur
+    domino.studio.look.js l'apparence et les extensions : template à chaud, Personnaliser, Extensions, Vue d'ensemble ; Zeugma.app / embed
+    domino.shells.css     les coques (ruban, barre d'activité), onglets, densités, dialogues d'apparence
     domino.app.js         le démarrage de la page
     domino.studio.css     styles du studio
-  schema/              domino, resource, language, model, workspace, config, expr, toolbox, menus
+  schema/              domino, resource, language, model, workspace, config, expr, toolbox, menus, template, theme, connections, plugin
 demos/langages/    Kanto (programmation), Créateur de quiz (20 questions, choix calculés, aiguillages, sauts),
                    Flux (automatisation), Atelier (un langage pour écrire des langages), Raisonnement (une théorie), Dominos (le jeu)
 demos/packs/       éditeurs de domaine : API, workflow, circuit
 demos/patterns/    huit langages-modèles en JSON pur (blocs, flux, états, décision, processus, formulaire, schéma, carte)
 demos/postman/     Scénarios d'API (TNR) : un éditeur à la Postman (import/export Postman, serveur simulé, rapport, tableau de bord)
 postmanFile/       la collection Postman « Kýdos Belote » et son environnement : la source de l'exemple TNR
+demos/plugins/     plugins d'exemple livrés : flux-codegen (blocs + JS/Python), carnet (thème, connexions, template)
 demos/generators/  générateurs génériques (tous les langages) : documentation, graphe Mermaid, modèle
 design/            kit de dessin, tokens, design system, maquette
 docs/              IDEE.md (l'idée), ARCHITECTURE.md (la plateforme), STUDIO.md (l'éditeur), FORMATS.md (les formats),
@@ -154,7 +186,7 @@ Domino.Codegen.run('doc/markdown', doc.ws);                                    /
 ## Tester
 
 ```sh
-npm test                 # 142 tests (node --test), sans navigateur
+npm test                 # 153 tests (node --test), sans navigateur
 npm run lint             # ESLint (règles dans eslint.config.js)
 npm run schemas          # réécrit les schémas publiés (engine/schema/)
 npm run bench            # performances (5 000 pierres)

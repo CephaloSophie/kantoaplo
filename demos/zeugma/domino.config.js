@@ -48,6 +48,28 @@ globalThis.DominoConfig = {
     },
   },
 
+  // ---------------------------------------------------------------------------------------------------------
+  // L'INTERFACE : un template d'éditeur décrit tout (coque, menus, barre d'outils, raccourcis, thème, connexions).
+  // Livrés : 'atelier' (barre de menus, low-code), 'flux' (ruban, no-code), 'console' (barre d'activité, sombre).
+  // Un template peut être écrit ici en ligne : { extends: 'flux', theme: 'nuit', shell: { tabs: 'cards' } }.
+  // Documentation : docs/TEMPLATES.md. Schéma : engine/schema/template.schema.json.
+  // ---------------------------------------------------------------------------------------------------------
+  template: 'atelier',
+  // lockTemplate: true,                 // impose le template et son apparence (l'utilisateur ne les change pas)
+  // templateOverrides: { shell: { tabs: 'pills' }, toolbar: [{ command: 'run.run', icon: 'run', label: 'Lancer', primary: true }] },
+  // theme: 'aurore',                    // par-dessus le thème du template (Laiton, Aurore, Nuit néon, Contraste…)
+  // mode: 'dark',                       // system, light ou dark, par-dessus le mode du template
+  // connections: 'metro',               // cables, metro, neon, schema, fil… ou un style en ligne :
+  // connections: { extends: 'metro', flow: 'comet', ends: { end: 'chevron' } },
+  // Des thèmes, des styles de connexions et des templates propres à cette instance :
+  // themes: [{ id: 'maison', extends: 'laiton', tokens: { light: { brass: '#0A7D5A' }, dark: { brass: '#38D39F' } } }],
+  // connectionStyles: [{ id: 'epais', extends: 'cables', width: 5 }],
+  // templates: [{ id: 'mon-outil', extends: 'flux', name: 'Mon outil', theme: 'maison', connections: 'epais' }],
+
+  // Les PLUGINS installés au démarrage : un manifeste (plugin.schema.json) ou l'id d'un plugin livré.
+  // plugins: ['flux-codegen', 'carnet'],
+  allowPlugins: true,
+
   autosave: { enabled: true, delayMs: 1200, backups: { keep: 5, everyMs: 30000 } },
   workbench: { restore: true, maxRecent: 12, maxGroups: 4, maxLiveEditors: 8, welcome: 'whenEmpty' },
 
@@ -73,6 +95,7 @@ globalThis.DominoConfig = {
   // Menus ajoutés, remplacés (replace: true) ou retirés (remove: true) ; même forme qu'engine/studio/domino.studio.menus.js.
   // menus: { bar: [{ id: 'help', sections: [{ id: 'team', items: [{ link: 'docs/STUDIO.md', title: 'Guide de l’équipe' }] }] }] },
 
-  // Raccourcis propres à cette instance : { key: 'Mod+Alt+R', command: 'run.run', when: 'hasEditor' }.
+  // Raccourcis propres à cette instance (après ceux du template) : { key: 'Mod+Alt+R', command: 'run.run', when: 'hasEditor' } ;
+  // { command: 'view.pioche', remove: true } retire ceux d'une commande, { key: 'Mod+B', remove: true } ceux d'une touche.
   keybindings: [],
 };

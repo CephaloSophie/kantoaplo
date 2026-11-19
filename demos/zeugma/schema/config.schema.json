@@ -148,10 +148,6 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": [
-          "key",
-          "command"
-        ],
         "properties": {
           "key": {
             "type": "string"
@@ -162,9 +158,105 @@
           "when": {
             "type": "string"
           },
-          "args": {}
+          "args": {},
+          "remove": {
+            "type": "boolean",
+            "description": "Retire les raccourcis de cette touche et/ou de cette commande."
+          }
         }
       }
+    },
+    "template": {
+      "description": "Le template d’éditeur : un id (atelier, flux, console…) ou un template en ligne ({ extends, … }). Schéma : template.schema.json.",
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object"
+        }
+      ]
+    },
+    "templateOverrides": {
+      "type": "object",
+      "description": "Des réglages appliqués par-dessus le template (même forme qu’un template)."
+    },
+    "lockTemplate": {
+      "type": "boolean",
+      "description": "true : le template et son apparence sont imposés (l’utilisateur ne les change pas)."
+    },
+    "templates": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Des templates d’éditeur propres à cette instance."
+    },
+    "theme": {
+      "description": "Le thème (id ou en ligne), par-dessus celui du template. Schéma : theme.schema.json.",
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object"
+        }
+      ]
+    },
+    "mode": {
+      "enum": [
+        "system",
+        "light",
+        "dark"
+      ],
+      "description": "Le mode, par-dessus celui du template."
+    },
+    "themes": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Des thèmes propres à cette instance."
+    },
+    "connections": {
+      "description": "Le style de connexions (id ou en ligne), par-dessus celui du template. Schéma : connections.schema.json.",
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object"
+        }
+      ]
+    },
+    "connectionStyles": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Des styles de connexions propres à cette instance."
+    },
+    "plugins": {
+      "type": "array",
+      "description": "Des plugins installés au démarrage : un manifeste (plugin.schema.json), ou l’id d’un plugin livré.",
+      "items": {
+        "oneOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "object"
+          }
+        ]
+      }
+    },
+    "allowPlugins": {
+      "type": "boolean",
+      "description": "false : l’utilisateur ne peut pas installer de plugins."
+    },
+    "trustPlugins": {
+      "type": "boolean",
+      "description": "true : les plugins de la configuration peuvent contenir du code écrit en texte."
     }
   },
   "$defs": {

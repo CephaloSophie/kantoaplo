@@ -1,0 +1,160 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kantoaplo.dev/schema/zeugma/plugin-1.json",
+  "title": "Plugin Zeugma",
+  "type": "object",
+  "required": [
+    "apiVersion",
+    "kind",
+    "metadata"
+  ],
+  "properties": {
+    "apiVersion": {
+      "const": "zeugma/v1"
+    },
+    "kind": {
+      "const": "Plugin"
+    },
+    "metadata": {
+      "type": "object",
+      "required": [
+        "id",
+        "version"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][\\w.-]*$"
+        },
+        "name": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+"
+        },
+        "description": {
+          "type": "string"
+        },
+        "author": {
+          "type": "string"
+        },
+        "icon": {
+          "type": "string"
+        },
+        "color": {
+          "type": "string"
+        },
+        "homepage": {
+          "type": "string"
+        },
+        "license": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "engines": {
+      "type": "object",
+      "properties": {
+        "zeugma": {
+          "type": "string",
+          "description": "Plage de versions : « >=1.2.0 », « ^1.2.0 »."
+        }
+      }
+    },
+    "dependencies": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "contributes": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "themes": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "description": "Thèmes (Domino.Themes)."
+        },
+        "connections": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "description": "Styles de connexions (Domino.Connections)."
+        },
+        "templates": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "description": "Templates d’éditeur (Domino.EditorTemplates)."
+        },
+        "languages": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "description": "Langages complets (format kantoaplo.language)."
+        },
+        "blocks": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "description": "Pierres ajoutées à un langage : { language, category, types?, dominos: [{ …, generate: { cible: gabarit } }] }."
+        },
+        "generators": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "description": "Cibles de génération par gabarits : { language, id, label, extension, header?, footer?, templates: { type: gabarit } }."
+        },
+        "projects": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "description": "Modèles de projet : { language, id, name, project }."
+        },
+        "menus": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "description": "Éléments ajoutés à des menus (point de contribution → éléments)."
+        },
+        "keybindings": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "description": "Raccourcis : { key, command, when?, args? }."
+        },
+        "commands": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "description": "Commandes composées : { id, title, steps: [{ command, args }] }."
+        }
+      }
+    }
+  }
+}

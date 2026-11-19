@@ -1,0 +1,635 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kantoaplo.dev/schema/zeugma/connections-1.json",
+  "title": "Style de connexions Zeugma",
+  "type": "object",
+  "required": [
+    "id"
+  ],
+  "properties": {
+    "apiVersion": {
+      "const": "zeugma/v1"
+    },
+    "kind": {
+      "const": "ConnectionStyle"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[\\w.-]+$"
+    },
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "extends": {
+      "type": "string"
+    },
+    "path": {
+      "enum": [
+        "bezier",
+        "orthogonal",
+        "step",
+        "straight",
+        "arc"
+      ],
+      "description": "Le tracé : courbe (bezier), angles droits arrondis (orthogonal), escalier (step), droit (straight), arc."
+    },
+    "curvature": {
+      "type": "number"
+    },
+    "minBend": {
+      "type": "number"
+    },
+    "maxBend": {
+      "type": "number"
+    },
+    "radius": {
+      "type": "number",
+      "description": "Rayon des coins (orthogonal)."
+    },
+    "stub": {
+      "type": "number",
+      "description": "Longueur de sortie avant le premier coude."
+    },
+    "width": {
+      "type": "number"
+    },
+    "casing": {
+      "type": "number",
+      "description": "Halo autour du trait (zone de survol visible)."
+    },
+    "color": {
+      "type": "string",
+      "description": "gradient (des deux points), source, target, accent, ink ou une couleur CSS."
+    },
+    "opacity": {
+      "type": "number"
+    },
+    "dash": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Tirets SVG : « 6 4 »."
+    },
+    "ends": {
+      "type": "object",
+      "properties": {
+        "start": {
+          "enum": [
+            "none",
+            "ring",
+            "dot",
+            "arrow",
+            "chevron",
+            "diamond",
+            "square",
+            "socket"
+          ]
+        },
+        "end": {
+          "enum": [
+            "none",
+            "ring",
+            "dot",
+            "arrow",
+            "chevron",
+            "diamond",
+            "square",
+            "socket"
+          ]
+        },
+        "size": {
+          "type": "number"
+        }
+      }
+    },
+    "flow": {
+      "enum": [
+        "none",
+        "march",
+        "dots",
+        "comet",
+        "pulse"
+      ],
+      "description": "Animation du flux : marche, points, comète, pulsation."
+    },
+    "flowAlways": {
+      "type": "boolean",
+      "description": "Le flux circule en permanence (sinon : quand une valeur passe)."
+    },
+    "flowSpeed": {
+      "type": "number"
+    },
+    "glow": {
+      "type": "number",
+      "description": "Lueur (px)."
+    },
+    "label": {
+      "enum": [
+        "text",
+        "pill",
+        "none"
+      ]
+    },
+    "markers": {
+      "type": "boolean",
+      "description": "Marques d’appel bloquant / non bloquant."
+    },
+    "hoverWidth": {
+      "type": "number"
+    },
+    "kinds": {
+      "type": "object",
+      "description": "Réglages par genre de fil : data, call, trigger.",
+      "properties": {
+        "data": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "enum": [
+                "bezier",
+                "orthogonal",
+                "step",
+                "straight",
+                "arc"
+              ],
+              "description": "Le tracé : courbe (bezier), angles droits arrondis (orthogonal), escalier (step), droit (straight), arc."
+            },
+            "curvature": {
+              "type": "number"
+            },
+            "minBend": {
+              "type": "number"
+            },
+            "maxBend": {
+              "type": "number"
+            },
+            "radius": {
+              "type": "number",
+              "description": "Rayon des coins (orthogonal)."
+            },
+            "stub": {
+              "type": "number",
+              "description": "Longueur de sortie avant le premier coude."
+            },
+            "width": {
+              "type": "number"
+            },
+            "casing": {
+              "type": "number",
+              "description": "Halo autour du trait (zone de survol visible)."
+            },
+            "color": {
+              "type": "string",
+              "description": "gradient (des deux points), source, target, accent, ink ou une couleur CSS."
+            },
+            "opacity": {
+              "type": "number"
+            },
+            "dash": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Tirets SVG : « 6 4 »."
+            },
+            "ends": {
+              "type": "object",
+              "properties": {
+                "start": {
+                  "enum": [
+                    "none",
+                    "ring",
+                    "dot",
+                    "arrow",
+                    "chevron",
+                    "diamond",
+                    "square",
+                    "socket"
+                  ]
+                },
+                "end": {
+                  "enum": [
+                    "none",
+                    "ring",
+                    "dot",
+                    "arrow",
+                    "chevron",
+                    "diamond",
+                    "square",
+                    "socket"
+                  ]
+                },
+                "size": {
+                  "type": "number"
+                }
+              }
+            },
+            "flow": {
+              "enum": [
+                "none",
+                "march",
+                "dots",
+                "comet",
+                "pulse"
+              ],
+              "description": "Animation du flux : marche, points, comète, pulsation."
+            },
+            "flowAlways": {
+              "type": "boolean",
+              "description": "Le flux circule en permanence (sinon : quand une valeur passe)."
+            },
+            "flowSpeed": {
+              "type": "number"
+            },
+            "glow": {
+              "type": "number",
+              "description": "Lueur (px)."
+            },
+            "label": {
+              "enum": [
+                "text",
+                "pill",
+                "none"
+              ]
+            },
+            "markers": {
+              "type": "boolean",
+              "description": "Marques d’appel bloquant / non bloquant."
+            },
+            "hoverWidth": {
+              "type": "number"
+            }
+          }
+        },
+        "call": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "enum": [
+                "bezier",
+                "orthogonal",
+                "step",
+                "straight",
+                "arc"
+              ],
+              "description": "Le tracé : courbe (bezier), angles droits arrondis (orthogonal), escalier (step), droit (straight), arc."
+            },
+            "curvature": {
+              "type": "number"
+            },
+            "minBend": {
+              "type": "number"
+            },
+            "maxBend": {
+              "type": "number"
+            },
+            "radius": {
+              "type": "number",
+              "description": "Rayon des coins (orthogonal)."
+            },
+            "stub": {
+              "type": "number",
+              "description": "Longueur de sortie avant le premier coude."
+            },
+            "width": {
+              "type": "number"
+            },
+            "casing": {
+              "type": "number",
+              "description": "Halo autour du trait (zone de survol visible)."
+            },
+            "color": {
+              "type": "string",
+              "description": "gradient (des deux points), source, target, accent, ink ou une couleur CSS."
+            },
+            "opacity": {
+              "type": "number"
+            },
+            "dash": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Tirets SVG : « 6 4 »."
+            },
+            "ends": {
+              "type": "object",
+              "properties": {
+                "start": {
+                  "enum": [
+                    "none",
+                    "ring",
+                    "dot",
+                    "arrow",
+                    "chevron",
+                    "diamond",
+                    "square",
+                    "socket"
+                  ]
+                },
+                "end": {
+                  "enum": [
+                    "none",
+                    "ring",
+                    "dot",
+                    "arrow",
+                    "chevron",
+                    "diamond",
+                    "square",
+                    "socket"
+                  ]
+                },
+                "size": {
+                  "type": "number"
+                }
+              }
+            },
+            "flow": {
+              "enum": [
+                "none",
+                "march",
+                "dots",
+                "comet",
+                "pulse"
+              ],
+              "description": "Animation du flux : marche, points, comète, pulsation."
+            },
+            "flowAlways": {
+              "type": "boolean",
+              "description": "Le flux circule en permanence (sinon : quand une valeur passe)."
+            },
+            "flowSpeed": {
+              "type": "number"
+            },
+            "glow": {
+              "type": "number",
+              "description": "Lueur (px)."
+            },
+            "label": {
+              "enum": [
+                "text",
+                "pill",
+                "none"
+              ]
+            },
+            "markers": {
+              "type": "boolean",
+              "description": "Marques d’appel bloquant / non bloquant."
+            },
+            "hoverWidth": {
+              "type": "number"
+            }
+          }
+        },
+        "trigger": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "enum": [
+                "bezier",
+                "orthogonal",
+                "step",
+                "straight",
+                "arc"
+              ],
+              "description": "Le tracé : courbe (bezier), angles droits arrondis (orthogonal), escalier (step), droit (straight), arc."
+            },
+            "curvature": {
+              "type": "number"
+            },
+            "minBend": {
+              "type": "number"
+            },
+            "maxBend": {
+              "type": "number"
+            },
+            "radius": {
+              "type": "number",
+              "description": "Rayon des coins (orthogonal)."
+            },
+            "stub": {
+              "type": "number",
+              "description": "Longueur de sortie avant le premier coude."
+            },
+            "width": {
+              "type": "number"
+            },
+            "casing": {
+              "type": "number",
+              "description": "Halo autour du trait (zone de survol visible)."
+            },
+            "color": {
+              "type": "string",
+              "description": "gradient (des deux points), source, target, accent, ink ou une couleur CSS."
+            },
+            "opacity": {
+              "type": "number"
+            },
+            "dash": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Tirets SVG : « 6 4 »."
+            },
+            "ends": {
+              "type": "object",
+              "properties": {
+                "start": {
+                  "enum": [
+                    "none",
+                    "ring",
+                    "dot",
+                    "arrow",
+                    "chevron",
+                    "diamond",
+                    "square",
+                    "socket"
+                  ]
+                },
+                "end": {
+                  "enum": [
+                    "none",
+                    "ring",
+                    "dot",
+                    "arrow",
+                    "chevron",
+                    "diamond",
+                    "square",
+                    "socket"
+                  ]
+                },
+                "size": {
+                  "type": "number"
+                }
+              }
+            },
+            "flow": {
+              "enum": [
+                "none",
+                "march",
+                "dots",
+                "comet",
+                "pulse"
+              ],
+              "description": "Animation du flux : marche, points, comète, pulsation."
+            },
+            "flowAlways": {
+              "type": "boolean",
+              "description": "Le flux circule en permanence (sinon : quand une valeur passe)."
+            },
+            "flowSpeed": {
+              "type": "number"
+            },
+            "glow": {
+              "type": "number",
+              "description": "Lueur (px)."
+            },
+            "label": {
+              "enum": [
+                "text",
+                "pill",
+                "none"
+              ]
+            },
+            "markers": {
+              "type": "boolean",
+              "description": "Marques d’appel bloquant / non bloquant."
+            },
+            "hoverWidth": {
+              "type": "number"
+            }
+          }
+        }
+      }
+    },
+    "edges": {
+      "type": "object",
+      "description": "Réglages par type de lien d’un langage.",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "enum": [
+              "bezier",
+              "orthogonal",
+              "step",
+              "straight",
+              "arc"
+            ],
+            "description": "Le tracé : courbe (bezier), angles droits arrondis (orthogonal), escalier (step), droit (straight), arc."
+          },
+          "curvature": {
+            "type": "number"
+          },
+          "minBend": {
+            "type": "number"
+          },
+          "maxBend": {
+            "type": "number"
+          },
+          "radius": {
+            "type": "number",
+            "description": "Rayon des coins (orthogonal)."
+          },
+          "stub": {
+            "type": "number",
+            "description": "Longueur de sortie avant le premier coude."
+          },
+          "width": {
+            "type": "number"
+          },
+          "casing": {
+            "type": "number",
+            "description": "Halo autour du trait (zone de survol visible)."
+          },
+          "color": {
+            "type": "string",
+            "description": "gradient (des deux points), source, target, accent, ink ou une couleur CSS."
+          },
+          "opacity": {
+            "type": "number"
+          },
+          "dash": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Tirets SVG : « 6 4 »."
+          },
+          "ends": {
+            "type": "object",
+            "properties": {
+              "start": {
+                "enum": [
+                  "none",
+                  "ring",
+                  "dot",
+                  "arrow",
+                  "chevron",
+                  "diamond",
+                  "square",
+                  "socket"
+                ]
+              },
+              "end": {
+                "enum": [
+                  "none",
+                  "ring",
+                  "dot",
+                  "arrow",
+                  "chevron",
+                  "diamond",
+                  "square",
+                  "socket"
+                ]
+              },
+              "size": {
+                "type": "number"
+              }
+            }
+          },
+          "flow": {
+            "enum": [
+              "none",
+              "march",
+              "dots",
+              "comet",
+              "pulse"
+            ],
+            "description": "Animation du flux : marche, points, comète, pulsation."
+          },
+          "flowAlways": {
+            "type": "boolean",
+            "description": "Le flux circule en permanence (sinon : quand une valeur passe)."
+          },
+          "flowSpeed": {
+            "type": "number"
+          },
+          "glow": {
+            "type": "number",
+            "description": "Lueur (px)."
+          },
+          "label": {
+            "enum": [
+              "text",
+              "pill",
+              "none"
+            ]
+          },
+          "markers": {
+            "type": "boolean",
+            "description": "Marques d’appel bloquant / non bloquant."
+          },
+          "hoverWidth": {
+            "type": "number"
+          }
+        }
+      }
+    }
+  }
+}

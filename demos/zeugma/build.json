@@ -1,11 +1,11 @@
 {
   "name": "kantoaplo-zeugma",
-  "version": "1.1.0",
-  "builtAt": "2026-10-24T23:33:00.739Z",
+  "version": "1.2.0",
+  "builtAt": "2026-11-19T22:39:01.286Z",
   "entry": {
     "html": "index.html",
-    "js": "assets/studio.77f082d47c.js",
-    "css": "assets/studio.1f6edeeaa9.css"
+    "js": "assets/studio.a17d696663.js",
+    "css": "assets/studio.fc61fe980e.css"
   },
   "layers": [
     {
@@ -14,7 +14,7 @@
     },
     {
       "id": "core",
-      "files": 24
+      "files": 29
     },
     {
       "id": "ui",
@@ -22,11 +22,15 @@
     },
     {
       "id": "studio",
-      "files": 5
+      "files": 6
+    },
+    {
+      "id": "templates",
+      "files": 3
     },
     {
       "id": "demos",
-      "files": 17
+      "files": 19
     },
     {
       "id": "app",
@@ -35,20 +39,20 @@
   ],
   "files": [
     {
-      "file": "assets/studio.1f6edeeaa9.css",
-      "bytes": 89813
+      "file": "assets/studio.a17d696663.js",
+      "bytes": 1104439
     },
     {
-      "file": "assets/studio.1f6edeeaa9.css.map",
-      "bytes": 191569
+      "file": "assets/studio.a17d696663.js.map",
+      "bytes": 3016459
     },
     {
-      "file": "assets/studio.77f082d47c.js",
-      "bytes": 1002634
+      "file": "assets/studio.fc61fe980e.css",
+      "bytes": 109139
     },
     {
-      "file": "assets/studio.77f082d47c.js.map",
-      "bytes": 2741965
+      "file": "assets/studio.fc61fe980e.css.map",
+      "bytes": 232416
     },
     {
       "file": "design/design-system.html",
@@ -79,6 +83,10 @@
       "bytes": 100686
     },
     {
+      "file": "docs/PLUGINS.md",
+      "bytes": 5372
+    },
+    {
       "file": "docs/STORAGE.md",
       "bytes": 8601
     },
@@ -87,12 +95,16 @@
       "bytes": 20842
     },
     {
+      "file": "docs/TEMPLATES.md",
+      "bytes": 7182
+    },
+    {
       "file": "docs/TNR.md",
       "bytes": 11277
     },
     {
       "file": "domino.config.js",
-      "bytes": 3797
+      "bytes": 5843
     },
     {
       "file": "fonts/bricolage-grotesque-latin-ext-opsz-normal.woff2",
@@ -168,51 +180,51 @@
     },
     {
       "file": "lib/domino.core.js",
-      "bytes": 284069
+      "bytes": 337807
     },
     {
       "file": "lib/domino.core.js.map",
-      "bytes": 880025
+      "bytes": 1043467
     },
     {
       "file": "lib/domino.css",
-      "bytes": 89802
+      "bytes": 109128
     },
     {
       "file": "lib/domino.css.map",
-      "bytes": 191569
+      "bytes": 232416
     },
     {
       "file": "lib/domino.demos.js",
-      "bytes": 312512
+      "bytes": 317817
     },
     {
       "file": "lib/domino.demos.js.map",
-      "bytes": 768224
+      "bytes": 779936
     },
     {
       "file": "lib/domino.studio.js",
-      "bytes": 688962
+      "bytes": 785441
     },
     {
       "file": "lib/domino.studio.js.map",
-      "bytes": 1971763
+      "bytes": 2234504
     },
     {
       "file": "lib/domino.ui.css",
-      "bytes": 69252
+      "bytes": 71326
     },
     {
       "file": "lib/domino.ui.css.map",
-      "bytes": 148271
+      "bytes": 152992
     },
     {
       "file": "lib/domino.ui.js",
-      "bytes": 574092
+      "bytes": 626109
     },
     {
       "file": "lib/domino.ui.js.map",
-      "bytes": 1686457
+      "bytes": 1845264
     },
     {
       "file": "postmanFile/belote-api.postman_collection.json",
@@ -224,11 +236,15 @@
     },
     {
       "file": "README.md",
-      "bytes": 14294
+      "bytes": 17202
     },
     {
       "file": "schema/config.schema.json",
-      "bytes": 6993
+      "bytes": 9550
+    },
+    {
+      "file": "schema/connections.schema.json",
+      "bytes": 16773
     },
     {
       "file": "schema/domino.schema.json",
@@ -251,8 +267,20 @@
       "bytes": 13995
     },
     {
+      "file": "schema/plugin.schema.json",
+      "bytes": 3962
+    },
+    {
       "file": "schema/resource.schema.json",
       "bytes": 7057
+    },
+    {
+      "file": "schema/template.schema.json",
+      "bytes": 9558
+    },
+    {
+      "file": "schema/theme.schema.json",
+      "bytes": 2322
     },
     {
       "file": "schema/toolbox.schema.json",

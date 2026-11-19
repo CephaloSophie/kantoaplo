@@ -1,0 +1,412 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kantoaplo.dev/schema/zeugma/template-1.json",
+  "title": "Template d’éditeur Zeugma",
+  "description": "Toute l’interface d’un éditeur : coque, menus, barre d’outils, ruban, barre d’activité, raccourcis, thème, connexions, options.",
+  "type": "object",
+  "required": [
+    "id"
+  ],
+  "properties": {
+    "apiVersion": {
+      "const": "zeugma/v1"
+    },
+    "kind": {
+      "const": "EditorTemplate"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[\\w.-]+$"
+    },
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "icon": {
+      "type": "string"
+    },
+    "extends": {
+      "type": "string",
+      "description": "Un autre template dont celui-ci part (héritage : objets fusionnés, raccourcis et menus ajoutés)."
+    },
+    "theme": {
+      "description": "Un thème (id) ou un thème en ligne.",
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object"
+        }
+      ]
+    },
+    "mode": {
+      "enum": [
+        "system",
+        "light",
+        "dark"
+      ]
+    },
+    "connections": {
+      "description": "Un style de connexions (id) ou en ligne.",
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object"
+        }
+      ]
+    },
+    "shell": {
+      "type": "object",
+      "properties": {
+        "header": {
+          "enum": [
+            "menubar",
+            "ribbon",
+            "activity",
+            "minimal",
+            "none"
+          ]
+        },
+        "brand": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Le nom en haut à gauche (HTML court)."
+        },
+        "statusBar": {
+          "type": "boolean"
+        },
+        "density": {
+          "enum": [
+            "compact",
+            "comfortable",
+            "spacious"
+          ]
+        },
+        "tabs": {
+          "enum": [
+            "classic",
+            "pills",
+            "underline",
+            "cards"
+          ]
+        },
+        "toolbox": {
+          "type": "object",
+          "properties": {
+            "visible": {
+              "type": "boolean"
+            },
+            "mode": {
+              "enum": [
+                "full",
+                "compact"
+              ]
+            },
+            "position": {
+              "enum": [
+                "left",
+                "right"
+              ]
+            }
+          }
+        },
+        "inspector": {
+          "type": "object",
+          "properties": {
+            "open": {
+              "type": "boolean"
+            }
+          }
+        },
+        "minimap": {
+          "type": "boolean"
+        },
+        "welcome": {
+          "type": "boolean"
+        },
+        "coach": {
+          "type": "boolean"
+        },
+        "documentTitle": {
+          "type": "boolean"
+        },
+        "menubar": {
+          "type": "boolean"
+        }
+      }
+    },
+    "toolbar": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": [
+              "command"
+            ],
+            "properties": {
+              "command": {
+                "type": "string"
+              },
+              "args": {},
+              "icon": {
+                "type": "string",
+                "description": "Nom d’une icône (Domino.Templates.icons)."
+              },
+              "label": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "primary": {
+                "type": "boolean"
+              },
+              "size": {
+                "enum": [
+                  "small",
+                  "large"
+                ]
+              },
+              "running": {
+                "type": "boolean",
+                "description": "Visible seulement pendant une exécution."
+              },
+              "hideSmall": {
+                "type": "boolean"
+              }
+            }
+          },
+          {
+            "const": "|"
+          }
+        ]
+      }
+    },
+    "ribbon": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "groups"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "groups": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "command"
+                    ],
+                    "properties": {
+                      "command": {
+                        "type": "string"
+                      },
+                      "args": {},
+                      "icon": {
+                        "type": "string",
+                        "description": "Nom d’une icône (Domino.Templates.icons)."
+                      },
+                      "label": {
+                        "type": "string"
+                      },
+                      "title": {
+                        "type": "string"
+                      },
+                      "primary": {
+                        "type": "boolean"
+                      },
+                      "size": {
+                        "enum": [
+                          "small",
+                          "large"
+                        ]
+                      },
+                      "running": {
+                        "type": "boolean",
+                        "description": "Visible seulement pendant une exécution."
+                      },
+                      "hideSmall": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "activity": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "command"
+        ],
+        "properties": {
+          "command": {
+            "type": "string"
+          },
+          "args": {},
+          "icon": {
+            "type": "string",
+            "description": "Nom d’une icône (Domino.Templates.icons)."
+          },
+          "label": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "primary": {
+            "type": "boolean"
+          },
+          "size": {
+            "enum": [
+              "small",
+              "large"
+            ]
+          },
+          "running": {
+            "type": "boolean",
+            "description": "Visible seulement pendant une exécution."
+          },
+          "hideSmall": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "string"
+          },
+          "bottom": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "menus": {
+      "type": "object",
+      "description": "base : « studio » (tous les menus du studio) ou null ; bar et menus : correctifs (même forme que menus.schema.json) ; remove : ids retirés ; replace : repartir de zéro. Un menu peut se ranger avant un autre (before).",
+      "properties": {
+        "base": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "bar": {
+          "type": "array"
+        },
+        "menus": {
+          "type": "object"
+        },
+        "remove": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "replace": {
+          "type": "boolean"
+        }
+      }
+    },
+    "keybindings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "command": {
+            "type": "string"
+          },
+          "when": {
+            "type": "string"
+          },
+          "args": {},
+          "remove": {
+            "type": "boolean",
+            "description": "Retire les raccourcis de cette touche et/ou de cette commande."
+          }
+        }
+      }
+    },
+    "editor": {
+      "type": "object",
+      "description": "Options des éditeurs (Domino.create) : grid, names, values, skin, display, route, wheel, live…"
+    },
+    "welcome": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "subtitle": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "sections": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "start",
+              "recent",
+              "keys",
+              "designer",
+              "languages"
+            ]
+          }
+        }
+      }
+    },
+    "languages": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "groups": {
+          "type": "array"
+        }
+      }
+    },
+    "markup": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "description": "Gabarits de balisage remplacés (des fonctions : en JavaScript seulement)."
+    }
+  }
+}
