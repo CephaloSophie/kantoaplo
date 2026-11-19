@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Page introuvable · KANTO APLO</title>
+<meta name="robots" content="noindex"/>
+<script>
+  /* Démos (applications monopages) : GitHub Pages ne connaît que leur index.html.
+     On mémorise l'adresse demandée, la démo la restaure au démarrage. */
+  (function () {
+    var p = location.pathname, demos = ['/demos/pinax/', '/demos/mantis/'];
+    for (var i = 0; i < demos.length; i++) {
+      if (p.indexOf(demos[i]) === 0 && p !== demos[i]) {
+        try { sessionStorage.setItem('demo-redirect', p + location.search + location.hash); } catch (e) {}
+        location.replace(demos[i]);
+        return;
+      }
+    }
+  })();
+</script>
+<style>
+  html,body{height:100%;margin:0;background:#08090d;color:#e9e4d8;font-family:'Cormorant Garamond',Georgia,serif}
+  main{min-height:100%;display:grid;place-items:center;text-align:center;padding:24px}
+  .rest{font-size:96px;line-height:1;color:#C9963A;opacity:.85}
+  h1{font-weight:400;font-size:clamp(28px,5vw,44px);margin:18px 0 8px}
+  p{font:15px/1.6 'IBM Plex Sans',system-ui,sans-serif;color:#9a958a;margin:0 0 28px}
+  a{font:500 14px 'IBM Plex Sans',system-ui,sans-serif;color:#08090d;background:#C9963A;padding:12px 22px;border-radius:999px;text-decoration:none}
+  a:focus-visible{outline:2px solid #fff;outline-offset:3px}
+</style>
+</head>
+<body>
+<main>
+  <div>
+    <div class="rest" aria-hidden="true">𝄽</div>
+    <h1>Un silence dans la partition.</h1>
+    <p>Cette page n'existe pas, ou plus.</p>
+    <a href="/">Revenir à KANTO APLO</a>
+  </div>
+</main>
+</body>
+</html>
