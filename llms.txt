@@ -1,0 +1,78 @@
+# KANTO APLO
+
+> KANTO APLO, Cephalo Sophie's no-code / low-code SaaS platform: twelve visual editors — front end, APIs, UML, workflows, agile project management, web analytics, A/B testing — to build business applications without code. Live demos.
+
+KANTO APLO (Greek κάντο απλό, "just make it simple") is built by Cephalo Sophie (Paris, since 2018). French site: https://kantoaplo.com/ — English: https://kantoaplo.com/en/. Contact: contact@cephalosophie.com.
+
+## Editors
+
+- [Skopos (ΣΚΟΠΟΣ) — The watcher](https://kantoaplo.com/demos/skopos/): The observer — the one who monitors. It watches your APIs, detects anomalies and warns you before your users notice. Live demo.
+- [Héphaïstos (ἭΦΑΙΣΤΟΣ) — The forge](https://kantoaplo.com/demos/hephaistos/): Blockly block editor. It forges the visual components Tektôn will assemble. Without Héphaïstos, nothing to build. Live demo.
+- [Zeugma (ΖΕΥΓΜΑ) — The link](https://kantoaplo.com/demos/zeugma/): A domino-based library for building visual editors, workflows and automation tools without code — general-purpose, domain-specific or internal. Live demo.
+- [Typos (ΤΥΠΟΣ) — The mould](https://kantoaplo.com/demos/typos/): Structural template editor — grid, zones, tree — the skeleton Tektôn fills. Live demo.
+- [Tektôn (ΤΈΚΤΩΝ) — The builder](https://kantoaplo.com/demos/tekton/): The visual editor for the front end: drag and drop to build pages, funnels, apps and quizzes. The heart of KANTO APLO. Live demo.
+- [Logos (ΛΌΓΟΣ) — The rule](https://kantoaplo.com/demos/tekton/): The visual editor for services: REST APIs, scheduled jobs (cron), business rules, transforms — documented OpenAPI output. Live demo.
+- [Skhêma (ΣΧΗΜΑ) — The schema](https://kantoaplo.com/demos/skhema/): Professional UML editor — classes, sequences, ER, use-cases — model before you build. Live demo.
+- [Pinax (ΠΊΝΑΞ) — The ledger](https://kantoaplo.com/demos/pinax/): The agile project board: tasks, sprints, versions and rituals on a Jira-like board — only more flexible. Burndown, velocity, dashboards and Jira import. Live demo.
+- [Mantis (ΜΆΝΤΙΣ) — The prophet](https://kantoaplo.com/demos/mantis/): Self-hosted web analytics that loses nothing: dashboards, real time, goals, cohorts, A/B tests and Bayesian statistics — with a full appearance studio. Live demo.
+- [Kairos (ΚΑΙΡΟΣ) — The moment](https://kantoaplo.com/#ed-kairos): A/B tests with significance calculation and automatic winner rollout. In development.
+- [Synergos (ΣΥΝΕΡΓΟΣ) — The connector](https://kantoaplo.com/#ed-synergos): Universal connector vault — relational DBs, NoSQL, third-party APIs, cloud services. In development.
+- [Hermès (ἙΡΜΗ͂Σ) — The messenger](https://kantoaplo.com/#ed-hermes): Orchestration: visual automation workflows, autonomous AI agents able to use tools, data flowing between systems. In development.
+
+## Demo accounts
+
+- Pinax: demo@kantoaplo.com / Pinax2026! (fictional data, changes stay in the browser)
+- Mantis: demo@kantoaplo.com / Mantis2026! (fictional data, changes stay in the browser)
+
+## Glossary (musical words used on the site)
+
+- The score: Your complete application, described as data and shared by every editor.
+- A movement: A specialised editor: interface, services, UML model, tests, analytics, project management.
+- The instrument: The KANTO engine: configurable blocks, nodes and workflows that generate JSON or code.
+- Compose: Design without code: drag, configure, connect — low-code stays possible.
+- Listen to the symphony: Open an editor's interactive demo, with fictional data, right in the browser.
+- In rehearsal: An editor under development: its demo is coming soon.
+- Tune: Configure an editor for your business: vocabulary, rules, blocks and themes.
+- The arrangement: Templates, themes and plugins: the same score, played through another interface.
+- The orchestration: The editors play together: front end, APIs, data and automation answer one another.
+- The repeat: Reuse: a component, a template or a whole project is replayed elsewhere without being rewritten.
+- The audience: Your users: they hear the music, never the cables.
+- Compose your symphony: Contact us for a custom editor, designed with you for your company.
+
+## FAQ
+
+### What is KANTO APLO?
+
+KANTO APLO is a no-code / low-code SaaS platform built by Cephalo Sophie. It brings together twelve visual editors — interface, services and APIs, UML modelling, blocks, API testing, agile project management, web analytics, A/B testing, connectors and orchestration — to build complete business applications without writing code.
+
+### Do I need to know how to code?
+
+No. Everything is composed by drag and drop and configuration. For technical teams every editor stays open: JSON output, generated code, OpenAPI documentation, plugins.
+
+### What can I build?
+
+Web and mobile apps, websites, funnels and quizzes, REST APIs and scheduled jobs, automation workflows, back offices and internal tools, analytics dashboards, and visual editors dedicated to your business.
+
+### Can I try the editors?
+
+Yes: the “Listen to the symphony” button opens each editor’s interactive demo, with fictional data. Pinax (agile project management) and Mantis (web analytics) can be tried with the e-mail demo@kantoaplo.com; your changes stay in your browser.
+
+### Can I get a custom editor?
+
+Yes, that is “Compose your symphony”: we design with you a visual editor dedicated to your business, built on Zeugma and the KANTO engine. Write to contact@cephalosophie.com.
+
+### Where does my data live?
+
+Mantis, the web analytics editor, is designed to be self-hosted: statistics stay on your server, with no third-party cookies. For the other editors, the deployment mode is chosen with you.
+
+### Why Greek names?
+
+Κάντο απλό means “just make it simple”. Each editor bears the Greek word for its role: Tektôn the builder, Logos the rule, Pinax the ledger, Mantis the seer, Hermès the messenger…
+
+### Who builds KANTO APLO?
+
+Cephalo Sophie, a Paris-based software company founded in 2018, which also builds Kýdos Belote.
+
+## Other Cephalo Sophie projects
+
+- [Kýdos Belote](https://kydosbelote.com): Real-time multiplayer belote, a stable of robot players to train, a no-code strategy editor and tournaments of up to 128 players. On Android and iOS.

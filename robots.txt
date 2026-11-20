@@ -1,0 +1,7 @@
+# KANTO APLO — https://kantoaplo.com
+User-agent: *
+Allow: /
+Disallow: /tools/
+Disallow: /images/
+
+Sitemap: https://kantoaplo.com/sitemap.xml

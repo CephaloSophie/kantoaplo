@@ -40,7 +40,7 @@
     return '<' + tag + ' data-fr>' + esc(fr) + '</' + tag + '><' + tag + ' data-en>' + esc(en) + '</' + tag + '>';
   }
   function pad(n) { return n < 10 ? '0' + n : '' + n; }
-  function base(e) { return (e.dir || 'assets/editors/') + e.id + '/'; }
+  function base(e) { return '/' + (e.dir || 'assets/editors/') + e.id + '/'; }
   function shot(e, i) { return base(e) + pad(i + 1) + '.webp'; }
   function thumb(e, i) { return base(e) + 'thumbs/' + pad(i + 1) + '.webp'; }
   function caption(e, i, l) {
@@ -48,6 +48,7 @@
     return list && list[i] ? list[i] : (e.latin + ' — ' + (i + 1));
   }
   function lang() { return root.dataset.lang; }
+  function abs(href) { return /^https?:|^\//.test(href) ? href : '/' + href; }
   function initial(e) { return e.latin.charAt(0).toUpperCase(); }
   function shuffle(a) {
     a = a.slice();
@@ -104,14 +105,14 @@
   /* ════════════════ Ouverture : chiffres clés ════════════════ */
   var live = editors.filter(function (e) { return e.status === 'ready'; }).length;
   $('stats').innerHTML = [
-    [count, 'éditeurs', 'editors'],
-    [live, 'démos en ligne', 'live demos'],
-    [0, 'ligne de code', 'lines of code']
-  ].map(function (s) { return '<li><b>' + s[0] + '</b>' + bi(s[1], s[2]) + '</li>'; }).join('');
+    [count, 'mouvements', 'movements', 'éditeurs visuels', 'visual editors'],
+    [live, 'symphonies à écouter', 'symphonies to hear', 'démos en ligne', 'live demos'],
+    [0, 'ligne de code', 'lines of code', 'à écrire', 'to write']
+  ].map(function (s) { return '<li><b>' + s[0] + '</b>' + bi(s[1], s[2]) + '<small>' + bi(s[3], s[4]) + '</small></li>'; }).join('');
 
   function chip(e) {
-    if (e.status === 'ready') return '<span class="chip ready"><i></i>' + bi('Démo live', 'Live demo') + '</span>';
-    return '<span class="chip pending"><i></i>' + bi('En composition', 'In composition') + (e.version ? ' · ' + esc(e.version) : '') + '</span>';
+    if (e.status === 'ready') return '<span class="chip ready" title="Démo interactive en ligne / Live interactive demo"><i></i>' + bi('En scène · démo live', 'On stage · live demo') + '</span>';
+    return '<span class="chip pending" title="En cours de développement / Under development"><i></i>' + bi('En répétition', 'In rehearsal') + (e.version ? ' · ' + esc(e.version) : '') + '</span>';
   }
 
   /* ════════════════ La partition : mur de captures + index des éditeurs ════════════════
@@ -141,7 +142,7 @@
     return '<li style="--i:' + i + ';' + colorVars(e.accent) + '"><a href="#ed-' + e.id + '" class="inst' + (e.status === 'ready' ? ' is-live' : '') + '">' +
       '<span class="inst-disc" aria-hidden="true">' + initial(e) + '</span>' +
       '<span class="inst-txt"><b>' + esc(e.greek) + '</b><small>' + esc(e.latin) + ' · ' + bi(e.role_fr, e.role_en) + '</small></span>' +
-      '<span class="inst-state" title="' + (e.status === 'ready' ? 'Démo live' : 'En composition') + '"></span></a></li>';
+      '<span class="inst-state" title="' + (e.status === 'ready' ? 'En scène · démo live' : 'En répétition') + '"></span></a></li>';
   }).join('');
 
   /* « En scène » : une capture au hasard s'illumine toutes les 2,8 s. */
@@ -184,10 +185,12 @@
     var feats = (e.features || []).map(function (f, i) { return '<li style="--i:' + i + '">' + bi(f.fr, f.en) + '</li>'; }).join('');
     var actions = '';
     if (e.status === 'ready') {
-      actions += '<a class="btn btn-acc" href="' + esc(e.href) + '" target="_blank" rel="noopener">' +
-        (e.engine ? bi('Démo du moteur ' + engine.name, engine.name + ' engine demo') : bi('Ouvrir la démo', 'Open the demo')) + ' <span aria-hidden="true">↗</span></a>';
+      actions += '<a class="btn btn-acc btn-listen" href="' + esc(abs(e.href)) + '" target="_blank" rel="noopener" title="' + esc('Ouvrir la démo interactive de ' + e.latin + ' / Open the ' + e.latin + ' interactive demo') + '">' +
+        '<span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>' +
+        '<span class="b-main">' + (e.engine ? bi('Écouter l’instrument ' + engine.name, 'Listen to the ' + engine.name + ' instrument') : bi('Écouter la symphonie', 'Listen to the symphony')) + '</span>' +
+        '<span class="demo-tag">' + bi('démo', 'demo') + ' ↗</span></a>';
     }
-    if (e.shots) actions += '<button type="button" class="btn btn-line" data-zoom>' + bi('Plein écran', 'Full screen') + '</button>';
+    if (e.shots) actions += '<button type="button" class="btn btn-line" data-zoom title="' + esc('Voir les captures en plein écran / Full-screen screenshots') + '">' + bi('Lire la partition', 'Read the score') + '<span class="b-tech">' + bi('captures', 'screenshots') + '</span></button>';
     var login = e.login
       ? '<p class="sl-login"><span>' + bi('Connexion de démo', 'Demo sign-in') + '</span><code>' + esc(e.login.user) + '</code><code>' + esc(e.login.password) + '</code></p>'
       : '';
@@ -201,18 +204,24 @@
       for (var i = 0; i < e.shots; i++) {
         strip += '<button type="button" data-go="' + i + '" aria-label="' + esc(e.latin) + ' — ' + (i + 1) + '"><img src="' + thumb(e, i) + '" alt="" loading="lazy" decoding="async"/></button>';
       }
+      // l'album : toutes les captures sont des cartes ; la courante devant,
+      // la précédente inclinée à gauche, la suivante inclinée à droite
+      var cards = '';
+      for (var j = 0; j < e.shots; j++) {
+        cards += '<div class="card" data-i="' + j + '" aria-hidden="true">' +
+          '<div class="frame-bar"><i></i><i></i><i></i><span class="frame-url">' + esc(url) + '</span><span class="frame-count"><b>' + pad(j + 1) + '</b> / ' + pad(e.shots) + '</span></div>' +
+          '<div class="card-view"><img alt="' + esc(caption(e, j, 'fr')) + '" decoding="async"' + (j < 2 || j === e.shots - 1 ? ' src="' + shot(e, j) + '" loading="lazy"' : ' data-src="' + shot(e, j) + '"') + '/></div>' +
+          '<span class="card-hint" aria-hidden="true"></span></div>';
+      }
       stage = '<div class="stage">' +
-        '<div class="stack" aria-hidden="true"><img alt="" loading="lazy" decoding="async" src="' + thumb(e, e.shots > 1 ? 1 : 0) + '"/></div>' +
-        '<figure class="frame">' +
-          '<div class="frame-bar" aria-hidden="true"><i></i><i></i><i></i><span class="frame-url">' + esc(url) + '</span><span class="frame-count"><b>01</b> / ' + pad(e.shots) + '</span></div>' +
-          '<button type="button" class="frame-view" data-zoom aria-label="' + esc(e.latin) + ' — agrandir / enlarge">' +
-            '<img class="on" src="' + shot(e, 0) + '" alt="' + esc(caption(e, 0, 'fr')) + '" loading="lazy" decoding="async"/><img alt="" decoding="async"/>' +
-          '</button>' +
+        '<div class="deck" role="group" aria-roledescription="album" aria-label="' + esc(e.latin) + ' — ' + bi('captures', 'screenshots') + '">' + cards +
           '<span class="frame-tick" aria-hidden="true"></span>' +
-        '</figure>' +
+          (e.shots > 1 ? '<button type="button" class="deck-nav prev" data-step="-1" aria-label="Capture précédente / Previous screenshot"></button><button type="button" class="deck-nav next" data-step="1" aria-label="Capture suivante / Next screenshot"></button>' : '') +
+          '<button type="button" class="deck-zoom" data-zoom aria-label="' + esc(e.latin) + ' — plein écran / full screen"></button>' +
+        '</div>' +
         '<div class="stage-foot">' +
           '<p class="cap" aria-live="polite">' + bi(caption(e, 0, 'fr'), caption(e, 0, 'en')) + '</p>' +
-          (e.shots > 1 ? '<div class="frame-ctrl"><button type="button" data-step="-1" aria-label="Précédente / Previous">←</button><button type="button" data-step="1" aria-label="Suivante / Next">→</button></div>' : '') +
+          (e.shots > 1 ? '<div class="frame-ctrl"><button type="button" data-step="-1" aria-label="Précédente / Previous">←</button><button type="button" data-play aria-label="Lecture / pause"><span class="ic-pause" aria-hidden="true"></span></button><button type="button" data-step="1" aria-label="Suivante / Next">→</button></div>' : '') +
         '</div>' +
         (e.shots > 1 ? '<div class="strip">' + strip + '</div>' : '') +
       '</div>';
@@ -225,7 +234,7 @@
           '<text class="soon-letter" x="200" y="200" text-anchor="middle" dominant-baseline="central">' + esc(e.greek.charAt(0)) + '</text>' +
           '<g class="orb"><text x="200" y="52">♪</text></g><g class="orb b"><text x="200" y="84">♫</text></g><g class="orb c"><text x="200" y="24">♩</text></g>' +
         '</svg>' +
-        '<p class="soon-ver">' + bi('En composition', 'In composition') + (e.version ? ' · ' + esc(e.version) : '') + '</p></div>';
+        '<p class="soon-ver">' + bi('En répétition · bientôt en démo', 'In rehearsal · demo coming soon') + (e.version ? ' · ' + esc(e.version) : '') + '</p></div>';
     }
 
     return '<article class="slide' + (order % 2 ? ' rev' : '') + (e.shots ? '' : ' is-soon') + '" id="ed-' + e.id + '" data-idx="' + e.idx + '" style="' + colorVars(e.accent) + '" aria-labelledby="t-' + e.id + '">' +
@@ -280,7 +289,7 @@
         '<div class="eng-foot">' +
           '<p class="eng-text">' + bi(engine.text_fr, engine.text_en) + '</p>' +
           '<ul class="eng-feats">' + engine.features.map(function (f) { return '<li>' + bi(f.fr, f.en) + '</li>'; }).join('') + '</ul>' +
-          '<a class="btn btn-acc" href="' + esc(engine.href) + '" target="_blank" rel="noopener">' + bi('Essayer le moteur ' + engine.name, 'Try the ' + engine.name + ' engine') + ' <span aria-hidden="true">↗</span></a>' +
+          '<a class="btn btn-acc btn-listen" href="' + esc(abs(engine.href)) + '" target="_blank" rel="noopener"><span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="b-main">' + bi('Écouter l’instrument ' + engine.name, 'Listen to the ' + engine.name + ' instrument') + '</span><span class="demo-tag">' + bi('démo', 'demo') + ' ↗</span></a>' +
         '</div>' +
       '</div></section>';
   }
@@ -291,6 +300,8 @@
     html += slide(e, i);
   });
   $('movementsBody').innerHTML = html;
+  var seoStatic = $('seoEditors');
+  if (seoStatic) seoStatic.remove();
   var last = slogans[slogans.length - 1];
   if (last) $('finale').innerHTML = bi(last.fr, last.en);
 
@@ -315,9 +326,8 @@
   $('menuList').innerHTML = editors.map(function (e, i) {
     return '<li style="--i:' + i + '"><a href="#ed-' + e.id + '" data-idx="' + i + '" style="--c:' + e.accent + '">' +
       '<span class="mi-num">' + e.num + '</span><span class="mi-greek">' + esc(e.greek) + '</span><span class="mi-dot"></span>' +
-      '<span class="mi-sub">' + esc(e.latin) + ' · ' + bi(e.role_fr, e.role_en) + '</span></a></li>';
+      '<span class="mi-sub">' + esc(e.latin) + ' · ' + bi(e.role_fr, e.role_en) + (e.status === 'ready' ? ' <em class="mi-demo">♫ ' + bi('démo', 'demo') + '</em>' : ' <em class="mi-reh">' + bi('en répétition', 'in rehearsal') + '</em>') + '</span></a></li>';
   }).join('');
-  if (engineEds.length > 1) $('menuFoot').insertAdjacentHTML('afterbegin', '<a href="#engine">' + bi('Le moteur ' + engine.name, 'The ' + engine.name + ' engine') + '</a>');
 
   $('scoreList').innerHTML = editors.map(function (e, i) {
     return '<li style="--i:' + i + '"><a href="#ed-' + e.id + '" data-idx="' + i + '" style="' + colorVars(e.accent) + '" aria-label="' + esc(e.latin + ' — ' + e.greek) + '">' +
@@ -393,7 +403,7 @@
     npName.innerHTML = '<span><span class="n">' + (isEngine ? '⚙' : e.num) + '</span><span class="g">' + esc(isEngine ? engine.name : e.greek) + '</span></span>';
     $('npPrev').disabled = pos <= 0;
     $('npNext').disabled = pos >= slides.length - 1;
-    galleries.forEach(function (g) { if (g.el === el) g.play(); else g.stop(false); });
+    galleries.forEach(function (g) { if (g.el === el) g.play(); else { g.stop(); clearTimeout(g.resume); } });
   }
 
   var movementsEl = $('movements');
@@ -431,8 +441,8 @@
     if (/input|textarea|select/i.test((document.activeElement || {}).tagName || '')) return;
     if (ev.key === 'ArrowDown' || ev.key === 'PageDown') { ev.preventDefault(); goSlide(1); }
     else if (ev.key === 'ArrowUp' || ev.key === 'PageUp') { ev.preventDefault(); goSlide(-1); }
-    else if (ev.key === 'ArrowRight') { var g = galleryOf(current); if (g) { g.stop(true); g.go(g.pos + 1); } }
-    else if (ev.key === 'ArrowLeft') { var h = galleryOf(current); if (h) { h.stop(true); h.go(h.pos - 1); } }
+    else if (ev.key === 'ArrowRight') { var g = galleryOf(current); if (g) { g.user(); g.go(g.pos + 1); } }
+    else if (ev.key === 'ArrowLeft') { var h = galleryOf(current); if (h) { h.user(); h.go(h.pos - 1); } }
   });
 
   /* En-tête opaque dès qu'on quitte le haut de l'ouverture */
@@ -443,74 +453,83 @@
   new IntersectionObserver(function (en) { hdr.classList.toggle('solid', !en[0].isIntersecting); }).observe(sentinel);
 
   /* ════════════════ Galeries ════════════════ */
+  /* L'album d'un éditeur : chaque capture est une carte. Une classe de position
+     (courante, précédente, suivante, lointaine) place chaque carte ; le CSS anime
+     le passage d'une position à l'autre. Lecture automatique tant que la
+     diapositive est à l'écran ; elle s'interrompt au survol de l'album et
+     reprend quelques secondes après une action du visiteur. */
+  var RESUME_MS = 9000;
   function Gallery(el, e) {
-    this.el = el; this.e = e; this.pos = 0; this.token = 0; this.timer = 0; this.user = false;
-    this.layers = el.querySelectorAll('.frame-view img');
-    this.cur = 0;
-    this.count = el.querySelector('.frame-count b');
+    this.el = el; this.e = e; this.n = e.shots; this.pos = 0; this.timer = 0; this.resume = 0;
+    this.hover = false; this.paused = false;
+    this.deck = el.querySelector('.deck');
+    this.cards = Array.prototype.slice.call(el.querySelectorAll('.card'));
     this.cap = el.querySelector('.cap');
-    this.stack = el.querySelector('.stack img');
     this.thumbs = el.querySelectorAll('.strip button');
     this.strip = el.querySelector('.strip');
     this.tick = el.querySelector('.frame-tick');
+    this.playBtn = el.querySelector('[data-play]');
     var self = this;
     el.addEventListener('click', function (ev) {
-      var t = ev.target.closest('[data-step],[data-go],[data-zoom]');
+      var t = ev.target.closest('[data-step],[data-go],[data-zoom],[data-play],.card');
       if (!t) return;
+      if (t.hasAttribute('data-play')) { self.paused = !self.paused; self.paused ? self.stop() : self.play(); self.syncPlay(); return; }
       if (t.hasAttribute('data-zoom')) return openLightbox(self.e, self.pos);
-      self.stop(true);
-      self.go(t.hasAttribute('data-step') ? self.pos + Number(t.dataset.step) : Number(t.dataset.go));
+      var target = t.hasAttribute('data-step') ? self.pos + Number(t.dataset.step)
+        : t.hasAttribute('data-go') ? Number(t.dataset.go) : Number(t.dataset.i);
+      if (t.classList.contains('card') && target === self.pos) return openLightbox(self.e, self.pos);
+      self.user();
+      self.go(target);
     });
-    var stage = el.querySelector('.frame-view'), sx = 0, sy = 0;
-    stage.addEventListener('touchstart', function (ev) { sx = ev.touches[0].clientX; sy = ev.touches[0].clientY; }, { passive: true });
-    stage.addEventListener('touchend', function (ev) {
+    this.deck.addEventListener('pointerenter', function () { self.hover = true; self.stop(); });
+    this.deck.addEventListener('pointerleave', function () { self.hover = false; if (self.el === current) self.play(); });
+    var sx = 0, sy = 0;
+    this.deck.addEventListener('touchstart', function (ev) { sx = ev.touches[0].clientX; sy = ev.touches[0].clientY; }, { passive: true });
+    this.deck.addEventListener('touchend', function (ev) {
       var dx = ev.changedTouches[0].clientX - sx, dy = ev.changedTouches[0].clientY - sy;
-      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) { self.stop(true); self.go(self.pos + (dx < 0 ? 1 : -1)); }
+      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) { self.user(); self.go(self.pos + (dx < 0 ? 1 : -1)); }
     }, { passive: true });
-    el.addEventListener('mouseenter', function () { self.stop(false); });
-    el.addEventListener('mouseleave', function () { if (el.classList.contains('is-active')) self.play(); });
-    var first = this.layers[0], view = el.querySelector('.frame-view');
-    var fit = function () { if (first.naturalWidth) view.style.aspectRatio = first.naturalWidth + ' / ' + first.naturalHeight; };
+    // le format de l'album suit celui des captures de l'éditeur
+    var first = this.cards[0].querySelector('img');
+    var fit = function () { if (first.naturalWidth) self.deck.style.setProperty('--ar', first.naturalWidth + ' / ' + (first.naturalHeight + 30)); };
     if (first.complete) fit(); else first.addEventListener('load', fit, { once: true });
+    this.place();
     this.updateUI();
   }
-  Gallery.prototype.go = function (i) {
-    var n = this.e.shots;
-    i = (i + n) % n;
-    if (i === this.pos) return;
-    var dir = i > this.pos ? 1 : -1;
-    this.pos = i;
-    this.updateUI();
-    var token = ++this.token, self = this;
-    var incoming = this.layers[1 - this.cur], outgoing = this.layers[this.cur];
-    incoming.classList.remove('on', 'from-l', 'from-r');
-    incoming.classList.add(dir > 0 ? 'from-r' : 'from-l');
-    incoming.src = shot(this.e, i);
-    incoming.alt = caption(this.e, i, lang());
-    var swap = function () {
-      if (token !== self.token) return;
-      outgoing.classList.remove('on');
-      incoming.classList.add('on');
-      self.cur = 1 - self.cur;
-      self.preload(i + 1);
-    };
-    if (incoming.decode) incoming.decode().then(swap, swap); else incoming.onload = swap;
+  Gallery.prototype.offset = function (i) {
+    var n = this.n, d = ((i - this.pos) % n + n) % n;
+    if (d > n / 2) d -= n;
+    if (n === 2 && d === -1) d = 1;
+    return d;
   };
-  Gallery.prototype.preload = function (i) {
-    if (this.e.shots < 2) return;
-    var img = new Image();
-    img.src = shot(this.e, (i + this.e.shots) % this.e.shots);
+  Gallery.prototype.place = function () {
+    var self = this;
+    this.cards.forEach(function (c, i) {
+      var d = self.offset(i);
+      c.className = 'card ' + (d === 0 ? 'is-cur' : d === -1 ? 'is-prev' : d === 1 ? 'is-next' : d < 0 ? 'is-far-l' : 'is-far-r');
+      c.dataset.hint = d === -1 ? '‹' : d === 1 ? '›' : '';
+      if (Math.abs(d) <= 2) {
+        var img = c.querySelector('img');
+        if (img.dataset.src) { img.src = img.dataset.src; img.removeAttribute('data-src'); }
+      }
+    });
+  };
+  Gallery.prototype.go = function (i) {
+    i = ((i % this.n) + this.n) % this.n;
+    if (i === this.pos) return;
+    this.pos = i;
+    this.place();
+    this.updateUI();
+    if (this.timer) this.runTick();
   };
   Gallery.prototype.updateUI = function () {
     var p = this.pos, self = this, e = this.e;
-    if (this.count) this.count.textContent = pad(p + 1);
     if (this.cap) {
       this.cap.classList.remove('swap');
       void this.cap.offsetWidth;
       this.cap.innerHTML = bi(caption(e, p, 'fr'), caption(e, p, 'en'));
       this.cap.classList.add('swap');
     }
-    if (this.stack && e.shots > 1) this.stack.src = thumb(e, (p + 1) % e.shots);
     Array.prototype.forEach.call(this.thumbs, function (b, j) {
       var on = j === p;
       b.classList.toggle('on', on);
@@ -521,12 +540,19 @@
       }
     });
   };
-  Gallery.prototype.play = function () {
-    if (this.user || reduceMotion || this.e.shots < 2 || this.timer || document.hidden) return;
+  /* une action du visiteur : pause, puis reprise après RESUME_MS */
+  Gallery.prototype.user = function () {
     var self = this;
-    this.preload(this.pos + 1);
+    this.stop();
+    clearTimeout(this.resume);
+    this.resume = setTimeout(function () { if (self.el === current && !self.hover) self.play(); }, RESUME_MS);
+  };
+  Gallery.prototype.play = function () {
+    if (reduceMotion || this.n < 2 || this.timer || this.paused || this.hover || document.hidden) return;
+    var self = this;
     this.runTick();
-    this.timer = setInterval(function () { self.go(self.pos + 1); self.runTick(); }, AUTOPLAY_MS);
+    this.timer = setInterval(function () { self.go(self.pos + 1); }, AUTOPLAY_MS);
+    this.syncPlay();
   };
   Gallery.prototype.runTick = function () {
     if (!this.tick) return;
@@ -535,10 +561,14 @@
     void this.tick.offsetWidth;
     this.tick.classList.add('run');
   };
-  Gallery.prototype.stop = function (byUser) {
-    if (byUser) this.user = true;
+  Gallery.prototype.stop = function () {
     clearInterval(this.timer); this.timer = 0;
     if (this.tick) this.tick.classList.remove('run');
+    this.syncPlay();
+  };
+  Gallery.prototype.syncPlay = function () {
+    if (!this.playBtn) return;
+    this.playBtn.classList.toggle('is-paused', this.paused);
   };
 
   var galleries = [];
@@ -548,7 +578,7 @@
   });
   function galleryOf(el) { for (var i = 0; i < galleries.length; i++) if (galleries[i].el === el) return galleries[i]; return null; }
   document.addEventListener('visibilitychange', function () {
-    galleries.forEach(function (g) { if (document.hidden) g.stop(false); else if (g.el === current) g.play(); });
+    galleries.forEach(function (g) { if (document.hidden) g.stop(); else if (g.el === current) g.play(); });
   });
 
   /* ════════════════ Couches modales (menu, visionneuse) ════════════════ */
@@ -621,7 +651,7 @@
     lbState.e = e; lbState.i = i;
     lbRender(false);
     showLayer(lb);
-    galleries.forEach(function (g) { g.stop(false); });
+    galleries.forEach(function (g) { g.stop(); });
     setTimeout(function () { $('lbClose').focus({ preventScroll: true }); }, 60);
   }
   function lbStep(d) {
@@ -629,6 +659,8 @@
     if (n < 2) return;
     lbState.i = (lbState.i + d + n) % n;
     lbRender(true);
+    var g = galleryOf(current);
+    if (g && g.e === lbState.e) g.go(lbState.i);
   }
   function closeLightbox() {
     if (lb.hidden) return;

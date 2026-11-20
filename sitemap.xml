@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>https://kantoaplo.com/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://kantoaplo.com/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kantoaplo.com/en/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://kantoaplo.com/"/>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/skopos/01.webp</image:loc><image:title>Skopos — Le guetteur</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/skopos/02.webp</image:loc><image:title>Skopos — Le guetteur</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/skopos/03.webp</image:loc><image:title>Skopos — Le guetteur</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/skopos/04.webp</image:loc><image:title>Skopos — Le guetteur</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/skopos/05.webp</image:loc><image:title>Skopos — Le guetteur</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/skopos/06.webp</image:loc><image:title>Skopos — Le guetteur</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/skopos/07.webp</image:loc><image:title>Skopos — Le guetteur</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/skopos/08.webp</image:loc><image:title>Skopos — Le guetteur</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/skopos/09.webp</image:loc><image:title>Skopos — Le guetteur</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/skopos/10.webp</image:loc><image:title>Skopos — Le guetteur</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/hephaistos/01.webp</image:loc><image:title>Héphaïstos — La forge</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/hephaistos/02.webp</image:loc><image:title>Héphaïstos — La forge</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/zeugma/01.webp</image:loc><image:title>Zeugma — Kanto : un programme en dominos, fils et déclarations</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/zeugma/02.webp</image:loc><image:title>Zeugma — Template Console : sombre, néon, pour les développeurs</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/zeugma/03.webp</image:loc><image:title>Zeugma — Plugin « Carnet » installé : template sépia en ruban</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/zeugma/04.webp</image:loc><image:title>Zeugma — Personnaliser l’interface : templates, thèmes, connexions</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/zeugma/05.webp</image:loc><image:title>Zeugma — Extensions : installer un plugin depuis le store</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/zeugma/06.webp</image:loc><image:title>Zeugma — Extensions installées : désactiver, exporter, désinstaller</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/zeugma/07.webp</image:loc><image:title>Zeugma — Accueil du studio : démarrer, langages, modèles</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/zeugma/08.webp</image:loc><image:title>Zeugma — Nouveau projet : un langage, un modèle</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/zeugma/09.webp</image:loc><image:title>Zeugma — Concepteur : l’éditeur se compile en direct, à côté</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/zeugma/10.webp</image:loc><image:title>Zeugma — Créer un éditeur : neuf points de départ</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/zeugma/11.webp</image:loc><image:title>Zeugma — Scénarios d’API (TNR) : tableau de bord de la campagne</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/zeugma/12.webp</image:loc><image:title>Zeugma — Déroulé : un couloir par scénario</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/zeugma/13.webp</image:loc><image:title>Zeugma — Effet domino : l’exécution pas à pas</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/zeugma/14.webp</image:loc><image:title>Zeugma — Éditeur de circuit : neuf niveaux de portes logiques</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/zeugma/15.webp</image:loc><image:title>Zeugma — Machine à états : transitions et gardes</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/zeugma/16.webp</image:loc><image:title>Zeugma — Le même projet en diagramme</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/zeugma/17.webp</image:loc><image:title>Zeugma — Quatre volets : grille 2 × 2</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/zeugma/18.webp</image:loc><image:title>Zeugma — Créateur de quiz : 20 questions, aiguillages, sauts</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/typos/01.webp</image:loc><image:title>Typos — Le moule</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/typos/02.webp</image:loc><image:title>Typos — Le moule</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/typos/03.webp</image:loc><image:title>Typos — Le moule</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/typos/04.webp</image:loc><image:title>Typos — Le moule</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/typos/05.webp</image:loc><image:title>Typos — Le moule</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/typos/06.webp</image:loc><image:title>Typos — Le moule</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/typos/07.webp</image:loc><image:title>Typos — Le moule</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/typos/08.webp</image:loc><image:title>Typos — Le moule</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/typos/09.webp</image:loc><image:title>Typos — Le moule</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/typos/10.webp</image:loc><image:title>Typos — Le moule</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/typos/11.webp</image:loc><image:title>Typos — Le moule</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/tekton/01.webp</image:loc><image:title>Tektôn — Le bâtisseur</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/tekton/02.webp</image:loc><image:title>Tektôn — Le bâtisseur</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/tekton/03.webp</image:loc><image:title>Tektôn — Le bâtisseur</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/tekton/04.webp</image:loc><image:title>Tektôn — Le bâtisseur</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/tekton/05.webp</image:loc><image:title>Tektôn — Le bâtisseur</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/tekton/06.webp</image:loc><image:title>Tektôn — Le bâtisseur</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/tekton/07.webp</image:loc><image:title>Tektôn — Le bâtisseur</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/tekton/08.webp</image:loc><image:title>Tektôn — Le bâtisseur</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/tekton/09.webp</image:loc><image:title>Tektôn — Le bâtisseur</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/tekton/10.webp</image:loc><image:title>Tektôn — Le bâtisseur</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/tekton/11.webp</image:loc><image:title>Tektôn — Le bâtisseur</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/logos/01.webp</image:loc><image:title>Logos — La règle</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/logos/02.webp</image:loc><image:title>Logos — La règle</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/logos/03.webp</image:loc><image:title>Logos — La règle</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/logos/04.webp</image:loc><image:title>Logos — La règle</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/skhema/01.webp</image:loc><image:title>Skhêma — Le schéma</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/skhema/02.webp</image:loc><image:title>Skhêma — Le schéma</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/skhema/03.webp</image:loc><image:title>Skhêma — Le schéma</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/skhema/04.webp</image:loc><image:title>Skhêma — Le schéma</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/skhema/05.webp</image:loc><image:title>Skhêma — Le schéma</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/skhema/06.webp</image:loc><image:title>Skhêma — Le schéma</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/skhema/07.webp</image:loc><image:title>Skhêma — Le schéma</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/skhema/08.webp</image:loc><image:title>Skhêma — Le schéma</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/skhema/09.webp</image:loc><image:title>Skhêma — Le schéma</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/pinax/01.webp</image:loc><image:title>Pinax — Board du sprint en cours, regroupé par sprint</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/pinax/02.webp</image:loc><image:title>Pinax — Vue Jira : colonnes de statut, points, assignés</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/pinax/03.webp</image:loc><image:title>Pinax — Une tâche : détails, commentaires, réactions, historique</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/pinax/04.webp</image:loc><image:title>Pinax — Planification : sprint, version, report des restes</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/pinax/05.webp</image:loc><image:title>Pinax — Dashboard du sprint : burndown, charge, bloquants</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/pinax/06.webp</image:loc><image:title>Pinax — Pilotage produit : vélocité, avancement par version</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/pinax/07.webp</image:loc><image:title>Pinax — Vue liste, groupée par sprint</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/pinax/08.webp</image:loc><image:title>Pinax — Un board par personne</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/pinax/09.webp</image:loc><image:title>Pinax — Rituels : refinement, point technique, démo, rétro</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/pinax/10.webp</image:loc><image:title>Pinax — Point architecture : un ADR complet</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/pinax/11.webp</image:loc><image:title>Pinax — Journal d’activité filtrable</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/pinax/12.webp</image:loc><image:title>Pinax — Sprints et versions : démarrer, clôturer, publier</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/pinax/13.webp</image:loc><image:title>Pinax — Workflow : statuts et catégories</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/pinax/14.webp</image:loc><image:title>Pinax — Thème clair, projet Orbit Mobile</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/pinax/15.webp</image:loc><image:title>Pinax — Thème Mac, dashboard Helios Data</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/pinax/16.webp</image:loc><image:title>Pinax — Projets de l’espace de travail</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/pinax/17.webp</image:loc><image:title>Pinax — Connexion de la démo</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/mantis/01.webp</image:loc><image:title>Mantis — Tableau de bord : vue d’ensemble, évolution, temps réel</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/mantis/02.webp</image:loc><image:title>Mantis — Design « Nébuleuse » : verre, dock et lanceur</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/mantis/03.webp</image:loc><image:title>Mantis — Design « Horizon » : barre supérieure à méga-menus</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/mantis/04.webp</image:loc><image:title>Mantis — Mode sombre, design « Mantis Studio »</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/mantis/05.webp</image:loc><image:title>Mantis — Insights bayésiens : a posteriori par canal</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/mantis/06.webp</image:loc><image:title>Mantis — Test A/B : progression, diagnostics, bandit</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/mantis/07.webp</image:loc><image:title>Mantis — Expérimentations : A/B, multivarié, feature flags</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/mantis/08.webp</image:loc><image:title>Mantis — Cohortes : rétention semaine par semaine</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/mantis/09.webp</image:loc><image:title>Mantis — Rétention client : actifs, nouveaux, revenus</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/mantis/10.webp</image:loc><image:title>Mantis — Temps réel : visiteurs actifs et dernières visites</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/mantis/11.webp</image:loc><image:title>Mantis — Journal des visites</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/mantis/12.webp</image:loc><image:title>Mantis — Profil d’un visiteur et son parcours</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/mantis/13.webp</image:loc><image:title>Mantis — Audience par pays, sans ligne « Autres »</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/mantis/14.webp</image:loc><image:title>Mantis — Acquisition par canal</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/mantis/15.webp</image:loc><image:title>Mantis — Canaux, référents, pages et localisation</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/mantis/16.webp</image:loc><image:title>Mantis — Performance : Core Web Vitals au 75e centile</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/mantis/17.webp</image:loc><image:title>Mantis — Registre des paramètres de campagne</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/mantis/18.webp</image:loc><image:title>Mantis — Coffre de données : cookies, user agents, recherches</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/mantis/19.webp</image:loc><image:title>Mantis — Studio d’apparence : trois designs, variantes, marque blanche</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/mantis/20.webp</image:loc><image:title>Mantis — Palette de commandes (Ctrl K)</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/mantis/21.webp</image:loc><image:title>Mantis — Code de suivi à coller avant &lt;/head&gt;</image:title></image:image>
+    <image:image><image:loc>https://kantoaplo.com/assets/editors/mantis/22.webp</image:loc><image:title>Mantis — Connexion</image:title></image:image>
+  </url>
+  <url>
+    <loc>https://kantoaplo.com/en/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://kantoaplo.com/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kantoaplo.com/en/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://kantoaplo.com/"/>
+  </url>
+  <url>
+    <loc>https://kantoaplo.com/demos/skopos/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://kantoaplo.com/demos/hephaistos/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://kantoaplo.com/demos/zeugma/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://kantoaplo.com/demos/typos/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://kantoaplo.com/demos/tekton/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://kantoaplo.com/demos/skhema/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://kantoaplo.com/demos/pinax/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://kantoaplo.com/demos/mantis/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+</urlset>

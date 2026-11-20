@@ -537,7 +537,10 @@
       '#demo-kit-login button{all:unset;cursor:pointer;display:block;text-align:center;width:100%;box-sizing:border-box;padding:10px;border-radius:10px;background:' + accent + ';color:#111;font-weight:700}' +
       '#demo-kit-login button:focus-visible{outline:2px solid #fff;outline-offset:2px}' +
       '@keyframes dkIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}' +
-      '@media (prefers-reduced-motion:reduce){#demo-kit-login{animation:none}}';
+      '@media (prefers-reduced-motion:reduce){#demo-kit-login{animation:none}}' +
+      '.dk-creds{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin:0 0 16px;padding:10px 12px;border-radius:10px;border:1px dashed ' + accent + ';background:' + accent + '1a;font:12.5px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;color:inherit}' +
+      '.dk-creds-t{flex-basis:100%;font-weight:700;letter-spacing:.04em;color:' + accent + '}' +
+      '.dk-creds code{font:12px ui-monospace,SFMono-Regular,Menlo,monospace;padding:2px 6px;border-radius:5px;background:rgba(127,127,127,.18);user-select:all}';
     if (CFG.ui.badgeRight) st.textContent += '#demo-kit-badge{left:auto;right:14px}#demo-kit-login{bottom:64px}';
     document.head.appendChild(st);
     var b = document.createElement('div');
@@ -549,10 +552,34 @@
     setInterval(checkLogin, 700);
   }
 
+  /* Les identifiants de démo, écrits dans le formulaire de connexion lui-même,
+     et les champs pré-remplis (une seule fois par formulaire). */
+  function inlineCreds() {
+    var c = CFG.ui.credentials;
+    var pass = document.querySelector('input[type=password]');
+    if (!pass || !pass.offsetParent) return;
+    var form = pass.form || pass.closest('form') || pass.parentElement.parentElement;
+    if (!form || form.querySelector('.dk-creds')) return;
+    var box = document.createElement('div');
+    box.className = 'dk-creds';
+    box.setAttribute('role', 'note');
+    box.innerHTML = '<span class="dk-creds-t">♫ Démo · identifiants</span>' +
+      (c.email ? '<span>E-mail <code>' + c.email + '</code></span>' : '') +
+      (c.user && c.user !== c.email ? '<span>ou identifiant <code>' + c.user + '</code></span>' : '') +
+      '<span>Mot de passe <code>' + c.password + '</code></span>';
+    form.insertBefore(box, form.firstChild);
+    if (!form.dataset.dkFilled) {
+      form.dataset.dkFilled = '1';
+      setTimeout(fillInputs, 60);
+    }
+  }
+
   function checkLogin() {
     var c = CFG.ui && CFG.ui.credentials;
     if (!c) return;
-    var onLogin = new RegExp(CFG.ui.loginPath || 'login').test(location.pathname + location.hash) || !!document.querySelector('input[type=password]');
+    inlineCreds();
+    // la carte flottante ne sert que si les identifiants n'ont pas pu être écrits dans le formulaire
+    var onLogin = (new RegExp(CFG.ui.loginPath || 'login').test(location.pathname + location.hash) || !!document.querySelector('input[type=password]')) && !document.querySelector('.dk-creds');
     var card = document.getElementById('demo-kit-login');
     if (onLogin && !card) {
       card = document.createElement('div');

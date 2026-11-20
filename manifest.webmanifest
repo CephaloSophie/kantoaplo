@@ -1,0 +1,35 @@
+{
+  "name": "KANTO APLO — no-code / low-code",
+  "short_name": "KANTO APLO",
+  "description": "KANTO APLO, la plateforme SaaS no-code / low-code de Cephalo Sophie : douze éditeurs visuels — front, APIs, UML, workflows, gestion de projet agile, analyse web, tests A/B — pour créer vos applications métier sans coder. Démos en ligne.",
+  "lang": "fr",
+  "dir": "ltr",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#08090d",
+  "theme_color": "#08090d",
+  "categories": [
+    "business",
+    "productivity",
+    "developer"
+  ],
+  "icons": [
+    {
+      "src": "/assets/brand/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/brand/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/brand/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

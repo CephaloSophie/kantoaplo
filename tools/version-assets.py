@@ -11,7 +11,7 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-PAGES = ['index.html', '404.html']
+PAGES = ['index.html', 'en/index.html', '404.html']
 REF = re.compile(r'((?:href|src)=")(/?)((?:assets)/[^"?#]+\.(?:css|js))(\?v=[0-9a-f]+)?(")')
 
 

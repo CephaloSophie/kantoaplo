@@ -220,5 +220,61 @@ window.KANTO = {
     { fr: 'Tu composes. On joue.', en: 'You compose. We play.' }
   ],
 
+  /* Le solfège : chaque mot de musicien de la vitrine, et ce qu'il veut dire techniquement. */
+  solfege: [
+    { glyph: '𝄞', fr: 'La partition', en: 'The score',
+      text_fr: 'Votre application complète, décrite en données et partagée par tous les éditeurs.', text_en: 'Your complete application, described as data and shared by every editor.' },
+    { glyph: 'Ⅰ', fr: 'Un mouvement', en: 'A movement',
+      text_fr: 'Un éditeur spécialisé : interface, services, modèle UML, tests, analyse, gestion de projet.', text_en: 'A specialised editor: interface, services, UML model, tests, analytics, project management.' },
+    { glyph: '⚙', fr: "L'instrument", en: 'The instrument',
+      text_fr: 'Le moteur KANTO : blocs, nœuds et workflows configurables qui génèrent du JSON ou du code.', text_en: 'The KANTO engine: configurable blocks, nodes and workflows that generate JSON or code.' },
+    { glyph: '♪', fr: 'Composer', en: 'Compose',
+      text_fr: 'Concevoir sans code : glisser-déposer, configurer, relier — le low-code reste possible.', text_en: 'Design without code: drag, configure, connect — low-code stays possible.' },
+    { glyph: '♫', fr: 'Écouter la symphonie', en: 'Listen to the symphony',
+      text_fr: "Ouvrir la démo interactive d'un éditeur, avec des données fictives, directement dans le navigateur.", text_en: "Open an editor's interactive demo, with fictional data, right in the browser." },
+    { glyph: '𝄐', fr: 'En répétition', en: 'In rehearsal',
+      text_fr: 'Un éditeur en cours de développement : sa démo arrive bientôt.', text_en: 'An editor under development: its demo is coming soon.' },
+    { glyph: '♯', fr: 'Accorder', en: 'Tune',
+      text_fr: 'Configurer un éditeur pour votre métier : vocabulaire, règles, blocs et thèmes.', text_en: 'Configure an editor for your business: vocabulary, rules, blocks and themes.' },
+    { glyph: '𝄢', fr: "L'arrangement", en: 'The arrangement',
+      text_fr: 'Templates, thèmes et plugins : la même partition, jouée par une autre interface.', text_en: 'Templates, themes and plugins: the same score, played through another interface.' },
+    { glyph: '𝆒', fr: "L'orchestration", en: 'The orchestration',
+      text_fr: "Les éditeurs jouent ensemble : le front, les APIs, les données et l'automatisation se répondent.", text_en: 'The editors play together: front end, APIs, data and automation answer one another.' },
+    { glyph: '𝄋', fr: 'La reprise', en: 'The repeat',
+      text_fr: 'Réutiliser : un composant, un modèle ou un projet entier se rejoue ailleurs sans être réécrit.', text_en: 'Reuse: a component, a template or a whole project is replayed elsewhere without being rewritten.' },
+    { glyph: '♬', fr: 'Le public', en: 'The audience',
+      text_fr: 'Vos utilisateurs : ils entendent la musique, jamais les câbles.', text_en: 'Your users: they hear the music, never the cables.' },
+    { glyph: '✎', fr: 'Composer votre symphonie', en: 'Compose your symphony',
+      text_fr: 'Nous contacter pour un éditeur personnalisé, conçu avec vous pour votre entreprise.', text_en: 'Contact us for a custom editor, designed with you for your company.' }
+  ],
+
+  /* Les questions du public (affichées dans la page et publiées pour les moteurs de recherche). */
+  faq: [
+    { q_fr: "Qu'est-ce que KANTO APLO ?", q_en: 'What is KANTO APLO?',
+      a_fr: "KANTO APLO est une plateforme SaaS no-code / low-code conçue par Cephalo Sophie. Elle réunit douze éditeurs visuels — interface, services et APIs, modélisation UML, blocs, tests d'API, gestion de projet agile, analyse web, tests A/B, connecteurs et orchestration — pour créer des applications métier complètes sans écrire de code.",
+      a_en: 'KANTO APLO is a no-code / low-code SaaS platform built by Cephalo Sophie. It brings together twelve visual editors — interface, services and APIs, UML modelling, blocks, API testing, agile project management, web analytics, A/B testing, connectors and orchestration — to build complete business applications without writing code.' },
+    { q_fr: 'Faut-il savoir programmer ?', q_en: 'Do I need to know how to code?',
+      a_fr: "Non. Tout se compose par glisser-déposer et configuration. Pour les équipes techniques, chaque éditeur reste ouvert : sortie JSON, code généré, documentation OpenAPI, plugins.",
+      a_en: 'No. Everything is composed by drag and drop and configuration. For technical teams every editor stays open: JSON output, generated code, OpenAPI documentation, plugins.' },
+    { q_fr: 'Quelles applications peut-on créer ?', q_en: 'What can I build?',
+      a_fr: "Des applications web et mobiles, des sites, des funnels et des quiz, des APIs REST et des tâches planifiées, des workflows d'automatisation, des back-offices et outils internes, des tableaux de bord analytiques, des éditeurs visuels propres à votre métier.",
+      a_en: 'Web and mobile apps, websites, funnels and quizzes, REST APIs and scheduled jobs, automation workflows, back offices and internal tools, analytics dashboards, and visual editors dedicated to your business.' },
+    { q_fr: 'Peut-on essayer les éditeurs ?', q_en: 'Can I try the editors?',
+      a_fr: "Oui : le bouton « Écouter la symphonie » ouvre la démo interactive de chaque éditeur, avec des données fictives. Pinax (gestion de projet agile) et Mantis (analyse web) se testent avec l'e-mail demo@kantoaplo.com ; vos modifications restent dans votre navigateur.",
+      a_en: 'Yes: the “Listen to the symphony” button opens each editor’s interactive demo, with fictional data. Pinax (agile project management) and Mantis (web analytics) can be tried with the e-mail demo@kantoaplo.com; your changes stay in your browser.' },
+    { q_fr: 'Peut-on obtenir un éditeur sur mesure ?', q_en: 'Can I get a custom editor?',
+      a_fr: "Oui, c'est « Composer votre symphonie » : nous concevons avec vous un éditeur visuel dédié à votre métier, bâti sur Zeugma et le moteur KANTO. Écrivez à contact@cephalosophie.com.",
+      a_en: 'Yes, that is “Compose your symphony”: we design with you a visual editor dedicated to your business, built on Zeugma and the KANTO engine. Write to contact@cephalosophie.com.' },
+    { q_fr: 'Où restent mes données ?', q_en: 'Where does my data live?',
+      a_fr: "Mantis, l'analyse web, est conçu pour être auto-hébergé : les statistiques restent sur votre serveur, sans cookie tiers. Pour les autres éditeurs, le mode de déploiement se choisit avec vous.",
+      a_en: 'Mantis, the web analytics editor, is designed to be self-hosted: statistics stay on your server, with no third-party cookies. For the other editors, the deployment mode is chosen with you.' },
+    { q_fr: 'Pourquoi des noms grecs ?', q_en: 'Why Greek names?',
+      a_fr: "Κάντο απλό signifie « rends-le simple ». Chaque éditeur porte le mot grec de son rôle : Tektôn le bâtisseur, Logos la règle, Pinax le registre, Mantis le devin, Hermès le messager…",
+      a_en: 'Κάντο απλό means “just make it simple”. Each editor bears the Greek word for its role: Tektôn the builder, Logos the rule, Pinax the ledger, Mantis the seer, Hermès the messenger…' },
+    { q_fr: 'Qui développe KANTO APLO ?', q_en: 'Who builds KANTO APLO?',
+      a_fr: 'Cephalo Sophie, éditeur de logiciels basé à Paris depuis 2018, qui conçoit aussi Kýdos Belote.',
+      a_en: 'Cephalo Sophie, a Paris-based software company founded in 2018, which also builds Kýdos Belote.' }
+  ],
+
   clients: ['IFPEN', 'La Poste', 'Docaposte', 'LeadsHook', 'Softia', 'JCDecaux', 'Genybet', 'Allianz']
 };
