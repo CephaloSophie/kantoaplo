@@ -240,13 +240,13 @@ function editorsStatic() {
 }
 function solfegeStatic() {
   return '<ul class="sol-grid">\n' + K.solfege.map((s, i) =>
-    `  <li data-reveal style="--d:${(i % 4) * 80}ms"><article class="sol-card"><span class="sol-glyph" aria-hidden="true">${esc(s.glyph)}</span>` +
+    `  <li data-anim style="--d:${(i % 4) * 80}ms"><article class="sol-card"><span class="sol-glyph" aria-hidden="true">${esc(s.glyph)}</span>` +
     `<h3 class="sol-term">${bi(s.fr, s.en)}</h3><span class="sol-eq">${bi('en clair', 'in plain words')}</span>` +
     `<p class="sol-def">${bi(s.text_fr, s.text_en)}</p></article></li>`).join('\n') + '\n</ul>';
 }
 function faqStatic() {
   return '<div class="faq-list">\n' + K.faq.map((q, i) =>
-    `  <details class="faq-item" data-reveal style="--d:${(i % 4) * 60}ms"${i === 0 ? ' open' : ''}><summary>${bi(q.q_fr, q.q_en)}</summary><p>${bi(q.a_fr, q.a_en)}</p></details>`).join('\n') + '\n</div>';
+    `  <details class="faq-item" data-anim style="--d:${(i % 4) * 60}ms"${i === 0 ? ' open' : ''}><summary>${bi(q.q_fr, q.q_en)}</summary><p>${bi(q.a_fr, q.a_en)}</p></details>`).join('\n') + '\n</div>';
 }
 
 function fill(html, name, content) {

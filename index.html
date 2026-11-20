@@ -53,14 +53,14 @@
 <link rel="manifest" href="/manifest.webmanifest"/>
 <!-- seo:head:end -->
 <link rel="stylesheet" href="/assets/fonts/fonts.css?v=8d94a38e55"/>
-<link rel="stylesheet" href="/assets/css/site.css?v=6e9122f350"/>
+<link rel="stylesheet" href="/assets/css/site.css?v=f99c240b84"/>
 <script>
   /* Langue mémorisée, appliquée avant le premier rendu (pas de flash). */
   /* /en/ est la page anglaise ; ailleurs, la langue choisie par le visiteur. */
   try { var l = location.pathname.indexOf('/en/') === 0 ? 'en' : localStorage.getItem('kanto-lang'); if (l === 'en' || l === 'fr') { document.documentElement.dataset.lang = l; document.documentElement.lang = l; } } catch (e) {}
 </script>
 <script src="/assets/js/data.js?v=b6611f819d" defer></script>
-<script src="/assets/js/site.js?v=52b9974831" defer></script>
+<script src="/assets/js/site.js?v=5c5d053cb1" defer></script>
 <!-- Mantis Analytics -->
 <script>
   window.mantis = window.mantis || function () { (window.mantis.q = window.mantis.q || []).push(arguments); };
@@ -999,12 +999,14 @@
       <span class="mini-staff" id="logoStaff"></span>
       <span class="wordmark">KANTO<span class="wm-note">♪</span>APLO</span>
     </a>
-    <nav class="hdr-nav" aria-label="Navigation principale">
-      <a href="#partition"><b><span data-fr>Partition</span><span data-en>Score</span></b><small><span data-fr>les éditeurs</span><span data-en>the editors</span></small></a>
-      <a href="#movements"><b><span data-fr>Mouvements</span><span data-en>Movements</span></b><small><span data-fr>les démos</span><span data-en>the demos</span></small></a>
-      <a href="#solfege"><b><span data-fr>Solfège</span><span data-en>Solfeggio</span></b><small><span data-fr>le lexique</span><span data-en>the glossary</span></small></a>
-      <a href="#team"><b><span data-fr>Orchestre</span><span data-en>Orchestra</span></b><small><span data-fr>l'équipe</span><span data-en>the team</span></small></a>
-      <a href="#contact"><b><span data-fr>Composer</span><span data-en>Compose</span></b><small><span data-fr>contact</span><span data-en>contact</span></small></a>
+    <nav class="hdr-nav" id="hdrNav" aria-label="Navigation principale">
+      <span class="hn-ink" aria-hidden="true"><span class="hn-note">♪</span></span>
+      <a href="#top" data-key="home"><i aria-hidden="true">𝄞</i><span class="hn-t"><b><span data-fr>Partition</span><span data-en>Score</span></b><small><span data-fr>accueil · éditeurs</span><span data-en>home · editors</span></small></span></a>
+      <a href="#ed-skopos" data-key="editors"><i aria-hidden="true">♩</i><span class="hn-t"><b><span data-fr>Mouvements</span><span data-en>Movements</span></b><small><span data-fr>les démos</span><span data-en>the demos</span></small></span></a>
+      <a href="#solfege" data-key="solfege"><i aria-hidden="true">♯</i><span class="hn-t"><b><span data-fr>Solfège</span><span data-en>Solfeggio</span></b><small><span data-fr>le lexique</span><span data-en>the glossary</span></small></span></a>
+      <a href="#faq" data-key="faq"><i aria-hidden="true">?</i><span class="hn-t"><b><span data-fr>Questions</span><span data-en>Questions</span></b><small><span data-fr>la FAQ</span><span data-en>the FAQ</span></small></span></a>
+      <a href="#team" data-key="team"><i aria-hidden="true">♫</i><span class="hn-t"><b><span data-fr>Orchestre</span><span data-en>Orchestra</span></b><small><span data-fr>l'équipe</span><span data-en>the team</span></small></span></a>
+      <a href="#contact" data-key="contact"><i aria-hidden="true">✎</i><span class="hn-t"><b><span data-fr>Composer</span><span data-en>Compose</span></b><small><span data-fr>contact</span><span data-en>contact</span></small></span></a>
     </nav>
     <button class="lang-btn" id="langToggle" type="button" aria-label="Changer de langue / Switch language">
       <span data-fr>EN</span><span data-en>FR</span>
@@ -1025,7 +1027,7 @@
     <p class="eyebrow menu-sub"><span data-fr>Le programme du concert</span><span data-en>The concert programme</span></p>
     <nav class="menu-map" id="menuFoot" aria-label="Sections">
       <a href="#top"><i aria-hidden="true">𝄞</i><b><span data-fr>Ouverture</span><span data-en>Overture</span></b><small><span data-fr>l'accueil</span><span data-en>home</span></small></a>
-      <a href="#partition"><i aria-hidden="true">♩</i><b><span data-fr>La partition</span><span data-en>The score</span></b><small><span data-fr>les douze éditeurs en un regard</span><span data-en>the twelve editors at a glance</span></small></a>
+      <a href="#top"><i aria-hidden="true">♩</i><b><span data-fr>La partition</span><span data-en>The score</span></b><small><span data-fr>les douze éditeurs en un regard</span><span data-en>the twelve editors at a glance</span></small></a>
       <a href="#movements"><i aria-hidden="true">Ⅰ</i><b><span data-fr>Les mouvements</span><span data-en>The movements</span></b><small><span data-fr>chaque éditeur et sa démo</span><span data-en>each editor and its demo</span></small></a>
       <a href="#engine"><i aria-hidden="true">⚙</i><b><span data-fr>L'instrument</span><span data-en>The instrument</span></b><small><span data-fr>le moteur KANTO partagé</span><span data-en>the shared KANTO engine</span></small></a>
       <a href="#solfege"><i aria-hidden="true">♯</i><b><span data-fr>Le solfège</span><span data-en>The solfeggio</span></b><small><span data-fr>nos mots de musiciens expliqués</span><span data-en>our musical words explained</span></small></a>
@@ -1040,60 +1042,29 @@
 
 <main>
 
-<!-- ═══════════════ Ouverture ═══════════════ -->
-<section class="hero" id="top">
-  <div class="wrap">
-    <p class="eyebrow hero-eyebrow">No-code · Low-code · SaaS</p>
-    <h1>KANTO APLO</h1>
-
-    <div class="staff" aria-hidden="true">
-      <svg viewBox="0 0 900 90" preserveAspectRatio="xMidYMid meet">
-        <line class="staff-line" x1="20" y1="14" x2="880" y2="14"/>
-        <line class="staff-line" x1="20" y1="30" x2="880" y2="30"/>
-        <line class="staff-line" x1="20" y1="46" x2="880" y2="46"/>
-        <line class="staff-line" x1="20" y1="62" x2="880" y2="62"/>
-        <line class="staff-line" x1="20" y1="78" x2="880" y2="78"/>
-        <text class="staff-clef" x="34" y="66">𝄞</text>
-        <g class="staff-note n1"><text x="130" y="46">K</text></g>
-        <g class="staff-note n2"><text x="205" y="30">A</text></g>
-        <g class="staff-note n3"><text x="280" y="62">N</text></g>
-        <g class="staff-note n4"><text x="360" y="14">T</text></g>
-        <g class="staff-note n5"><text x="440" y="46">O</text></g>
-        <g class="staff-note n6"><text x="520" y="78">A</text></g>
-        <g class="staff-note n7"><text x="600" y="30">P</text></g>
-        <g class="staff-note n8"><text x="680" y="62">L</text></g>
-        <g class="staff-note n9"><text x="760" y="14">O</text></g>
-      </svg>
-    </div>
-
-    <p class="sub">Κάντο απλό — <span data-fr>Rends-le simple</span><span data-en>Just make it simple</span></p>
-    <p class="desc" data-fr>Une plateforme SaaS no-code / low-code. <span data-count="">Douze</span> éditeurs grecs, un langage commun, des applications métier complètes — sans écrire de code.</p>
-    <p class="desc" data-en>A no-code / low-code SaaS platform. <span data-en data-count="">Twelve</span> Greek editors, one shared language, complete business apps — without writing code.</p>
-
-    <div class="cta-row">
-      <a class="btn btn-gold btn-2l" href="#partition"><span class="b-main"><span data-fr>Entrer dans la partition</span><span data-en>Enter the score</span> <span aria-hidden="true">→</span></span><span class="b-sub"><span data-fr>découvrir les éditeurs</span><span data-en>discover the editors</span></span></a>
-      <a class="btn btn-ghost btn-2l" href="#contact"><span class="b-main"><span aria-hidden="true">✎</span> <span data-fr>Composer votre symphonie</span><span data-en>Compose your symphony</span></span><span class="b-sub"><span data-fr>un éditeur sur mesure</span><span data-en>a custom editor</span></span></a>
-    </div>
-
-    <ul class="stats" id="stats"></ul>
-  </div>
-  <a class="scroll-cue" href="#partition" aria-label="Défiler / Scroll"><span></span></a>
-</section>
-
-<!-- ═══════════════ La partition : mur de captures tirées au sort + index des éditeurs ═══════════════ -->
-<section class="overview" id="partition">
+<!-- ═══════════════ Page 1 · Ouverture : la partition KANTO APLO sur sa portée + le mur des captures ═══════════════ -->
+<section class="page home" id="top" data-nav-glyph="𝄞" data-nav-fr="Ouverture" data-nav-en="Overture" data-nav-sub-fr="accueil · la partition" data-nav-sub-en="home · the score" aria-labelledby="homeTitle">
+  <span id="partition" class="anchor" aria-hidden="true"></span>
   <div class="ov-wall" id="ovWall" aria-hidden="true"></div>
-  <div class="wrap ov-grid">
-    <header class="ov-head" data-reveal>
-      <p class="eyebrow"><span data-fr>La partition</span><span data-en>The score</span></p>
-      <h2 class="ov-title" data-fr><span class="ov-count" data-count="">Douze</span> éditeurs.<em>Une seule partition.</em></h2>
-      <h2 class="ov-title" data-en><span class="ov-count" data-en data-count="">Twelve</span> editors.<em>One shared score.</em></h2>
-      <p class="lead" data-fr>Chaque éditeur joue sa partie ; ensemble, ils composent une application complète.</p>
-      <p class="lead" data-en>Each editor plays its part; together they compose a complete application.</p>
-      <p class="ov-now" id="ovNow" aria-live="off"></p>
-    </header>
-    <ol class="ov-index" id="ovIndex" data-reveal></ol>
+  <div class="wrap home-grid">
+    <div class="home-main">
+      <p class="eyebrow" data-anim>No-code · Low-code · SaaS</p>
+      <h1 class="home-title" id="homeTitle" data-anim style="--d:80ms"><span class="sr-only">KANTO APLO — <span data-fr>plateforme no-code / low-code</span><span data-en>no-code / low-code platform</span></span><span class="hero-staff" id="heroStaff" aria-hidden="true"></span></h1>
+      <p class="home-sub" data-anim style="--d:900ms">Κάντο απλό — <span data-fr>Rends-le simple</span><span data-en>Just make it simple</span></p>
+      <h2 class="ov-title" data-anim style="--d:1050ms"><span data-fr><span class="ov-count" data-count="">Douze</span> éditeurs. <em>Une seule partition.</em></span><span data-en><span class="ov-count" data-en data-count="">Twelve</span> editors. <em>One shared score.</em></span></h2>
+      <p class="home-lead" data-anim style="--d:1150ms"><span data-fr>Une plateforme SaaS no-code / low-code : chaque éditeur joue sa partie, ensemble ils composent une application métier complète — sans écrire de code.</span><span data-en>A no-code / low-code SaaS platform: each editor plays its part, together they compose a complete business application — without writing code.</span></p>
+      <div class="cta-row" data-anim style="--d:1250ms">
+        <a class="btn btn-gold btn-2l" href="#ed-skopos"><span class="b-main"><span data-fr>Écouter les mouvements</span><span data-en>Hear the movements</span> <span aria-hidden="true">↓</span></span><span class="b-sub"><span data-fr>les éditeurs et leurs démos</span><span data-en>the editors and their demos</span></span></a>
+        <a class="btn btn-ghost btn-2l" href="#contact"><span class="b-main"><span aria-hidden="true">✎</span> <span data-fr>Composer votre symphonie</span><span data-en>Compose your symphony</span></span><span class="b-sub"><span data-fr>un éditeur sur mesure</span><span data-en>a custom editor</span></span></a>
+      </div>
+      <div class="home-orch" data-anim style="--d:1350ms">
+        <ol class="ov-index" id="ovIndex" aria-label="Éditeurs"></ol>
+        <p class="ov-now" id="ovNow" aria-live="off"></p>
+      </div>
+      <ul class="stats" id="stats" data-anim style="--d:1450ms"></ul>
+    </div>
   </div>
+  <a class="scroll-cue" href="#ed-skopos" aria-label="Page suivante / Next page"><span></span></a>
 </section>
 
 <!-- ═══════════════ Les mouvements : un éditeur par diapositive ═══════════════ -->
@@ -1121,9 +1092,9 @@
 </section>
 
 <!-- ═══════════════ Le solfège : nos mots de musiciens, leur sens technique ═══════════════ -->
-<section class="solfege" id="solfege" aria-labelledby="solfegeTitle">
+<section class="page solfege" id="solfege" data-nav-glyph="♯" data-nav-fr="Le solfège" data-nav-en="Solfeggio" data-nav-sub-fr="le lexique" data-nav-sub-en="the glossary" aria-labelledby="solfegeTitle">
   <div class="wrap">
-    <header class="section-head" data-reveal>
+    <header class="section-head" data-anim>
       <p class="eyebrow"><span data-fr>Le solfège</span><span data-en>The solfeggio</span></p>
       <h2 id="solfegeTitle"><span data-fr>Nos mots de musiciens, en clair.</span><span data-en>Our musicians' words, made plain.</span></h2>
       <p class="lead" data-fr>Chaque terme de la partition a un sens technique précis.</p>
@@ -1131,27 +1102,27 @@
     </header>
 <!-- seo:solfege:start -->
 <ul class="sol-grid">
-  <li data-reveal style="--d:0ms"><article class="sol-card"><span class="sol-glyph" aria-hidden="true">𝄞</span><h3 class="sol-term"><span data-fr>La partition</span><span data-en>The score</span></h3><span class="sol-eq"><span data-fr>en clair</span><span data-en>in plain words</span></span><p class="sol-def"><span data-fr>Votre application complète, décrite en données et partagée par tous les éditeurs.</span><span data-en>Your complete application, described as data and shared by every editor.</span></p></article></li>
-  <li data-reveal style="--d:80ms"><article class="sol-card"><span class="sol-glyph" aria-hidden="true">Ⅰ</span><h3 class="sol-term"><span data-fr>Un mouvement</span><span data-en>A movement</span></h3><span class="sol-eq"><span data-fr>en clair</span><span data-en>in plain words</span></span><p class="sol-def"><span data-fr>Un éditeur spécialisé : interface, services, modèle UML, tests, analyse, gestion de projet.</span><span data-en>A specialised editor: interface, services, UML model, tests, analytics, project management.</span></p></article></li>
-  <li data-reveal style="--d:160ms"><article class="sol-card"><span class="sol-glyph" aria-hidden="true">⚙</span><h3 class="sol-term"><span data-fr>L&#39;instrument</span><span data-en>The instrument</span></h3><span class="sol-eq"><span data-fr>en clair</span><span data-en>in plain words</span></span><p class="sol-def"><span data-fr>Le moteur KANTO : blocs, nœuds et workflows configurables qui génèrent du JSON ou du code.</span><span data-en>The KANTO engine: configurable blocks, nodes and workflows that generate JSON or code.</span></p></article></li>
-  <li data-reveal style="--d:240ms"><article class="sol-card"><span class="sol-glyph" aria-hidden="true">♪</span><h3 class="sol-term"><span data-fr>Composer</span><span data-en>Compose</span></h3><span class="sol-eq"><span data-fr>en clair</span><span data-en>in plain words</span></span><p class="sol-def"><span data-fr>Concevoir sans code : glisser-déposer, configurer, relier — le low-code reste possible.</span><span data-en>Design without code: drag, configure, connect — low-code stays possible.</span></p></article></li>
-  <li data-reveal style="--d:0ms"><article class="sol-card"><span class="sol-glyph" aria-hidden="true">♫</span><h3 class="sol-term"><span data-fr>Écouter la symphonie</span><span data-en>Listen to the symphony</span></h3><span class="sol-eq"><span data-fr>en clair</span><span data-en>in plain words</span></span><p class="sol-def"><span data-fr>Ouvrir la démo interactive d&#39;un éditeur, avec des données fictives, directement dans le navigateur.</span><span data-en>Open an editor&#39;s interactive demo, with fictional data, right in the browser.</span></p></article></li>
-  <li data-reveal style="--d:80ms"><article class="sol-card"><span class="sol-glyph" aria-hidden="true">𝄐</span><h3 class="sol-term"><span data-fr>En répétition</span><span data-en>In rehearsal</span></h3><span class="sol-eq"><span data-fr>en clair</span><span data-en>in plain words</span></span><p class="sol-def"><span data-fr>Un éditeur en cours de développement : sa démo arrive bientôt.</span><span data-en>An editor under development: its demo is coming soon.</span></p></article></li>
-  <li data-reveal style="--d:160ms"><article class="sol-card"><span class="sol-glyph" aria-hidden="true">♯</span><h3 class="sol-term"><span data-fr>Accorder</span><span data-en>Tune</span></h3><span class="sol-eq"><span data-fr>en clair</span><span data-en>in plain words</span></span><p class="sol-def"><span data-fr>Configurer un éditeur pour votre métier : vocabulaire, règles, blocs et thèmes.</span><span data-en>Configure an editor for your business: vocabulary, rules, blocks and themes.</span></p></article></li>
-  <li data-reveal style="--d:240ms"><article class="sol-card"><span class="sol-glyph" aria-hidden="true">𝄢</span><h3 class="sol-term"><span data-fr>L&#39;arrangement</span><span data-en>The arrangement</span></h3><span class="sol-eq"><span data-fr>en clair</span><span data-en>in plain words</span></span><p class="sol-def"><span data-fr>Templates, thèmes et plugins : la même partition, jouée par une autre interface.</span><span data-en>Templates, themes and plugins: the same score, played through another interface.</span></p></article></li>
-  <li data-reveal style="--d:0ms"><article class="sol-card"><span class="sol-glyph" aria-hidden="true">𝆒</span><h3 class="sol-term"><span data-fr>L&#39;orchestration</span><span data-en>The orchestration</span></h3><span class="sol-eq"><span data-fr>en clair</span><span data-en>in plain words</span></span><p class="sol-def"><span data-fr>Les éditeurs jouent ensemble : le front, les APIs, les données et l&#39;automatisation se répondent.</span><span data-en>The editors play together: front end, APIs, data and automation answer one another.</span></p></article></li>
-  <li data-reveal style="--d:80ms"><article class="sol-card"><span class="sol-glyph" aria-hidden="true">𝄋</span><h3 class="sol-term"><span data-fr>La reprise</span><span data-en>The repeat</span></h3><span class="sol-eq"><span data-fr>en clair</span><span data-en>in plain words</span></span><p class="sol-def"><span data-fr>Réutiliser : un composant, un modèle ou un projet entier se rejoue ailleurs sans être réécrit.</span><span data-en>Reuse: a component, a template or a whole project is replayed elsewhere without being rewritten.</span></p></article></li>
-  <li data-reveal style="--d:160ms"><article class="sol-card"><span class="sol-glyph" aria-hidden="true">♬</span><h3 class="sol-term"><span data-fr>Le public</span><span data-en>The audience</span></h3><span class="sol-eq"><span data-fr>en clair</span><span data-en>in plain words</span></span><p class="sol-def"><span data-fr>Vos utilisateurs : ils entendent la musique, jamais les câbles.</span><span data-en>Your users: they hear the music, never the cables.</span></p></article></li>
-  <li data-reveal style="--d:240ms"><article class="sol-card"><span class="sol-glyph" aria-hidden="true">✎</span><h3 class="sol-term"><span data-fr>Composer votre symphonie</span><span data-en>Compose your symphony</span></h3><span class="sol-eq"><span data-fr>en clair</span><span data-en>in plain words</span></span><p class="sol-def"><span data-fr>Nous contacter pour un éditeur personnalisé, conçu avec vous pour votre entreprise.</span><span data-en>Contact us for a custom editor, designed with you for your company.</span></p></article></li>
+  <li data-anim style="--d:0ms"><article class="sol-card"><span class="sol-glyph" aria-hidden="true">𝄞</span><h3 class="sol-term"><span data-fr>La partition</span><span data-en>The score</span></h3><span class="sol-eq"><span data-fr>en clair</span><span data-en>in plain words</span></span><p class="sol-def"><span data-fr>Votre application complète, décrite en données et partagée par tous les éditeurs.</span><span data-en>Your complete application, described as data and shared by every editor.</span></p></article></li>
+  <li data-anim style="--d:80ms"><article class="sol-card"><span class="sol-glyph" aria-hidden="true">Ⅰ</span><h3 class="sol-term"><span data-fr>Un mouvement</span><span data-en>A movement</span></h3><span class="sol-eq"><span data-fr>en clair</span><span data-en>in plain words</span></span><p class="sol-def"><span data-fr>Un éditeur spécialisé : interface, services, modèle UML, tests, analyse, gestion de projet.</span><span data-en>A specialised editor: interface, services, UML model, tests, analytics, project management.</span></p></article></li>
+  <li data-anim style="--d:160ms"><article class="sol-card"><span class="sol-glyph" aria-hidden="true">⚙</span><h3 class="sol-term"><span data-fr>L&#39;instrument</span><span data-en>The instrument</span></h3><span class="sol-eq"><span data-fr>en clair</span><span data-en>in plain words</span></span><p class="sol-def"><span data-fr>Le moteur KANTO : blocs, nœuds et workflows configurables qui génèrent du JSON ou du code.</span><span data-en>The KANTO engine: configurable blocks, nodes and workflows that generate JSON or code.</span></p></article></li>
+  <li data-anim style="--d:240ms"><article class="sol-card"><span class="sol-glyph" aria-hidden="true">♪</span><h3 class="sol-term"><span data-fr>Composer</span><span data-en>Compose</span></h3><span class="sol-eq"><span data-fr>en clair</span><span data-en>in plain words</span></span><p class="sol-def"><span data-fr>Concevoir sans code : glisser-déposer, configurer, relier — le low-code reste possible.</span><span data-en>Design without code: drag, configure, connect — low-code stays possible.</span></p></article></li>
+  <li data-anim style="--d:0ms"><article class="sol-card"><span class="sol-glyph" aria-hidden="true">♫</span><h3 class="sol-term"><span data-fr>Écouter la symphonie</span><span data-en>Listen to the symphony</span></h3><span class="sol-eq"><span data-fr>en clair</span><span data-en>in plain words</span></span><p class="sol-def"><span data-fr>Ouvrir la démo interactive d&#39;un éditeur, avec des données fictives, directement dans le navigateur.</span><span data-en>Open an editor&#39;s interactive demo, with fictional data, right in the browser.</span></p></article></li>
+  <li data-anim style="--d:80ms"><article class="sol-card"><span class="sol-glyph" aria-hidden="true">𝄐</span><h3 class="sol-term"><span data-fr>En répétition</span><span data-en>In rehearsal</span></h3><span class="sol-eq"><span data-fr>en clair</span><span data-en>in plain words</span></span><p class="sol-def"><span data-fr>Un éditeur en cours de développement : sa démo arrive bientôt.</span><span data-en>An editor under development: its demo is coming soon.</span></p></article></li>
+  <li data-anim style="--d:160ms"><article class="sol-card"><span class="sol-glyph" aria-hidden="true">♯</span><h3 class="sol-term"><span data-fr>Accorder</span><span data-en>Tune</span></h3><span class="sol-eq"><span data-fr>en clair</span><span data-en>in plain words</span></span><p class="sol-def"><span data-fr>Configurer un éditeur pour votre métier : vocabulaire, règles, blocs et thèmes.</span><span data-en>Configure an editor for your business: vocabulary, rules, blocks and themes.</span></p></article></li>
+  <li data-anim style="--d:240ms"><article class="sol-card"><span class="sol-glyph" aria-hidden="true">𝄢</span><h3 class="sol-term"><span data-fr>L&#39;arrangement</span><span data-en>The arrangement</span></h3><span class="sol-eq"><span data-fr>en clair</span><span data-en>in plain words</span></span><p class="sol-def"><span data-fr>Templates, thèmes et plugins : la même partition, jouée par une autre interface.</span><span data-en>Templates, themes and plugins: the same score, played through another interface.</span></p></article></li>
+  <li data-anim style="--d:0ms"><article class="sol-card"><span class="sol-glyph" aria-hidden="true">𝆒</span><h3 class="sol-term"><span data-fr>L&#39;orchestration</span><span data-en>The orchestration</span></h3><span class="sol-eq"><span data-fr>en clair</span><span data-en>in plain words</span></span><p class="sol-def"><span data-fr>Les éditeurs jouent ensemble : le front, les APIs, les données et l&#39;automatisation se répondent.</span><span data-en>The editors play together: front end, APIs, data and automation answer one another.</span></p></article></li>
+  <li data-anim style="--d:80ms"><article class="sol-card"><span class="sol-glyph" aria-hidden="true">𝄋</span><h3 class="sol-term"><span data-fr>La reprise</span><span data-en>The repeat</span></h3><span class="sol-eq"><span data-fr>en clair</span><span data-en>in plain words</span></span><p class="sol-def"><span data-fr>Réutiliser : un composant, un modèle ou un projet entier se rejoue ailleurs sans être réécrit.</span><span data-en>Reuse: a component, a template or a whole project is replayed elsewhere without being rewritten.</span></p></article></li>
+  <li data-anim style="--d:160ms"><article class="sol-card"><span class="sol-glyph" aria-hidden="true">♬</span><h3 class="sol-term"><span data-fr>Le public</span><span data-en>The audience</span></h3><span class="sol-eq"><span data-fr>en clair</span><span data-en>in plain words</span></span><p class="sol-def"><span data-fr>Vos utilisateurs : ils entendent la musique, jamais les câbles.</span><span data-en>Your users: they hear the music, never the cables.</span></p></article></li>
+  <li data-anim style="--d:240ms"><article class="sol-card"><span class="sol-glyph" aria-hidden="true">✎</span><h3 class="sol-term"><span data-fr>Composer votre symphonie</span><span data-en>Compose your symphony</span></h3><span class="sol-eq"><span data-fr>en clair</span><span data-en>in plain words</span></span><p class="sol-def"><span data-fr>Nous contacter pour un éditeur personnalisé, conçu avec vous pour votre entreprise.</span><span data-en>Contact us for a custom editor, designed with you for your company.</span></p></article></li>
 </ul>
 <!-- seo:solfege:end -->
   </div>
 </section>
 
 <!-- ═══════════════ Autres projets Cephalo Sophie ═══════════════ -->
-<section class="projects" id="projects">
+<section class="page projects" id="projects" data-nav-glyph="𝄢" data-nav-fr="Hors partition" data-nav-en="Beyond the score" data-nav-sub-fr="autres projets" data-nav-sub-en="other projects">
   <div class="wrap">
-    <header class="section-head" data-reveal>
+    <header class="section-head" data-anim>
       <p class="eyebrow"><span data-fr>Hors partition</span><span data-en>Beyond the score</span></p>
       <h2 data-fr>Les autres projets de Cephalo Sophie.</h2><h2 data-en>Other Cephalo Sophie projects.</h2>
       <p class="lead" data-fr>Des applications indépendantes de KANTO APLO, conçues par la même équipe.</p>
@@ -1161,25 +1132,51 @@
   </div>
 </section>
 
-<!-- ═══════════════ L'orchestre ═══════════════ -->
-<section class="team" id="team">
+<!-- ═══════════════ Les questions du public (FAQ) ═══════════════ -->
+<section class="page faq" id="faq" data-nav-glyph="?" data-nav-fr="Les questions" data-nav-en="Questions" data-nav-sub-fr="la FAQ" data-nav-sub-en="the FAQ" aria-labelledby="faqTitle">
   <div class="wrap">
-    <header class="section-head" data-reveal>
+    <header class="section-head" data-anim>
+      <p class="eyebrow"><span data-fr>Les questions du public</span><span data-en>Questions from the audience</span></p>
+      <h2 id="faqTitle"><span data-fr>Avant le lever de rideau.</span><span data-en>Before the curtain rises.</span></h2>
+      <p class="faq-aside"><span data-fr>Une autre question ? </span><span data-en>Another question? </span><a class="text-link" href="#contact"><span data-fr>Composez-nous un mot</span><span data-en>Compose us a note</span> ✎</a></p>
+    </header>
+<!-- seo:faq:start -->
+<div class="faq-list">
+  <details class="faq-item" data-anim style="--d:0ms" open><summary><span data-fr>Qu&#39;est-ce que KANTO APLO ?</span><span data-en>What is KANTO APLO?</span></summary><p><span data-fr>KANTO APLO est une plateforme SaaS no-code / low-code conçue par Cephalo Sophie. Elle réunit douze éditeurs visuels — interface, services et APIs, modélisation UML, blocs, tests d&#39;API, gestion de projet agile, analyse web, tests A/B, connecteurs et orchestration — pour créer des applications métier complètes sans écrire de code.</span><span data-en>KANTO APLO is a no-code / low-code SaaS platform built by Cephalo Sophie. It brings together twelve visual editors — interface, services and APIs, UML modelling, blocks, API testing, agile project management, web analytics, A/B testing, connectors and orchestration — to build complete business applications without writing code.</span></p></details>
+  <details class="faq-item" data-anim style="--d:60ms"><summary><span data-fr>Faut-il savoir programmer ?</span><span data-en>Do I need to know how to code?</span></summary><p><span data-fr>Non. Tout se compose par glisser-déposer et configuration. Pour les équipes techniques, chaque éditeur reste ouvert : sortie JSON, code généré, documentation OpenAPI, plugins.</span><span data-en>No. Everything is composed by drag and drop and configuration. For technical teams every editor stays open: JSON output, generated code, OpenAPI documentation, plugins.</span></p></details>
+  <details class="faq-item" data-anim style="--d:120ms"><summary><span data-fr>Quelles applications peut-on créer ?</span><span data-en>What can I build?</span></summary><p><span data-fr>Des applications web et mobiles, des sites, des funnels et des quiz, des APIs REST et des tâches planifiées, des workflows d&#39;automatisation, des back-offices et outils internes, des tableaux de bord analytiques, des éditeurs visuels propres à votre métier.</span><span data-en>Web and mobile apps, websites, funnels and quizzes, REST APIs and scheduled jobs, automation workflows, back offices and internal tools, analytics dashboards, and visual editors dedicated to your business.</span></p></details>
+  <details class="faq-item" data-anim style="--d:180ms"><summary><span data-fr>Peut-on essayer les éditeurs ?</span><span data-en>Can I try the editors?</span></summary><p><span data-fr>Oui : le bouton « Écouter la symphonie » ouvre la démo interactive de chaque éditeur, avec des données fictives. Pinax (gestion de projet agile) et Mantis (analyse web) se testent avec l&#39;e-mail demo@kantoaplo.com ; vos modifications restent dans votre navigateur.</span><span data-en>Yes: the “Listen to the symphony” button opens each editor’s interactive demo, with fictional data. Pinax (agile project management) and Mantis (web analytics) can be tried with the e-mail demo@kantoaplo.com; your changes stay in your browser.</span></p></details>
+  <details class="faq-item" data-anim style="--d:0ms"><summary><span data-fr>Peut-on obtenir un éditeur sur mesure ?</span><span data-en>Can I get a custom editor?</span></summary><p><span data-fr>Oui, c&#39;est « Composer votre symphonie » : nous concevons avec vous un éditeur visuel dédié à votre métier, bâti sur Zeugma et le moteur KANTO. Écrivez à contact@cephalosophie.com.</span><span data-en>Yes, that is “Compose your symphony”: we design with you a visual editor dedicated to your business, built on Zeugma and the KANTO engine. Write to contact@cephalosophie.com.</span></p></details>
+  <details class="faq-item" data-anim style="--d:60ms"><summary><span data-fr>Où restent mes données ?</span><span data-en>Where does my data live?</span></summary><p><span data-fr>Mantis, l&#39;analyse web, est conçu pour être auto-hébergé : les statistiques restent sur votre serveur, sans cookie tiers. Pour les autres éditeurs, le mode de déploiement se choisit avec vous.</span><span data-en>Mantis, the web analytics editor, is designed to be self-hosted: statistics stay on your server, with no third-party cookies. For the other editors, the deployment mode is chosen with you.</span></p></details>
+  <details class="faq-item" data-anim style="--d:120ms"><summary><span data-fr>Pourquoi des noms grecs ?</span><span data-en>Why Greek names?</span></summary><p><span data-fr>Κάντο απλό signifie « rends-le simple ». Chaque éditeur porte le mot grec de son rôle : Tektôn le bâtisseur, Logos la règle, Pinax le registre, Mantis le devin, Hermès le messager…</span><span data-en>Κάντο απλό means “just make it simple”. Each editor bears the Greek word for its role: Tektôn the builder, Logos the rule, Pinax the ledger, Mantis the seer, Hermès the messenger…</span></p></details>
+  <details class="faq-item" data-anim style="--d:180ms"><summary><span data-fr>Qui développe KANTO APLO ?</span><span data-en>Who builds KANTO APLO?</span></summary><p><span data-fr>Cephalo Sophie, éditeur de logiciels basé à Paris depuis 2018, qui conçoit aussi Kýdos Belote.</span><span data-en>Cephalo Sophie, a Paris-based software company founded in 2018, which also builds Kýdos Belote.</span></p></details>
+</div>
+<!-- seo:faq:end -->
+  </div>
+</section>
+
+<!-- ═══════════════ L'orchestre et son public : une seule page ═══════════════ -->
+<div class="page orchestra" id="orchestra" data-nav-glyph="♫" data-nav-fr="L'orchestre" data-nav-en="Orchestra" data-nav-sub-fr="l'équipe · le public" data-nav-sub-en="the team · the audience">
+<section class="team" id="team" aria-labelledby="teamTitle">
+  <div class="wrap">
+    <header class="section-head" data-anim>
       <p class="eyebrow"><span data-fr>L'orchestre</span><span data-en>The orchestra</span></p>
-      <h2 data-fr>Ceux qui composent.</h2><h2 data-en>The ones who compose.</h2>
+      <h2 id="teamTitle"><span data-fr>Ceux qui composent.</span><span data-en>The ones who compose.</span></h2>
       <p class="lead" data-fr>Une entreprise <a href="https://cephalosophie.com" target="_blank" rel="noopener" class="text-link">Cephalo Sophie</a> · Paris, depuis 2018</p>
       <p class="lead" data-en>A <a href="https://cephalosophie.com" target="_blank" rel="noopener" class="text-link">Cephalo Sophie</a> company · Paris, since 2018</p>
     </header>
     <div class="team-row">
-      <article class="person" data-reveal>
-        <div class="avatar" id="avatarStaff1"></div>
+      <article class="person" data-anim style="--d:200ms">
+        <span class="person-seat" aria-hidden="true">I</span>
+        <div class="avatar" id="avatarStaff1" role="img" aria-label="Ameur Hamdouni"></div>
         <h3 class="name">Ameur Hamdouni</h3>
         <p class="role"><span data-fr>Chef d'orchestre</span><span data-en>Conductor</span></p>
         <p class="role-tech">CEO · <span data-fr>Fondateur · Architecte</span><span data-en>Founder · Architect</span></p>
         <a class="email" href="mailto:ameur.hamdouni@cephalosophie.com">ameur.hamdouni@cephalosophie.com</a>
       </article>
-      <article class="person" data-reveal style="--d:120ms">
-        <div class="avatar" id="avatarStaff2"></div>
+      <article class="person" data-anim style="--d:380ms">
+        <span class="person-seat" aria-hidden="true">II</span>
+        <div class="avatar" id="avatarStaff2" role="img" aria-label="Abdelhamid Sghaier"></div>
         <h3 class="name">Abdelhamid Sghaier</h3>
         <p class="role"><span data-fr>Premier violon</span><span data-en>First violin</span></p>
         <p class="role-tech">CTO · <span data-fr>Cofondateur · Mobile</span><span data-en>Co-founder · Mobile</span></p>
@@ -1188,40 +1185,17 @@
     </div>
   </div>
 </section>
-
-<!-- ═══════════════ Confiance ═══════════════ -->
-<section class="trust" aria-labelledby="trustTitle">
+<section class="trust" aria-labelledby="trustTitle" data-anim style="--d:600ms">
   <div class="wrap">
     <h2 class="eyebrow" id="trustTitle"><span data-fr>Le public · ils nous font confiance</span><span data-en>The audience · they trust us</span></h2>
     <div class="trust-strip"><div class="trust-track" id="trustTrack"></div></div>
   </div>
 </section>
-
-<!-- ═══════════════ Les questions du public (FAQ) ═══════════════ -->
-<section class="faq" id="faq" aria-labelledby="faqTitle">
-  <div class="wrap">
-    <header class="section-head" data-reveal>
-      <p class="eyebrow"><span data-fr>Les questions du public</span><span data-en>Questions from the audience</span></p>
-      <h2 id="faqTitle"><span data-fr>Avant le lever de rideau.</span><span data-en>Before the curtain rises.</span></h2>
-    </header>
-<!-- seo:faq:start -->
-<div class="faq-list">
-  <details class="faq-item" data-reveal style="--d:0ms" open><summary><span data-fr>Qu&#39;est-ce que KANTO APLO ?</span><span data-en>What is KANTO APLO?</span></summary><p><span data-fr>KANTO APLO est une plateforme SaaS no-code / low-code conçue par Cephalo Sophie. Elle réunit douze éditeurs visuels — interface, services et APIs, modélisation UML, blocs, tests d&#39;API, gestion de projet agile, analyse web, tests A/B, connecteurs et orchestration — pour créer des applications métier complètes sans écrire de code.</span><span data-en>KANTO APLO is a no-code / low-code SaaS platform built by Cephalo Sophie. It brings together twelve visual editors — interface, services and APIs, UML modelling, blocks, API testing, agile project management, web analytics, A/B testing, connectors and orchestration — to build complete business applications without writing code.</span></p></details>
-  <details class="faq-item" data-reveal style="--d:60ms"><summary><span data-fr>Faut-il savoir programmer ?</span><span data-en>Do I need to know how to code?</span></summary><p><span data-fr>Non. Tout se compose par glisser-déposer et configuration. Pour les équipes techniques, chaque éditeur reste ouvert : sortie JSON, code généré, documentation OpenAPI, plugins.</span><span data-en>No. Everything is composed by drag and drop and configuration. For technical teams every editor stays open: JSON output, generated code, OpenAPI documentation, plugins.</span></p></details>
-  <details class="faq-item" data-reveal style="--d:120ms"><summary><span data-fr>Quelles applications peut-on créer ?</span><span data-en>What can I build?</span></summary><p><span data-fr>Des applications web et mobiles, des sites, des funnels et des quiz, des APIs REST et des tâches planifiées, des workflows d&#39;automatisation, des back-offices et outils internes, des tableaux de bord analytiques, des éditeurs visuels propres à votre métier.</span><span data-en>Web and mobile apps, websites, funnels and quizzes, REST APIs and scheduled jobs, automation workflows, back offices and internal tools, analytics dashboards, and visual editors dedicated to your business.</span></p></details>
-  <details class="faq-item" data-reveal style="--d:180ms"><summary><span data-fr>Peut-on essayer les éditeurs ?</span><span data-en>Can I try the editors?</span></summary><p><span data-fr>Oui : le bouton « Écouter la symphonie » ouvre la démo interactive de chaque éditeur, avec des données fictives. Pinax (gestion de projet agile) et Mantis (analyse web) se testent avec l&#39;e-mail demo@kantoaplo.com ; vos modifications restent dans votre navigateur.</span><span data-en>Yes: the “Listen to the symphony” button opens each editor’s interactive demo, with fictional data. Pinax (agile project management) and Mantis (web analytics) can be tried with the e-mail demo@kantoaplo.com; your changes stay in your browser.</span></p></details>
-  <details class="faq-item" data-reveal style="--d:0ms"><summary><span data-fr>Peut-on obtenir un éditeur sur mesure ?</span><span data-en>Can I get a custom editor?</span></summary><p><span data-fr>Oui, c&#39;est « Composer votre symphonie » : nous concevons avec vous un éditeur visuel dédié à votre métier, bâti sur Zeugma et le moteur KANTO. Écrivez à contact@cephalosophie.com.</span><span data-en>Yes, that is “Compose your symphony”: we design with you a visual editor dedicated to your business, built on Zeugma and the KANTO engine. Write to contact@cephalosophie.com.</span></p></details>
-  <details class="faq-item" data-reveal style="--d:60ms"><summary><span data-fr>Où restent mes données ?</span><span data-en>Where does my data live?</span></summary><p><span data-fr>Mantis, l&#39;analyse web, est conçu pour être auto-hébergé : les statistiques restent sur votre serveur, sans cookie tiers. Pour les autres éditeurs, le mode de déploiement se choisit avec vous.</span><span data-en>Mantis, the web analytics editor, is designed to be self-hosted: statistics stay on your server, with no third-party cookies. For the other editors, the deployment mode is chosen with you.</span></p></details>
-  <details class="faq-item" data-reveal style="--d:120ms"><summary><span data-fr>Pourquoi des noms grecs ?</span><span data-en>Why Greek names?</span></summary><p><span data-fr>Κάντο απλό signifie « rends-le simple ». Chaque éditeur porte le mot grec de son rôle : Tektôn le bâtisseur, Logos la règle, Pinax le registre, Mantis le devin, Hermès le messager…</span><span data-en>Κάντο απλό means “just make it simple”. Each editor bears the Greek word for its role: Tektôn the builder, Logos the rule, Pinax the ledger, Mantis the seer, Hermès the messenger…</span></p></details>
-  <details class="faq-item" data-reveal style="--d:180ms"><summary><span data-fr>Qui développe KANTO APLO ?</span><span data-en>Who builds KANTO APLO?</span></summary><p><span data-fr>Cephalo Sophie, éditeur de logiciels basé à Paris depuis 2018, qui conçoit aussi Kýdos Belote.</span><span data-en>Cephalo Sophie, a Paris-based software company founded in 2018, which also builds Kýdos Belote.</span></p></details>
 </div>
-<!-- seo:faq:end -->
-  </div>
-</section>
 
 <!-- ═══════════════ Contact ═══════════════ -->
-<section class="contact" id="contact" aria-labelledby="contactTitle">
-  <div class="wrap" data-reveal>
+<section class="page contact" id="contact" data-nav-glyph="✎" data-nav-fr="Composer" data-nav-en="Compose" data-nav-sub-fr="votre symphonie · contact" data-nav-sub-en="your symphony · contact" aria-labelledby="contactTitle">
+  <div class="wrap" data-anim>
     <p class="eyebrow"><span data-fr>Composer votre symphonie</span><span data-en>Compose your symphony</span></p>
     <h2 id="contactTitle"><span data-fr>Dites-nous quelle symphonie vous voulez entendre.</span><span data-en>Tell us what symphony you want to hear.</span></h2>
     <p class="contact-lead" data-fr>En clair : un éditeur visuel taillé pour votre métier, une démo privée, ou KANTO APLO intégré à votre système d'information. Nous composons avec vous.</p>
@@ -1241,10 +1215,6 @@
     </ul>
     <p class="finale" id="finale"></p>
   </div>
-</section>
-
-</main>
-
 <footer class="foot">
   <div class="wrap foot-grid">
     <div class="foot-brand">
@@ -1252,7 +1222,7 @@
       <p><span data-fr>Plateforme no-code / low-code : douze éditeurs visuels pour composer vos applications métier.</span><span data-en>No-code / low-code platform: twelve visual editors to compose your business applications.</span></p>
     </div>
     <nav class="foot-links" aria-label="Pied de page">
-      <a href="#partition"><span data-fr>Les éditeurs</span><span data-en>The editors</span></a>
+      <a href="#top"><span data-fr>Les éditeurs</span><span data-en>The editors</span></a>
       <a href="#movements"><span data-fr>Les démos</span><span data-en>The demos</span></a>
       <a href="#solfege"><span data-fr>Le lexique</span><span data-en>Glossary</span></a>
       <a href="#faq">FAQ</a>
@@ -1265,6 +1235,11 @@
     <span class="foot-greek">ΚΆΝΤΟ ΑΠΛΌ · <span data-fr>rends-le simple</span><span data-en>just make it simple</span></span>
   </div>
 </footer>
+</section>
+
+</main>
+
+
 
 <!-- Navigation flottante : portée verticale (bureau) + « en cours » (mobile) -->
 <nav class="score" id="score" aria-label="Éditeurs"><ol id="scoreList"></ol></nav>

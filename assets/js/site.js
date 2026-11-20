@@ -93,8 +93,68 @@
     return '<svg class="mini-staff-svg" viewBox="0 0 ' + width.toFixed(0) + ' ' + height + '" aria-hidden="true">' + lines + out + '</svg>';
   }
   $('logoStaff').innerHTML = buildStaff('KANTO', 'APLO', 15);
-  $('avatarStaff1').innerHTML = buildStaff('AMEUR', 'HAMDOUNI', 22);
-  $('avatarStaff2').innerHTML = buildStaff('ABDELHAMID', 'SGHAIER', 22);
+
+  /* Une mélodie écrite : chaque lettre est la parole d'une note posée sur la
+     portée ; les notes d'un mot sont ligaturées (doubles croches). Une tête de
+     lecture parcourt la mesure en boucle et fait « sonner » chaque note. */
+  function staffWord(words, opt) {
+    opt = opt || {};
+    var GAP = 16, TOP = 70, SP = opt.spacing || 62, X0 = opt.time ? 150 : 104, FS = opt.font || 54;
+    var lines = [0, 1, 2, 3, 4].map(function (i) { return TOP + i * GAP; });
+    var bottom = lines[4];
+    var notes = [], x = X0, bars = [], melody = opt.melody || [];
+    words.forEach(function (w, wi) {
+      var letters = Array.from(w), prev = 4;
+      letters.forEach(function (ch, li) {
+        var step = melody.length ? melody[notes.length % melody.length]
+          : Math.max(0, Math.min(8, prev + ((ch.charCodeAt(0) * 7 + li * 5) % 5) - 2));
+        prev = step;
+        notes.push({ ch: ch, x: x, y: bottom - step * GAP / 2, w: wi });
+        x += SP;
+      });
+      if (wi < words.length - 1) { bars.push(x - SP / 2 + 6); x += 14; }
+    });
+    var W = x + 24, H = TOP + 4 * GAP + FS + 44, dur = opt.dur || 7;
+    var sweep = 0.42; // part of the cycle spent sweeping
+    var svg = '<svg class="melody" viewBox="0 0 ' + W + ' ' + H + '" style="--dur:' + dur + 's;--w:' + W + 'px">';
+    svg += '<defs><linearGradient id="mg-' + (opt.id || 'm') + '" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f6e9c9"/><stop offset=".45" stop-color="#C9963A"/><stop offset=".75" stop-color="#8B5CF6"/><stop offset="1" stop-color="#2DD4A0"/></linearGradient></defs>';
+    lines.forEach(function (y, i) { svg += '<line class="m-line" x1="8" x2="' + (W - 8) + '" y1="' + y + '" y2="' + y + '" pathLength="1" style="--i:' + i + '"/>'; });
+    svg += '<text class="m-clef" x="18" y="' + (bottom + 13) + '">𝄞</text>';
+    if (opt.time) svg += '<text class="m-time" x="96" y="' + (lines[2] - 3) + '">' + opt.time[0] + '</text><text class="m-time" x="96" y="' + (bottom + 2) + '">' + opt.time[1] + '</text>';
+    bars.forEach(function (bx) { svg += '<line class="m-bar" x1="' + bx + '" x2="' + bx + '" y1="' + lines[0] + '" y2="' + bottom + '"/>'; });
+    svg += '<line class="m-bar" x1="' + (W - 22) + '" x2="' + (W - 22) + '" y1="' + lines[0] + '" y2="' + bottom + '"/><line class="m-bar end" x1="' + (W - 14) + '" x2="' + (W - 14) + '" y1="' + lines[0] + '" y2="' + bottom + '"/>';
+    // ligatures : une par mot, au-dessus de la portée
+    var stemTop = function (n, group) {
+      var a = group[0], b = group[group.length - 1];
+      var y0 = Math.min(a.y, lines[0] + 8) - 38, y1 = Math.min(b.y, lines[0] + 8) - 38;
+      return group.length > 1 ? y0 + (y1 - y0) * (n.x - a.x) / (b.x - a.x) : y0;
+    };
+    words.forEach(function (w, wi) {
+      var g = notes.filter(function (n) { return n.w === wi; });
+      if (!g.length) return;
+      var hx = function (n) { return n.x + 8; };
+      var a = g[0], b = g[g.length - 1];
+      svg += '<line class="m-beam" x1="' + hx(a) + '" y1="' + stemTop(a, g) + '" x2="' + hx(b) + '" y2="' + stemTop(b, g) + '" pathLength="1" style="--i:' + wi + '"/>';
+      svg += '<line class="m-beam" x1="' + hx(a) + '" y1="' + (stemTop(a, g) + 9) + '" x2="' + hx(b) + '" y2="' + (stemTop(b, g) + 9) + '" pathLength="1" style="--i:' + wi + '"/>';
+      g.forEach(function (n) { n.top = stemTop(n, g); });
+    });
+    notes.forEach(function (n, i) {
+      var t = ((n.x / W) * sweep * dur).toFixed(2);
+      // lignes supplémentaires pour les notes hors de la portée
+      var extra = '';
+      if (n.y > bottom + 1) extra = '<line class="m-ledger" x1="' + (n.x - 14) + '" x2="' + (n.x + 14) + '" y1="' + (bottom + GAP) + '" y2="' + (bottom + GAP) + '"/>';
+      svg += '<g class="m-note" style="--i:' + i + ';--t:' + t + 's">' + extra +
+        '<line class="m-stem" x1="' + (n.x + 8) + '" x2="' + (n.x + 8) + '" y1="' + (n.y - 2) + '" y2="' + n.top + '"/>' +
+        '<ellipse class="m-head" cx="' + n.x + '" cy="' + n.y + '" rx="9.6" ry="7" transform="rotate(-22 ' + n.x + ' ' + n.y + ')"/>' +
+        '<text class="m-lyric" x="' + n.x + '" y="' + (bottom + 40 + FS * 0.72) + '" style="font-size:' + FS + 'px" fill="url(#mg-' + (opt.id || 'm') + ')">' + esc(n.ch) + '</text>' +
+        '<text class="m-spark" x="' + (n.x + 14) + '" y="' + (n.top - 6) + '">♪</text></g>';
+    });
+    svg += '<line class="m-play" x1="0" x2="0" y1="' + (lines[0] - 46) + '" y2="' + (bottom + 40 + FS) + '"/>';
+    return svg + '</svg>';
+  }
+  $('heroStaff').innerHTML = staffWord(['KANTO', 'APLO'], { id: 'kanto', time: ['12', '1'], melody: [2, 4, 6, 5, 7, 6, 4, 3, 1], dur: 7.5 });
+  $('avatarStaff1').innerHTML = staffWord(['AMEUR', 'HAMDOUNI'], { id: 'ameur', spacing: 40, font: 34, dur: 8 });
+  $('avatarStaff2').innerHTML = staffWord(['ABDELHAMID', 'SGHAIER'], { id: 'abdel', spacing: 36, font: 31, dur: 8.6 });
 
   /* ════════════════ Nombre d'éditeurs, partout où il est écrit ════════════════ */
   document.querySelectorAll('[data-count]').forEach(function (el) {
@@ -108,7 +168,7 @@
     [count, 'mouvements', 'movements', 'éditeurs visuels', 'visual editors'],
     [live, 'symphonies à écouter', 'symphonies to hear', 'démos en ligne', 'live demos'],
     [0, 'ligne de code', 'lines of code', 'à écrire', 'to write']
-  ].map(function (s) { return '<li><b>' + s[0] + '</b>' + bi(s[1], s[2]) + '<small>' + bi(s[3], s[4]) + '</small></li>'; }).join('');
+  ].map(function (s) { return '<li><b>' + s[0] + '</b><span>' + bi(s[1], s[2]) + '<small>' + bi(s[3], s[4]) + '</small></span></li>'; }).join('');
 
   function chip(e) {
     if (e.status === 'ready') return '<span class="chip ready" title="Démo interactive en ligne / Live interactive demo"><i></i>' + bi('En scène · démo live', 'On stage · live demo') + '</span>';
@@ -139,11 +199,13 @@
   $('ovWall').innerHTML = '<div class="wall-plane" style="--cols:' + COLS + '">' + wall + '</div>';
 
   $('ovIndex').innerHTML = editors.map(function (e, i) {
-    return '<li style="--i:' + i + ';' + colorVars(e.accent) + '"><a href="#ed-' + e.id + '" class="inst' + (e.status === 'ready' ? ' is-live' : '') + '">' +
-      '<span class="inst-disc" aria-hidden="true">' + initial(e) + '</span>' +
-      '<span class="inst-txt"><b>' + esc(e.greek) + '</b><small>' + esc(e.latin) + ' · ' + bi(e.role_fr, e.role_en) + '</small></span>' +
-      '<span class="inst-state" title="' + (e.status === 'ready' ? 'En scène · démo live' : 'En répétition') + '"></span></a></li>';
+    return '<li style="--i:' + i + ';' + colorVars(e.accent) + '"><a href="#ed-' + e.id + '" class="seat' + (e.status === 'ready' ? ' is-live' : '') + '" data-seat="' + i + '">' +
+      '<span class="seat-disc" aria-hidden="true">' + initial(e) + '</span>' +
+      '<span class="seat-tip"><b>' + esc(e.greek) + '</b><small>' + esc(e.latin) + ' · ' + bi(e.role_fr, e.role_en) + '</small>' +
+      '<em>' + (e.status === 'ready' ? bi('♫ démo', '♫ demo') : bi('en répétition', 'in rehearsal')) + '</em></span>' +
+      '<span class="sr-only">' + esc(e.latin) + '</span></a></li>';
   }).join('');
+  var seats = Array.prototype.slice.call(document.querySelectorAll('#ovIndex .seat'));
 
   /* « En scène » : une capture au hasard s'illumine toutes les 2,8 s. */
   var tilesEls = Array.prototype.slice.call(document.querySelectorAll('#ovWall .tile'));
@@ -160,12 +222,13 @@
     t.classList.add('lit');
     var parts = t.dataset.tile.split(':');
     var e = editors[+parts[0]];
+    seats.forEach(function (x, k) { x.classList.toggle('lit', k === +parts[0]); });
     stageLine.style.setProperty('--c', e.accent);
     stageLine.innerHTML = '<span class="now-note" aria-hidden="true">' + NOTES[Math.floor(Math.random() * 4)] + '</span>' +
       '<span class="now-lbl">' + bi('En scène', 'On stage') + '</span>' +
       '<b>' + esc(e.greek) + '</b><span class="now-cap">' + bi(caption(e, +parts[1], 'fr'), caption(e, +parts[1], 'en')) + '</span>';
   }
-  var ovEl = $('partition');
+  var ovEl = $('top');
   new IntersectionObserver(function (en) {
     var on = en[0].isIntersecting;
     ovEl.classList.toggle('playing', on);
@@ -237,7 +300,7 @@
         '<p class="soon-ver">' + bi('En répétition · bientôt en démo', 'In rehearsal · demo coming soon') + (e.version ? ' · ' + esc(e.version) : '') + '</p></div>';
     }
 
-    return '<article class="slide' + (order % 2 ? ' rev' : '') + (e.shots ? '' : ' is-soon') + '" id="ed-' + e.id + '" data-idx="' + e.idx + '" style="' + colorVars(e.accent) + '" aria-labelledby="t-' + e.id + '">' +
+    return '<article class="page slide' + (order % 2 ? ' rev' : '') + (e.shots ? '' : ' is-soon') + '" id="ed-' + e.id + '" data-idx="' + e.idx + '" style="' + colorVars(e.accent) + '" aria-labelledby="t-' + e.id + '">' +
       '<span class="sl-ghost" aria-hidden="true">' + esc(e.greek.charAt(0)) + '</span>' +
       '<div class="wrap sl-grid">' +
         '<div class="sl-info">' +
@@ -273,7 +336,7 @@
       wires += '<path class="w" d="' + d + '" pathLength="1"' + (i === n - 1 ? ' stroke-dasharray=".02 .03"' : '') + '/>' +
         (i < n - 1 ? '<path class="p" d="' + d + '" pathLength="1" style="animation-delay:' + (i * 0.6) + 's"/>' : '');
     }
-    return '<section class="slide engine" id="engine" style="' + colorVars(engine.accent) + '" aria-labelledby="engineTitle">' +
+    return '<section class="page slide engine" id="engine" style="' + colorVars(engine.accent) + '" aria-labelledby="engineTitle">' +
       '<div class="wrap">' +
         '<header class="section-head">' +
           '<p class="eyebrow">' + bi(engine.eyebrow_fr, engine.eyebrow_en) + '</p>' +
@@ -310,7 +373,7 @@
     pr.dir = 'assets/projects/';
     var shots = '';
     for (var i = 0; i < pr.shots; i++) shots += '<img src="' + thumb(pr, i) + '" alt="" loading="lazy" decoding="async" style="--i:' + i + '"/>';
-    return '<a class="proj" href="' + esc(pr.href) + '" target="_blank" rel="noopener" data-reveal style="' + colorVars(pr.accent) + '">' +
+    return '<a class="proj" href="' + esc(pr.href) + '" target="_blank" rel="noopener" data-anim style="' + colorVars(pr.accent) + '">' +
       '<div class="proj-media" aria-hidden="true">' + shots + '</div>' +
       '<div class="proj-body">' +
         '<p class="proj-greek">' + esc(pr.greek) + ' <em>' + bi(pr.meaning_fr, pr.meaning_en) + '</em></p>' +
@@ -329,11 +392,6 @@
       '<span class="mi-sub">' + esc(e.latin) + ' · ' + bi(e.role_fr, e.role_en) + (e.status === 'ready' ? ' <em class="mi-demo">♫ ' + bi('démo', 'demo') + '</em>' : ' <em class="mi-reh">' + bi('en répétition', 'in rehearsal') + '</em>') + '</span></a></li>';
   }).join('');
 
-  $('scoreList').innerHTML = editors.map(function (e, i) {
-    return '<li style="--i:' + i + '"><a href="#ed-' + e.id + '" data-idx="' + i + '" style="' + colorVars(e.accent) + '" aria-label="' + esc(e.latin + ' — ' + e.greek) + '">' +
-      '<span class="sc-lbl"><b>' + esc(e.greek) + '</b><small>' + e.num + ' · ' + esc(e.latin) + '</small></span>' +
-      '<span class="sc-disc"><span>' + initial(e) + '</span></span></a></li>';
-  }).join('');
 
   /* ════════════════ Bandeau clients ════════════════ */
   var clientsHTML = DATA.clients.map(function (c, i) {
@@ -353,17 +411,59 @@
     if (reduceMotion) el.classList.add('in'); else revealIO.observe(el);
   });
 
-  /* ════════════════ Diapositive en cours ════════════════
-     La diapositive qui occupe le centre de l'écran devient « active » : son
-     contenu entre en scène, celles d'avant sortent par le haut, celles d'après
-     attendent en bas. Le halo d'ambiance prend sa couleur, la portée se met à jour.
-     Dans la zone des éditeurs, le défilement s'aimante d'une diapositive à l'autre. */
+  /* ════════════════ Les pages ════════════════
+     Tout le site est une présentation : chaque section est une page plein écran
+     (aimantation CSS sur grand écran). La page qui occupe le centre de l'écran est
+     « active » : son contenu entre en scène, les pages d'avant sortent par le haut.
+     Le halo prend sa couleur, la navigation (en-tête, portée latérale, numéro de
+     page) suit. */
   var auraLayers = [$('auraA'), $('auraB')];
   var auraCur = 0;
-  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var pages = Array.prototype.slice.call(document.querySelectorAll('.page'));
+  var slides = pages;
+  var score = $('score'), np = $('np'), npName = $('npName');
+  var GOLD = '#C9963A';
+
+  function pageInfo(el) {
+    if (el.dataset.idx != null) {
+      var e = editors[+el.dataset.idx];
+      return { key: 'editors', accent: e.accent, glyph: initial(e), fr: e.greek, en: e.greek, subFr: e.num + ' · ' + e.latin + ' · ' + e.role_fr, subEn: e.num + ' · ' + e.latin + ' · ' + e.role_en, editor: e };
+    }
+    if (el.id === 'engine') return { key: 'editors', accent: engine.accent, glyph: '⚙', fr: engine.name, en: engine.name, subFr: "l'instrument commun", subEn: 'the shared instrument' };
+    var key = { top: 'home', solfege: 'solfege', faq: 'faq', orchestra: 'team', contact: 'contact' }[el.id] || '';
+    return { key: key, accent: el.dataset.navColor || GOLD, glyph: el.dataset.navGlyph || '♪', fr: el.dataset.navFr, en: el.dataset.navEn, subFr: el.dataset.navSubFr, subEn: el.dataset.navSubEn };
+  }
+  var infos = pages.map(pageInfo);
+
+  /* Portée latérale : un disque par page */
+  $('scoreList').innerHTML = pages.map(function (el, i) {
+    var p = infos[i];
+    return '<li style="--i:' + i + '"><a href="#' + el.id + '" data-page="' + i + '" class="' + (p.editor ? 'is-ed' : 'is-sec') + '" style="' + colorVars(p.accent) + '" aria-label="' + esc((p.fr || '') + ' — ' + (p.subFr || '')) + '">' +
+      '<span class="sc-lbl"><b>' + bi(p.fr || '', p.en || '') + '</b><small>' + bi(p.subFr || '', p.subEn || '') + '</small></span>' +
+      '<span class="sc-disc"><span>' + esc(p.glyph) + '</span></span></a></li>';
+  }).join('');
   var scoreLinks = Array.prototype.slice.call(document.querySelectorAll('#scoreList a'));
   var menuLinks = Array.prototype.slice.call(document.querySelectorAll('#menuList a'));
-  var score = $('score'), np = $('np'), npName = $('npName');
+
+  /* Numéro de page, comme une diapositive */
+  var pageNo = document.createElement('div');
+  pageNo.className = 'page-no';
+  pageNo.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(pageNo);
+
+  /* En-tête : la tête de lecture glisse sous la rubrique en cours */
+  var hdrNav = $('hdrNav'), ink = hdrNav.querySelector('.hn-ink');
+  var navLinks = Array.prototype.slice.call(hdrNav.querySelectorAll('a[data-key]'));
+  function placeInk(key) {
+    var a = navLinks.filter(function (l) { return l.dataset.key === key; })[0];
+    navLinks.forEach(function (l) { l.classList.toggle('on', l === a); });
+    if (!a) { ink.classList.remove('show'); return; }
+    ink.style.width = a.offsetWidth + 'px';
+    ink.style.transform = 'translateX(' + a.offsetLeft + 'px)';
+    ink.classList.add('show');
+  }
+  window.addEventListener('resize', function () { if (current) placeInk(infos[pages.indexOf(current)].key); });
+  document.getElementById('langToggle').addEventListener('click', function () { setTimeout(function () { if (current) placeInk(infos[pages.indexOf(current)].key); }, 30); });
 
   function setAura(hex) {
     var next = auraLayers[1 - auraCur];
@@ -376,71 +476,95 @@
 
   var current = null;
   function activate(el) {
-    if (el === current) return;
+    if (!el || el === current) return;
     current = el;
-    var pos = slides.indexOf(el);
-    if (el) el.classList.add('in');
-    slides.forEach(function (s, i) {
+    var pos = pages.indexOf(el), p = infos[pos];
+    el.classList.add('in');
+    pages.forEach(function (s, i) {
       s.classList.toggle('is-active', i === pos);
-      s.classList.toggle('is-past', pos >= 0 && i < pos);
+      s.classList.toggle('is-past', i < pos);
     });
-    var show = !!el;
-    score.classList.toggle('show', show);
-    np.classList.toggle('show', show);
-    if (!el) { setAura(null); ['--acc', '--acc-soft', '--acc-line'].forEach(function (v) { root.style.removeProperty(v); }); return; }
-    var isEngine = el.id === 'engine';
-    var e = isEngine ? null : editors[+el.dataset.idx];
-    var accent = isEngine ? engine.accent : e.accent;
-    setAura(accent);
-    root.style.setProperty('--acc', accent);
-    root.style.setProperty('--acc-soft', rgba(accent, 0.16));
-    root.style.setProperty('--acc-line', rgba(accent, 0.38));
-    var idx = isEngine ? engineEds[0].idx + 0.5 : e.idx;
-    score.style.setProperty('--p', (idx / (count - 1)).toFixed(4));
-    score.style.setProperty('--acc', accent);
-    scoreLinks.forEach(function (a, i) { a.classList.toggle('on', !isEngine && i === e.idx); a.classList.toggle('near', !isEngine && Math.abs(i - e.idx) === 1); });
-    menuLinks.forEach(function (a, i) { a.classList.toggle('on', !isEngine && i === e.idx); });
-    npName.innerHTML = '<span><span class="n">' + (isEngine ? '⚙' : e.num) + '</span><span class="g">' + esc(isEngine ? engine.name : e.greek) + '</span></span>';
+    root.dataset.page = el.id;
+    setAura(p.accent);
+    root.style.setProperty('--acc', p.accent);
+    root.style.setProperty('--acc-soft', rgba(p.accent, 0.16));
+    root.style.setProperty('--acc-line', rgba(p.accent, 0.38));
+    score.classList.add('show');
+    score.style.setProperty('--p', (pos / (pages.length - 1)).toFixed(4));
+    score.style.setProperty('--acc', p.accent);
+    scoreLinks.forEach(function (a, i) { a.classList.toggle('on', i === pos); a.classList.toggle('near', Math.abs(i - pos) === 1); });
+    menuLinks.forEach(function (a, i) { a.classList.toggle('on', !!p.editor && i === p.editor.idx); });
+    np.classList.toggle('show', pos > 0);
+    npName.innerHTML = '<span><span class="n">' + pad(pos + 1) + '</span><span class="g">' + bi(p.fr || '', p.en || '') + '</span></span>';
     $('npPrev').disabled = pos <= 0;
-    $('npNext').disabled = pos >= slides.length - 1;
+    $('npNext').disabled = pos >= pages.length - 1;
+    pageNo.innerHTML = '<b>' + pad(pos + 1) + '</b><i></i>' + pad(pages.length) + '<span>' + bi(p.fr || '', p.en || '') + '</span>';
+    pageNo.style.setProperty('--c', p.accent);
+    placeInk(p.key);
     galleries.forEach(function (g) { if (g.el === el) g.play(); else { g.stop(); clearTimeout(g.resume); } });
   }
 
-  var movementsEl = $('movements');
-  var inMovements = false;
-  var visibleSlides = new Set();
+  var visiblePages = new Set();
   var activeIO = new IntersectionObserver(function (entries) {
-    entries.forEach(function (en) {
-      if (en.target === movementsEl) { inMovements = en.isIntersecting; return; }
-      if (en.isIntersecting) visibleSlides.add(en.target); else visibleSlides.delete(en.target);
-    });
-    if (!inMovements) return activate(null);
+    entries.forEach(function (en) { if (en.isIntersecting) visiblePages.add(en.target); else visiblePages.delete(en.target); });
     var el = null;
-    slides.forEach(function (s) { if (visibleSlides.has(s)) el = s; });
+    pages.forEach(function (s) { if (visiblePages.has(s)) el = s; });
     if (el) activate(el);
-  }, { rootMargin: '-46% 0px -46% 0px' });
-  activeIO.observe(movementsEl);
-  slides.forEach(function (s) { activeIO.observe(s); });
+  }, { rootMargin: '-48% 0px -48% 0px' });
+  pages.forEach(function (s) { activeIO.observe(s); });
   setAura(null);
 
-  /* Aimantation : seulement sur grand écran, et seulement entre les diapositives. */
-  var snapMQ = window.matchMedia('(min-width: 980px) and (min-height: 620px)');
-  new IntersectionObserver(function (en) {
-    root.classList.toggle('snap', en[0].isIntersecting && snapMQ.matches && !reduceMotion);
-  }, { rootMargin: '-2% 0px -2% 0px' }).observe(movementsEl);
-
-  function goSlide(d) {
-    var pos = slides.indexOf(current);
-    var t = slides[Math.max(0, Math.min(slides.length - 1, pos + d))];
+  function goPage(d) {
+    var pos = Math.max(0, pages.indexOf(current));
+    var t = pages[Math.max(0, Math.min(pages.length - 1, pos + d))];
     if (t) t.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
   }
-  $('npPrev').addEventListener('click', function () { goSlide(-1); });
-  $('npNext').addEventListener('click', function () { goSlide(1); });
+  var goSlide = goPage;
+
+  /* Les liens internes mènent toujours au début d'une page entière. */
+  document.addEventListener('click', function (ev) {
+    var a = ev.target.closest && ev.target.closest('a[href^="#"]');
+    if (!a || ev.defaultPrevented || ev.ctrlKey || ev.metaKey) return;
+    var id = a.getAttribute('href').slice(1);
+    var t = id && document.getElementById(id);
+    var pg = t && (t.classList.contains('page') ? t : t.closest('.page') || (t.querySelector && t.querySelector('.page')));
+    if (!pg) return;
+    ev.preventDefault();
+    pg.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+    try { history.replaceState(null, '', '#' + pg.id); } catch (e) { /* file:// */ }
+  });
+
+  /* Molette et pavé tactile : un geste = une page, jamais d'arrêt au milieu.
+     Un verrou couvre l'animation ; l'inertie du pavé tactile le prolonge
+     au lieu de déclencher une deuxième page. */
+  var pagesMQ = window.matchMedia('(min-width: 980px) and (min-height: 620px)');
+  var wheelLock = 0, wheelAcc = 0, wheelQuiet = 0;
+  window.addEventListener('wheel', function (ev) {
+    if (!pagesMQ.matches || ev.ctrlKey || !lb.hidden || !menu.hidden) return;
+    if (Math.abs(ev.deltaX) > Math.abs(ev.deltaY)) return;
+    if (ev.target.closest && ev.target.closest('.strip')) return;
+    ev.preventDefault();
+    var now = Date.now();
+    if (now < wheelLock) { wheelLock = Math.max(wheelLock, now + 220); return; }
+    clearTimeout(wheelQuiet);
+    wheelQuiet = setTimeout(function () { wheelAcc = 0; }, 200);
+    wheelAcc += ev.deltaMode === 1 ? ev.deltaY * 30 : ev.deltaY;
+    if (Math.abs(wheelAcc) < 28) return;
+    var d = wheelAcc > 0 ? 1 : -1;
+    wheelAcc = 0;
+    wheelLock = now + 900;
+    goPage(d);
+  }, { passive: false });
+  $('npPrev').addEventListener('click', function () { goPage(-1); });
+  $('npNext').addEventListener('click', function () { goPage(1); });
   document.addEventListener('keydown', function (ev) {
     if (!current || !lb.hidden || !menu.hidden || ev.altKey || ev.ctrlKey || ev.metaKey) return;
-    if (/input|textarea|select/i.test((document.activeElement || {}).tagName || '')) return;
-    if (ev.key === 'ArrowDown' || ev.key === 'PageDown') { ev.preventDefault(); goSlide(1); }
-    else if (ev.key === 'ArrowUp' || ev.key === 'PageUp') { ev.preventDefault(); goSlide(-1); }
+    var tag = ((document.activeElement || {}).tagName || '');
+    if (/input|textarea|select/i.test(tag)) return;
+    if (ev.key === 'ArrowDown' || ev.key === 'PageDown' || (ev.key === ' ' && !/button|summary|a/i.test(tag))) { ev.preventDefault(); goPage(ev.shiftKey && ev.key === ' ' ? -1 : 1); }
+    else if (ev.key === 'ArrowUp' || ev.key === 'PageUp') { ev.preventDefault(); goPage(-1); }
+    else if (ev.key === 'Home') { ev.preventDefault(); pages[0].scrollIntoView({ behavior: 'smooth' }); }
+    else if (ev.key === 'End') { ev.preventDefault(); pages[pages.length - 1].scrollIntoView({ behavior: 'smooth' }); }
     else if (ev.key === 'ArrowRight') { var g = galleryOf(current); if (g) { g.user(); g.go(g.pos + 1); } }
     else if (ev.key === 'ArrowLeft') { var h = galleryOf(current); if (h) { h.user(); h.go(h.pos - 1); } }
   });
