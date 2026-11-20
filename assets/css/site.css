@@ -872,3 +872,15 @@ html[data-page] .page-no{opacity:1}
 /* la portée latérale commence sous l'en-tête */
 .score{top:calc(50% + var(--hdr) / 2);--disc:clamp(16px, calc((100vh - var(--hdr) - 150px) / 19 - 5px), 28px)}
 @media(max-width:900px){.hdr-nav{display:none}}
+
+/* Les lettres sont les notes : posées sur la portée, elles « sonnent » au passage de la tête de lecture */
+.m-letter{font-family:var(--display);font-weight:600;text-anchor:middle;paint-order:stroke;stroke:#08090d;stroke-width:7px;stroke-linejoin:round;
+  transform-box:fill-box;transform-origin:50% 50%;animation:mLetter var(--dur,7s) ease-out infinite;animation-delay:calc(2.4s + var(--t))}
+.person .m-letter{stroke:#121520}
+@keyframes mLetter{0%{transform:translateY(-8px) scale(1.12);filter:drop-shadow(0 0 12px rgba(246,233,201,.9))}16%,100%{transform:none;filter:none}}
+.m-note{animation-name:mLetterIn}
+@keyframes mLetterIn{from{opacity:0;transform:translateY(-22px)}60%{opacity:1;transform:translateY(4px)}to{opacity:1;transform:none}}
+.m-spark{animation-delay:calc(2.4s + var(--t))}
+.m-play{animation-delay:2.4s}
+.m-clef{font-size:inherit}
+.hero-staff{max-width:760px}

@@ -94,67 +94,51 @@
   }
   $('logoStaff').innerHTML = buildStaff('KANTO', 'APLO', 15);
 
-  /* Une mélodie écrite : chaque lettre est la parole d'une note posée sur la
-     portée ; les notes d'un mot sont ligaturées (doubles croches). Une tête de
-     lecture parcourt la mesure en boucle et fait « sonner » chaque note. */
+  /* Une mélodie écrite en lettres : chaque lettre est une note posée sur la
+     portée, à sa hauteur (sur une ligne ou dans un interligne). Une barre de
+     mesure sépare les mots. Une tête de lecture parcourt la mesure en boucle et
+     fait « sonner » chaque lettre. */
   function staffWord(words, opt) {
     opt = opt || {};
-    var GAP = 16, TOP = 70, SP = opt.spacing || 62, X0 = opt.time ? 150 : 104, FS = opt.font || 54;
+    var FS = opt.font || 52, GAP = opt.gap || Math.round(FS * 0.58), SP = opt.spacing || Math.round(FS * 1.12);
+    var TOP = Math.round(FS * 0.9) + 8;
+    var clefW = GAP * 2.5, timeX = 14 + clefW + GAP * 0.8;
+    var X0 = Math.round(opt.time ? timeX + GAP * 2.1 : 14 + clefW + GAP * 1.2);
     var lines = [0, 1, 2, 3, 4].map(function (i) { return TOP + i * GAP; });
     var bottom = lines[4];
     var notes = [], x = X0, bars = [], melody = opt.melody || [];
     words.forEach(function (w, wi) {
-      var letters = Array.from(w), prev = 4;
-      letters.forEach(function (ch, li) {
+      var prev = 4;
+      Array.from(w).forEach(function (ch, li) {
         var step = melody.length ? melody[notes.length % melody.length]
-          : Math.max(0, Math.min(8, prev + ((ch.charCodeAt(0) * 7 + li * 5) % 5) - 2));
+          : Math.max(2, Math.min(6, prev + ((ch.charCodeAt(0) * 7 + li * 5) % 3) - 1));
         prev = step;
-        notes.push({ ch: ch, x: x, y: bottom - step * GAP / 2, w: wi });
+        notes.push({ ch: ch, x: x, y: bottom - step * GAP / 2 });
         x += SP;
       });
-      if (wi < words.length - 1) { bars.push(x - SP / 2 + 6); x += 14; }
+      if (wi < words.length - 1) { bars.push(x - SP / 2 + 4); x += Math.round(SP * 0.35); }
     });
-    var W = x + 24, H = TOP + 4 * GAP + FS + 44, dur = opt.dur || 7;
-    var sweep = 0.42; // part of the cycle spent sweeping
+    var W = x + 24, H = bottom + Math.round(FS * 0.75) + 10, dur = opt.dur || 7, sweep = 0.42;
+    var gid = 'mg-' + (opt.id || 'm');
     var svg = '<svg class="melody" viewBox="0 0 ' + W + ' ' + H + '" style="--dur:' + dur + 's;--w:' + W + 'px">';
-    svg += '<defs><linearGradient id="mg-' + (opt.id || 'm') + '" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f6e9c9"/><stop offset=".45" stop-color="#C9963A"/><stop offset=".75" stop-color="#8B5CF6"/><stop offset="1" stop-color="#2DD4A0"/></linearGradient></defs>';
+    svg += '<defs><linearGradient id="' + gid + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbf1d6"/><stop offset=".55" stop-color="#e6c97e"/><stop offset="1" stop-color="#C9963A"/></linearGradient></defs>';
     lines.forEach(function (y, i) { svg += '<line class="m-line" x1="8" x2="' + (W - 8) + '" y1="' + y + '" y2="' + y + '" pathLength="1" style="--i:' + i + '"/>'; });
-    svg += '<text class="m-clef" x="18" y="' + (bottom + 13) + '">𝄞</text>';
-    if (opt.time) svg += '<text class="m-time" x="96" y="' + (lines[2] - 3) + '">' + opt.time[0] + '</text><text class="m-time" x="96" y="' + (bottom + 2) + '">' + opt.time[1] + '</text>';
+    svg += '<text class="m-clef" x="12" y="' + (bottom + GAP * 0.62) + '" style="font-size:' + Math.round(GAP * 4.4) + 'px">𝄞</text>';
+    if (opt.time) svg += '<text class="m-time" x="' + timeX + '" y="' + (lines[2] - GAP * 0.1) + '" style="font-size:' + Math.round(GAP * 1.75) + 'px">' + opt.time[0] + '</text><text class="m-time" x="' + timeX + '" y="' + (bottom - GAP * 0.1) + '" style="font-size:' + Math.round(GAP * 1.75) + 'px">' + opt.time[1] + '</text>';
     bars.forEach(function (bx) { svg += '<line class="m-bar" x1="' + bx + '" x2="' + bx + '" y1="' + lines[0] + '" y2="' + bottom + '"/>'; });
     svg += '<line class="m-bar" x1="' + (W - 22) + '" x2="' + (W - 22) + '" y1="' + lines[0] + '" y2="' + bottom + '"/><line class="m-bar end" x1="' + (W - 14) + '" x2="' + (W - 14) + '" y1="' + lines[0] + '" y2="' + bottom + '"/>';
-    // ligatures : une par mot, au-dessus de la portée
-    var stemTop = function (n, group) {
-      var a = group[0], b = group[group.length - 1];
-      var y0 = Math.min(a.y, lines[0] + 8) - 38, y1 = Math.min(b.y, lines[0] + 8) - 38;
-      return group.length > 1 ? y0 + (y1 - y0) * (n.x - a.x) / (b.x - a.x) : y0;
-    };
-    words.forEach(function (w, wi) {
-      var g = notes.filter(function (n) { return n.w === wi; });
-      if (!g.length) return;
-      var hx = function (n) { return n.x + 8; };
-      var a = g[0], b = g[g.length - 1];
-      svg += '<line class="m-beam" x1="' + hx(a) + '" y1="' + stemTop(a, g) + '" x2="' + hx(b) + '" y2="' + stemTop(b, g) + '" pathLength="1" style="--i:' + wi + '"/>';
-      svg += '<line class="m-beam" x1="' + hx(a) + '" y1="' + (stemTop(a, g) + 9) + '" x2="' + hx(b) + '" y2="' + (stemTop(b, g) + 9) + '" pathLength="1" style="--i:' + wi + '"/>';
-      g.forEach(function (n) { n.top = stemTop(n, g); });
-    });
     notes.forEach(function (n, i) {
       var t = ((n.x / W) * sweep * dur).toFixed(2);
-      // lignes supplémentaires pour les notes hors de la portée
-      var extra = '';
-      if (n.y > bottom + 1) extra = '<line class="m-ledger" x1="' + (n.x - 14) + '" x2="' + (n.x + 14) + '" y1="' + (bottom + GAP) + '" y2="' + (bottom + GAP) + '"/>';
-      svg += '<g class="m-note" style="--i:' + i + ';--t:' + t + 's">' + extra +
-        '<line class="m-stem" x1="' + (n.x + 8) + '" x2="' + (n.x + 8) + '" y1="' + (n.y - 2) + '" y2="' + n.top + '"/>' +
-        '<ellipse class="m-head" cx="' + n.x + '" cy="' + n.y + '" rx="9.6" ry="7" transform="rotate(-22 ' + n.x + ' ' + n.y + ')"/>' +
-        '<text class="m-lyric" x="' + n.x + '" y="' + (bottom + 40 + FS * 0.72) + '" style="font-size:' + FS + 'px" fill="url(#mg-' + (opt.id || 'm') + ')">' + esc(n.ch) + '</text>' +
-        '<text class="m-spark" x="' + (n.x + 14) + '" y="' + (n.top - 6) + '">♪</text></g>';
+      svg += '<g class="m-note" style="--i:' + i + ';--t:' + t + 's">' +
+        '<text class="m-letter" x="' + n.x + '" y="' + n.y + '" dominant-baseline="central" style="font-size:' + FS + 'px" fill="url(#' + gid + ')">' + esc(n.ch) + '</text>' +
+        '<text class="m-spark" x="' + (n.x + FS * 0.32) + '" y="' + (n.y - FS * 0.55) + '">♪</text></g>';
     });
-    svg += '<line class="m-play" x1="0" x2="0" y1="' + (lines[0] - 46) + '" y2="' + (bottom + 40 + FS) + '"/>';
+    svg += '<line class="m-play" x1="0" x2="0" y1="' + (lines[0] - GAP * 1.6) + '" y2="' + (bottom + GAP * 1.6) + '"/>';
     return svg + '</svg>';
   }
-  $('heroStaff').innerHTML = staffWord(['KANTO', 'APLO'], { id: 'kanto', time: ['12', '1'], melody: [2, 4, 6, 5, 7, 6, 4, 3, 1], dur: 7.5 });
-  $('avatarStaff1').innerHTML = staffWord(['AMEUR', 'HAMDOUNI'], { id: 'ameur', spacing: 40, font: 34, dur: 8 });
-  $('avatarStaff2').innerHTML = staffWord(['ABDELHAMID', 'SGHAIER'], { id: 'abdel', spacing: 36, font: 31, dur: 8.6 });
+  $('heroStaff').innerHTML = staffWord(['KANTO', 'APLO'], { id: 'kanto', time: ['12', '1'], melody: [2, 4, 6, 3, 5, 7, 4, 2, 5], font: 56, dur: 7.5 });
+  $('avatarStaff1').innerHTML = staffWord(['AMEUR', 'HAMDOUNI'], { id: 'ameur', font: 34, spacing: 34, dur: 8 });
+  $('avatarStaff2').innerHTML = staffWord(['ABDELHAMID', 'SGHAIER'], { id: 'abdel', font: 31, spacing: 31, dur: 8.6 });
 
   /* ════════════════ Nombre d'éditeurs, partout où il est écrit ════════════════ */
   document.querySelectorAll('[data-count]').forEach(function (el) {
